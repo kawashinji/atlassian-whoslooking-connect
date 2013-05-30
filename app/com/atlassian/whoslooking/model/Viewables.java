@@ -29,9 +29,15 @@ public class Viewables
     /**
      * @return active viewers of <code>id</code>
      */
-    public static Set<Viewer> getViewers(final String id)
+    public static Set<Viewer> getViewers(final String hostId, final String resourceId)
     {
-        return store.get(id);
+        String key = buildKey(hostId, resourceId);
+        return store.get(key);
+    }
+
+    private static String buildKey(final String hostId, final String resourceId)
+    {
+        return hostId + '-' + resourceId;
     }
 
     /**
@@ -42,9 +48,16 @@ public class Viewables
         return ImmutableMap.copyOf(store.asMap());
     }
 
-    public static void putViewer(String id, Viewer newViewer)
+    public static void putViewer(final String hostId, final String resourceId, final Viewer newViewer)
     {
-        store.put(id,  newViewer);
+        String key = buildKey(hostId, resourceId);
+        store.put(key,  newViewer);
+    }
+
+    public static void deleteViewer(final String hostId, final String resourceId, final Viewer viewer)
+    {
+        String key = buildKey(hostId, resourceId);
+        store.remove(key, viewer);
     }
 
 }

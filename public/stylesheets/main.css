@@ -1,0 +1,20 @@
+body {
+	background-color: white;
+}
+
+
+#whoslooking-onlookers-list {
+	padding: 0;
+}
+
+.whoslooking-fullname {
+	line-height: 24px;
+	padding: 2px 30px 2px 5px;
+	position: relative;
+	vertical-align: top;	
+}
+
+.whoslooking-avatar {
+	border-radius: 3px;
+	
+}

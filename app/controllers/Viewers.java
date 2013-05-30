@@ -1,63 +1,91 @@
 package controllers;
 
+import com.atlassian.connect.play.java.CheckValidOAuthRequest;
 import com.atlassian.whoslooking.model.Viewables;
 import com.atlassian.whoslooking.model.Viewer;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import play.mvc.BodyParser;
+import play.libs.Crypto;
 
 import play.Logger;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 public class Viewers extends Controller
 {
-    // Gson claims to be thread-safe.
-    private static Gson gson = new GsonBuilder().create();
-
-    public static Result index()
-    {
-        return null;
-    }
-
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result put(String viewableUrl)
+    public static Result put(String hostId, String resourceId)
     {
+        if (request().body().isMaxSizeExceeded())
+        {
+            return badRequest("Don't flood me bro.");
+        }
+
+        Viewer newViewer;
         try
         {
-            // TODO: need to stream request body?
-            //Viewer newViewer = gson.fromJson(request().body().asJson().asText(), Viewer.class);
-            Viewer newViewer = Json.fromJson(request().body().asJson(), Viewer.class);
-            validateRequest();
-            Viewables.putViewer(viewableUrl, newViewer);
+            newViewer = extractViewerFromRequest();
         }
         catch (Exception e)
         {
             Logger.error("fail", e);
-            return badRequest("Could not extract viewer information from request: " + e);
+            return badRequest("Could not extract viewer information from request.");
         }
 
-        return ok(Json.toJson(Viewables.getViewers(viewableUrl)));
+        if (!isValidRequestFromAuthenticatedUser(hostId, newViewer.name))
+        {
+            return badRequest("Don't spoof me bro.");
+        }
+
+        Viewables.putViewer(hostId, resourceId, newViewer);
+
+        return ok(Json.toJson(Viewables.getViewers(hostId, resourceId)));
     }
 
-    private static void validateRequest()
+
+    public static Result delete(String hostId, String resourceId, String userId)
     {
-        // todo
+        if (!isValidRequestFromAuthenticatedUser(hostId, userId))
+        {
+            return badRequest("Don't spoof me bro.");
+        }
+
+        Viewer viewerToDelete = new Viewer();
+        viewerToDelete.name = userId;
+
+        Viewables.deleteViewer(hostId, resourceId, viewerToDelete);
+
+        return noContent();
     }
 
-    public static Result get(String id)
+    private static Viewer extractViewerFromRequest()
     {
-        validateRequest();
-        Logger.info(String.format("Returning list of viewers for '%s'", id));
-        return ok(Json.toJson(Viewables.getViewers(id)));
+        Viewer newViewer = Json.fromJson(request().body().asJson(), Viewer.class);
+        newViewer.lastSeen = String.valueOf(System.currentTimeMillis());
+        return newViewer;
     }
 
+    private static boolean isValidRequestFromAuthenticatedUser(String hostId, String username)
+    {
+        // This should work, but doesn't. So we've rolled our own.
+        // return username.equals(session().get("identity-on-"+hostId))
+
+        String signature = request().cookie("signed-identity-on-"+hostId).value();
+        String expectedSignature = Crypto.sign(hostId+username);
+        return expectedSignature.equals(signature);
+    }
+
+    @CheckValidOAuthRequest
+    public static Result get(String hostId, String resourceId)
+    {
+        Logger.info(String.format("Returning list of viewers for '%s' on '%s'", resourceId, hostId));
+        return ok(Json.toJson(Viewables.getViewers(hostId, resourceId)));
+    }
+
+    @CheckValidOAuthRequest
     public static Result list()
     {
-
         return ok(Json.toJson(Viewables.getAll()));
     }
 

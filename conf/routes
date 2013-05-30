@@ -6,8 +6,9 @@
 
 # Home page
 GET     /                          controllers.Application.index()
-GET     /viewables/:id/viewers     controllers.Viewers.get(id)
-PUT     /viewables/:id/viewers     controllers.Viewers.put(id)
+GET     /viewables/:hostid/:resourceid/viewers     controllers.Viewers.get(hostid, resourceid)
+PUT     /viewables/:hostid/:resourceid/viewers     controllers.Viewers.put(hostid, resourceid)
+DELETE  /viewables/:hostid/:resourceid/viewers/:userid     controllers.Viewers.delete(hostid, resourceid, userid)
 GET     /viewables                 controllers.Viewers.list()
 GET     /poller					   controllers.Poller.index()
 

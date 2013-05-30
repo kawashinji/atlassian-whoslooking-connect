@@ -1,14 +1,12 @@
 package com.atlassian.whoslooking.model;
 
-import org.joda.time.DateTime;
-
 import com.google.common.base.Objects;
 
 public class Viewer
 {
     public String name;
-    public String lastSeen;
-    
+    transient public String lastSeen;
+
     @Override
     public String toString()
     {
@@ -30,7 +28,7 @@ public class Viewer
         return obj instanceof Viewer
                 && Objects.equal(name, ((Viewer)obj).name);
     }
-    
-    
-    
+
+
+
 }

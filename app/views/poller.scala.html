@@ -1,9 +1,86 @@
+@import play.mvc.Http.Context.Implicit.ctx
+@import com.atlassian.connect.play.java.AcHost
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="@com.atlassian.connect.play.java.AC.getAcHost()/remotable-plugins/all.js"></script>
+    <meta charset="utf-8">
+    <meta name="arf" content="1">
+    <meta name="ap-arf" content="1">
+    <meta content="IE=EDGE" http-equiv="X-UA-Compatible">
+	@ac.aui.all()
+	
+    <script src="http://code.jquery.com/jquery-2.0.1.min.js"></script>
+    <script src="@routes.Assets.at("third-party/purl.js")"></script>    
+     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")"" />
+    @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
+        <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>
+        <link rel="stylesheet" type="text/css" href="@baseUrl/remotable-plugins/all.css"/>
+	}
   </head>
+  <script>
+  $(function() {
+	  	var pollInterval = 5 * 1000;
+	  	var cp = $.url().param('cp');
+	  	var userId = $.url().param('user_id');
+  	  	var hostId = encodeURIComponent($.url().param('oauth_consumer_key'));
+  	    var resourceId = encodeURIComponent($.url().param('issue_id') || $.url().param('page_id'));
+  	  	console.log("extracted", userId, hostId, resourceId);
+  	  	
+  	  	var poll = function() {
+	  	   $.ajax({
+	  	     url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers',
+	  	     type: 'PUT',
+	  	   	 contentType: 'application/json',
+	  	     data: JSON.stringify({ name: userId }),
+	  	     success: function(data) {
+	  	         renderUserList(data);
+	  	     }
+	  	   });
+  	  	}
+  	  
+  	  	var renderUserList = function(users) {
+		
+  	  	    var onlookersList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
+			var deferreds = $.map(users, function(user) {
+  	  		    return AP.request('/rest/api/2/user?username=' + user.name, {
+	  	  	    	    success: function(data) {
+	  	  	    	        var userInfo = JSON.parse(data);
+	  	  	    	        var userListItem = $('<li>');
+	  	  	    	        var userFullName = $('<span>').text(userInfo.displayName).addClass('whoslooking-fullname');
+	  	  	    	    	var avatar = $('<img>').attr('src', userInfo.avatarUrls["24x24"]).addClass('whoslooking-avatar');
+	  	  	    	    	userListItem.append(avatar).append(userFullName);
+	  	  	    	    	onlookersList.append(userListItem);
+	  	  			    	$('#whoslooking-onlookers-list').replaceWith(onlookersList);
+	  				    	AP.resize();	  	  	    	    	
+	  	  	    	    }
+	  	  	    	});
+  	  		    
+  	  		});
+			$.when(deferreds).then(function() {
+			    console.log(onlookersList);
+			    //$('#whoslooking-onlookers-list').replaceWith(onlookersList);
+			    //AP.resize();
+			});
+  	  	}  	  	
+  	  	
+  	    if (userId && hostId && resourceId) {
+	  	  	window.onbeforeunload = function() {
+	  	    	$.ajax({
+		  	    	url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers/'+ userId,
+		  	     	type: 'DELETE'
+	  	    	});
+	  	  	}  	        
+  	        poll();
+		  	setInterval(poll, pollInterval);
+  		}
+	  	
+  });
+	
+  </script>
   <body>
-    <h1>Hello World!</h1>
+    <div id="whoslooking-onlookers">
+    	<ul  id="whoslooking-onlookers-list"></ul>
+    </div>
   </body>
 </html>
