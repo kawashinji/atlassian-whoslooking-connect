@@ -17,6 +17,8 @@ public class Viewers extends Controller
     @BodyParser.Of(BodyParser.Json.class)
     public static Result put(String hostId, String resourceId)
     {
+        Logger.info(String.format("Putting for host %s, resource %s: ", hostId, resourceId));
+
         if (request().body().isMaxSizeExceeded())
         {
             return badRequest("Don't flood me bro.");
