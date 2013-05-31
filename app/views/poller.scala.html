@@ -14,7 +14,7 @@
     <script src="@routes.Assets.at("aui/js/aui-all.js")"></script>
     <!--[if lt IE 9]><script src="@routes.Assets.at("aui/js/aui-ie.js")"></script><![endif]-->
 	
-    <script src="http://code.jquery.com/jquery-2.0.1.min.js"></script>
+    <script src="@routes.Assets.at("third-party/jquery-2.0.1.min.js")"></script>
     <script src="@routes.Assets.at("third-party/purl.js")"></script>    
      <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")"" />
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
