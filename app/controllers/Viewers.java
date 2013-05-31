@@ -17,7 +17,7 @@ public class Viewers extends Controller
     @BodyParser.Of(BodyParser.Json.class)
     public static Result put(String hostId, String resourceId)
     {
-        Logger.info(String.format("Putting for host %s, resource %s: ", hostId, resourceId));
+        Logger.info(String.format("Putting for host %s, resource %s", hostId, resourceId));
 
         if (request().body().isMaxSizeExceeded())
         {
@@ -48,6 +48,8 @@ public class Viewers extends Controller
 
     public static Result delete(String hostId, String resourceId, String userId)
     {
+        Logger.info(String.format("Deleting for host %s, resource %s, user %s", hostId, resourceId, userId));
+
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
             return badRequest("Don't spoof me bro.");
