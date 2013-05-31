@@ -42,6 +42,10 @@
 	  	     }
 	  	   });
   	  	}
+  	  	
+    	function asc_sort(a, b){
+  	    	    return ($(b).text()) < ($(a).text());    
+		}
   	  
   	  	var renderUserList = function(users) {
 		
@@ -52,19 +56,18 @@
 	  	  	    	        var userInfo = JSON.parse(data);
 	  	  	    	        var userListItem = $('<li>');
 	  	  	    	        var userFullName = $('<span>').text(userInfo.displayName).addClass('whoslooking-fullname');
-	  	  	    	    	var avatar = $('<img>').attr('src', userInfo.avatarUrls["24x24"]).addClass('whoslooking-avatar');
+	  	  	    	    	var avatar = $('<img>').attr('src', userInfo.avatarUrls["32x32"]).addClass('whoslooking-avatar');
 	  	  	    	    	userListItem.append(avatar).append(userFullName);
 	  	  	    	    	onlookersList.append(userListItem);
-	  	  			    	$('#whoslooking-onlookers-list').replaceWith(onlookersList);
+	  	  	    	    	onlookersList = $(onlookersList).sort(asc_sort);
+	 	  			    	$('#whoslooking-onlookers-list').replaceWith(onlookersList);
 	  				    	AP.resize();	  	  	    	    	
 	  	  	    	    }
 	  	  	    	});
   	  		    
   	  		});
 			$.when(deferreds).then(function() {
-			    console.log(onlookersList);
-			    //$('#whoslooking-onlookers-list').replaceWith(onlookersList);
-			    //AP.resize();
+
 			});
   	  	}  	  	
   	  	
