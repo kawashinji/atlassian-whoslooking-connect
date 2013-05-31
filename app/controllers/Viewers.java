@@ -71,6 +71,9 @@ public class Viewers extends Controller
         // This should work, but doesn't. So we've rolled our own.
         // return username.equals(session().get("identity-on-"+hostId))
 
+        Logger.info(String.format("Cookie key: " + "signed-identity-on-" + hostId));
+        Logger.info(String.format("Cookies: %s", request().cookies()));
+        Logger.info(String.format("Cookie: %s", request().cookies().get("signed-identity-on-"+hostId)));
         String signature = request().cookie("signed-identity-on-"+hostId).value();
         String expectedSignature = Crypto.sign(hostId+username);
         return expectedSignature.equals(signature);
