@@ -33,7 +33,7 @@
   	  	
   	  	var poll = function() {
 	  	   $.ajax({
-	  	     url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers',
+	  	     url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers?hostId_for_unicorn='+hostId,	  	     
 	  	     type: 'PUT',
 	  	   	 contentType: 'application/json',
 	  	     data: JSON.stringify({ name: userId }),
@@ -71,7 +71,7 @@
   	    if (userId && hostId && resourceId) {
 	  	  	window.onbeforeunload = function() {
 	  	    	$.ajax({
-		  	    	url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers/'+ userId,
+		  	    	url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers/'+ userId + '?hostId_for_unicorn='+hostId,
 		  	     	type: 'DELETE'
 	  	    	});
 	  	  	}  	        

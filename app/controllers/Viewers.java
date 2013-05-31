@@ -17,6 +17,12 @@ public class Viewers extends Controller
     @BodyParser.Of(BodyParser.Json.class)
     public static Result put(String hostId, String resourceId)
     {
+        if (hostId == null) {
+           // path parsing failing on Unicorn, why?
+           // Have to pass it as a parameter
+            hostId = request().getQueryString("hostId_for_unicorn");
+        }
+
         Logger.info(String.format("Putting for host %s, resource %s", hostId, resourceId));
 
         if (request().body().isMaxSizeExceeded())
