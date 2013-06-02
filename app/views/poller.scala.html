@@ -53,7 +53,7 @@
 			var onlookersList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
 			
 			$.each(users, function(name, details) {
-				if (detailsString) {
+				if (details) {
 					var avatarUrl = details.avatarUrls["32x32"];
 					var displayName = details.displayName;
 				} else {
