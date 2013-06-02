@@ -1,20 +1,21 @@
 package controllers;
 
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.codehaus.jackson.JsonNode;
 
 import play.Logger;
 import play.api.libs.Crypto;
-import play.cache.Cache;
-import play.libs.F.Callback;
-import play.libs.F.Function;
-import play.libs.F.Promise;
-import play.libs.WS;
-import play.libs.WS.Response;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import service.ViewerDetailsService;
 
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.CheckValidOAuthRequest;
+import com.atlassian.whoslooking.model.Viewables;
 
 public class Poller extends Controller
 {
@@ -23,51 +24,35 @@ public class Poller extends Controller
     public static Result index() throws Exception
     {
         final String hostId = request().queryString().get("oauth_consumer_key")[0];
-        final String userName = AC.getUser().getOrNull();
+        final String username = AC.getUser().getOrNull();
+        String resourceId = request().getQueryString("issue_id");
 
+        // We have validated that this request is valid for this host+username.
+        // Setup session so that subsequent requests from this client are also
+        // treated as such, even if they don't include the OAuth signature (i.e.
+        // Ajax requests from within the iframe). 
         // TODO: this session() call doesn't work (ends up empty on poll calls).. so we have to roll our own.
-        session("identity-on-" + hostId, userName);
-        response().setCookie("identity-on-" + hostId, userName);
-        response().setCookie("signed-identity-on-" + hostId, Crypto.sign(hostId + userName));
-
-        Object value = Cache.get(hostId + "-" + userName + "-details");
-        if (value == null)
+        session("identity-on-" + hostId, username);
+        response().setCookie("identity-on-" + hostId, username);
+        response().setCookie("signed-identity-on-" + hostId, Crypto.sign(hostId + username));
+        
+        Viewables.putViewer(hostId, resourceId, username);
+        
+        // Prime cache with user details for any views that don't yet have their details cached.
+        // We can currently only do this from within an @CheckValidOAuthRequest'd request.
+        // This is non-blocking.
+		Map<String, JsonNode> viewersWithDetails = Viewables.getViewersWithDetails(resourceId, hostId);
+		for (Entry<String, JsonNode> entry : viewersWithDetails.entrySet())
         {
-            Logger.info("Calling...");
-            Promise<Response> promise = AC.url("/rest/api/latest/user")
-            		.setQueryParameter("username", userName) .get();
-
-            promise.onRedeem(new Callback<WS.Response>()
-            {
-
-                @Override
-                public void invoke(Response a) throws Throwable
-                {
-                    JsonNode asJson = a.asJson();
-                    if (!asJson.has("errorMessages"))
-                    {
-                        Cache.set(hostId + "-" + userName + "-details", asJson.toString(), 1200);
-                    }
-                    else
-                    {
-                        Logger.error(asJson.toString());
-                    }
-                }
-            });
-
-            promise.recover(new Function<Throwable, WS.Response>()
-            {
-                @Override
-                public WS.Response apply(Throwable t)
-                {
-                    Logger.error("An error occurred", t);
-                    // Can't really recover from this, so just rethrow.
-                    throw new RuntimeException(t);
-                }
-            });
+			if (entry.getValue() == null)
+			{
+				ViewerDetailsService.primeCacheFor(hostId, entry.getKey());
+			}
         }
-
-        return ok(views.html.poller.render());
+        
+        // Render poller
+		Logger.info(Json.toJson(viewersWithDetails).toString());
+        return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), resourceId));
     }
 
 

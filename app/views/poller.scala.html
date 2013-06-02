@@ -1,3 +1,5 @@
+@(viewersWithDetails: String, resourceId: String)
+
 @import play.mvc.Http.Context.Implicit.ctx
 @import com.atlassian.connect.play.java.AcHost
 
@@ -7,6 +9,7 @@
     <meta charset="utf-8" />
     <meta name="poller-interval-seconds" content="10" />
     <meta name="unknown-avatar-url" content="@routes.Assets.at("/images/unknown-avatar-32x32.png")" />
+	<meta name="resourceId" content="@resourceId" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
     <link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-all.css")" media="all" />
     <!--[if lt IE 9]><link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-ie.css")" media="all"><![endif]-->
@@ -24,11 +27,13 @@
   </head>
   <script>
   $(function() {
+	  	// @viewersWithDetails
+	  	var viewers = @Html(viewersWithDetails);
+	  
 	  	var pollInterval = $('meta[name=poller-interval-seconds]').attr("content") * 1000;
-	  	var cp = $.url().param('cp');
 	  	var userId = $.url().param('user_id');
   	  	var hostId = encodeURIComponent($.url().param('oauth_consumer_key'));
-  	    var resourceId = encodeURIComponent($.url().param('issue_id') || $.url().param('page_id'));
+  	    var resourceId = $('meta[name=resourceId]').attr("content");
   	  	console.log("extracted", userId, hostId, resourceId);
   	  	
   	  	var poll = function() {
@@ -47,9 +52,8 @@
 			
 			var onlookersList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
 			
-			$.each(users, function(name, detailsString) {
+			$.each(users, function(name, details) {
 				if (detailsString) {
-					var details = JSON.parse(detailsString);
 					var avatarUrl = details.avatarUrls["32x32"];
 					var displayName = details.displayName;
 				} else {
@@ -76,9 +80,12 @@
 		  	     	type: 'DELETE'
 	  	    	});
 	  	  	}  	        
-  	        poll();
-		  	setInterval(poll, pollInterval);
+  	        //poll();
+		  	//setInterval(poll, pollInterval);
   		}
+		
+		renderUserList(viewers);
+		
 	  	
   });
 	

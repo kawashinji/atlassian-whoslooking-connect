@@ -1,32 +1,23 @@
 package controllers;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import com.atlassian.connect.play.java.CheckValidOAuthRequest;
-import com.atlassian.fugue.Pair;
-import com.atlassian.whoslooking.model.Viewables;
-import com.atlassian.whoslooking.model.Viewer;
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import play.cache.Cache;
-import play.libs.Crypto;
+import org.codehaus.jackson.JsonNode;
 
 import play.Logger;
+import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import service.ViewerDetailsService;
+
+import com.atlassian.connect.play.java.CheckValidOAuthRequest;
+import com.atlassian.whoslooking.model.Viewables;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 
 public class Viewers extends Controller
 {
@@ -43,7 +34,7 @@ public class Viewers extends Controller
             return badRequest("Don't flood me bro.");
         }
 
-        final Viewer newViewer;
+        final String newViewer;
         try
         {
             newViewer = extractViewerFromRequest();
@@ -54,35 +45,17 @@ public class Viewers extends Controller
             return badRequest("Could not extract viewer information from request.");
         }
 
-        if (!isValidRequestFromAuthenticatedUser(hostId, newViewer.name))
+        if (!isValidRequestFromAuthenticatedUser(hostId, newViewer))
         {
             return badRequest("Don't spoof me bro.");
         }
 
         Viewables.putViewer(hostId, resourceId, newViewer);
 
-        Set<String> viewerNames = ImmutableSet.copyOf(Collections2.transform(Viewables.getViewers(hostId, resourceId),
-        		new Function<Viewer, String>() {
-					@Override
-					@Nullable
-					public String apply(Viewer viewer) {
-						return viewer.name;
-					}
-        }));
-        
-        Map<String, String> viewersWithDetails = Maps.asMap(viewerNames, new Function<String, String>() {
-
-			@Override
-			@Nullable
-			public String apply(@Nullable String viewerName) {
-				return new ViewerDetailsService().getDetailsFor(hostId, viewerName);
-			}
-        	
-        });
+        Map<String, JsonNode> viewersWithDetails = Viewables.getViewersWithDetails(resourceId, hostId);
         
         return ok(Json.toJson(viewersWithDetails));
     }
-
 
     public static Result delete(String hostId, String resourceId, String userId)
     {
@@ -93,19 +66,14 @@ public class Viewers extends Controller
             return badRequest("Don't spoof me bro.");
         }
 
-        Viewer viewerToDelete = new Viewer();
-        viewerToDelete.name = userId;
-
-        Viewables.deleteViewer(hostId, resourceId, viewerToDelete);
+        Viewables.deleteViewer(hostId, resourceId, userId);
 
         return noContent();
     }
 
-    private static Viewer extractViewerFromRequest()
+    private static String extractViewerFromRequest()
     {
-        Viewer newViewer = Json.fromJson(request().body().asJson(), Viewer.class);
-        newViewer.lastSeen = String.valueOf(System.currentTimeMillis());
-        return newViewer;
+        return request().body().asJson().get("name").asText();
     }
 
     private static boolean isValidRequestFromAuthenticatedUser(String hostId, String username)
@@ -125,7 +93,7 @@ public class Viewers extends Controller
     public static Result get(String hostId, String resourceId)
     {
         Logger.debug(String.format("Returning list of viewers for '%s' on '%s'", resourceId, hostId));
-        return ok(Json.toJson(Viewables.getViewers(hostId, resourceId)));
+        return ok(Json.toJson(Viewables.getViewersWithDetails(hostId, resourceId)));
     }
 
     @CheckValidOAuthRequest
