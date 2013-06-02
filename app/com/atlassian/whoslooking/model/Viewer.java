@@ -29,6 +29,6 @@ public class Viewer
                 && Objects.equal(name, ((Viewer)obj).name);
     }
 
-
+    
 
 }

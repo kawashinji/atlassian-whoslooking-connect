@@ -12,7 +12,7 @@ object ApplicationBuild extends Build {
     javaCore,
     javaJdbc,
     javaEbean,
-    "com.atlassian.connect" % "ac-play-java_2.10" % "0.5",
+    "com.atlassian.connect" % "ac-play-java_2.10" % "0.5.1",
     "com.google.code.gson" % "gson" % "2.2.4"
   )
 
