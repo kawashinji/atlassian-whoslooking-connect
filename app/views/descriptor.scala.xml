@@ -6,7 +6,6 @@
             <permission>create_oauth_link</permission>
             <permission>read_users_and_groups</permission>
         </permissions>
-        <param name="atlassian-licensing-enabled">true</param>
     </plugin-info>
 } {
        <issue-panel-page key="whos-looking" application="jira" name="Who's Looking?" url="/poller" />
