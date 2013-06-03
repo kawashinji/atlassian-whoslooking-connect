@@ -1,23 +1,19 @@
 package service;
 
-import java.util.concurrent.TimeUnit;
-
 import org.codehaus.jackson.JsonNode;
 
 import play.Logger;
+import play.Play;
 import play.cache.Cache;
-import play.libs.WS;
 import play.libs.F.Callback;
 import play.libs.F.Function;
 import play.libs.F.Promise;
+import play.libs.WS;
 import play.libs.WS.Response;
 
 import com.atlassian.connect.play.java.AC;
 
 public class ViewerDetailsService {
-
-	private static final int USER_DETAILS_CACHE_TTL_SECONDS = Long.valueOf(
-			TimeUnit.MINUTES.toSeconds(10)).intValue();
 
 	/**
 	 * Query cache for user details. Return details if present in cache.
@@ -46,7 +42,8 @@ public class ViewerDetailsService {
 						
 						if (!asJson.has("errorMessages")) {
 							Cache.set(hostId + "-" + username + "-details",
-									asJson, USER_DETAILS_CACHE_TTL_SECONDS);
+									asJson, 
+									Play.application().configuration().getInt("whoslooking.user-details-cache-expiry.seconds", 600));
 						} else {
 							Logger.error(asJson.toString());
 						}

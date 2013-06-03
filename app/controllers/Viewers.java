@@ -2,8 +2,6 @@ package controllers;
 
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import org.codehaus.jackson.JsonNode;
 
 import play.Logger;
@@ -12,12 +10,9 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import service.ViewerDetailsService;
 
 import com.atlassian.connect.play.java.CheckValidOAuthRequest;
 import com.atlassian.whoslooking.model.Viewables;
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
 
 public class Viewers extends Controller
 {
@@ -57,8 +52,11 @@ public class Viewers extends Controller
         return ok(Json.toJson(viewersWithDetails));
     }
 
-    public static Result delete(String hostId, String resourceId, String userId)
+    public static Result delete(String hostId_brokenOnUnicorn, String resourceId, String userId)
     {
+        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.        
+        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
+    	
         Logger.debug(String.format("Deleting for host %s, resource %s, user %s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))

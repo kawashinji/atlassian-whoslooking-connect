@@ -2,13 +2,16 @@
 
 @import play.mvc.Http.Context.Implicit.ctx
 @import com.atlassian.connect.play.java.AcHost
+@import play.api.Play
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="poller-interval-seconds" content="10" />
-    <meta name="unknown-avatar-url" content="@routes.Assets.at("/images/unknown-avatar-32x32.png")" />
+    <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
+	<meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
+    <meta name="unknown-avatar-url-32" content="@routes.Assets.at("/images/unknown-avatar-32x32.png")" />
+	<meta name="unknown-avatar-url-24" content="@routes.Assets.at("/images/unknown-avatar-24x24.png")" />
 	<meta name="resourceId" content="@resourceId" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
     <link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-all.css")" media="all" />
@@ -27,66 +30,67 @@
   </head>
   <script>
   $(function() {
-	  	// @viewersWithDetails
-	  	var viewers = @Html(viewersWithDetails);
-	  
 	  	var pollInterval = $('meta[name=poller-interval-seconds]').attr("content") * 1000;
+		var avatarSize = $('meta[name=avatar-size]').attr("content");
+		var unknownAvatarUrl = $('meta[name=unknown-avatar-url-'+avatarSize+']').attr("content");
 	  	var userId = $.url().param('user_id');
-  	  	var hostId = encodeURIComponent($.url().param('oauth_consumer_key'));
+  	  	var hostId = $.url().param('oauth_consumer_key');
   	    var resourceId = $('meta[name=resourceId]').attr("content");
-  	  	console.log("extracted", userId, hostId, resourceId);
   	  	
   	  	var poll = function() {
 	  	   $.ajax({
-	  	     url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers?hostId_for_unicorn='+hostId,	  	     
+	  	     url: '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers?hostId_for_unicorn='+encodeURIComponent(hostId),	  	     
 	  	     type: 'PUT',
 	  	   	 contentType: 'application/json',
 	  	     data: JSON.stringify({ name: userId }),
 	  	     success: function(data) {
-	  	         renderUserList(data);
+	  	         renderViewerList(data);
 	  	     }
 	  	   });
   	  	}
   	  
-  	  	var renderUserList = function(users) {
+	  	var renderedViewers;
+  	  	var renderViewerList = function(viewers) {
 			
-			var onlookersList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
+			//hacky deep equals, doesn't matter too much if we get false negatives due to ordering etc...
+			if (JSON.stringify(viewers) == JSON.stringify(renderedViewers)) {
+				//console.log("Viewers unchanged, not re-rendering.");
+				return;
+			}
 			
-			$.each(users, function(name, details) {
+			var viewerList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
+			
+			$.each(viewers, function(name, details) {
 				if (details) {
-					var avatarUrl = details.avatarUrls["32x32"];
+					var avatarUrl = details.avatarUrls[avatarSize+"x"+avatarSize];
 					var displayName = details.displayName;
 				} else {
-					var avatarUrl = $('meta[name=unknown-avatar-url]').attr("content");
-					var displayName = name;				
+					var avatarUrl = unknownAvatarUrl;
+					var displayName = name;
 				}
 				
-    	        var userListItem = $('<li>');
+    	        var viewerListItem = $('<li>');
     	        var userFullName = $('<span>').text(displayName).addClass('whoslooking-fullname');
-    	    	var avatar = $('<img>').attr('src', avatarUrl).addClass('whoslooking-avatar');
-    	    	userListItem.append(avatar).append(userFullName);
-    	    	onlookersList.append(userListItem);
+    	    	var avatar = $('<img>').attr('width', avatarSize).attr('height', avatarSize).attr('src', avatarUrl).addClass('whoslooking-avatar');
+    	    	viewerListItem.append(avatar).append(userFullName);
+    	    	viewerList.append(viewerListItem);
 				
 			});
-			
-	    	$('#whoslooking-onlookers-list').replaceWith(onlookersList);
+	    	$('#whoslooking-onlookers-list').replaceWith(viewerList);
 	    	AP.resize();
+			renderedViewers = viewers;
   	  	}  	  	
   	  	
-  	    if (userId && hostId && resourceId) {
+  	    if (userId && hostId && resourceId) {	
 	  	  	window.onbeforeunload = function() {
 	  	    	$.ajax({
-		  	    	url: '/viewables/'+ hostId +'/'+ resourceId +'/viewers/'+ userId + '?hostId_for_unicorn='+hostId,
+		  	    	url: '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId) + '?hostId_for_unicorn='+encodeURIComponent(hostId),
 		  	     	type: 'DELETE'
 	  	    	});
-	  	  	}  	        
-  	        //poll();
-		  	//setInterval(poll, pollInterval);
+	  	  	}
+			renderViewerList(@Html(viewersWithDetails));  	        
+		  	setInterval(poll, pollInterval);
   		}
-		
-		renderUserList(viewers);
-		
-	  	
   });
 	
   </script>

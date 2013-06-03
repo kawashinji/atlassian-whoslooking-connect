@@ -2,11 +2,9 @@ package controllers;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.codehaus.jackson.JsonNode;
 
-import play.Logger;
 import play.api.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -51,7 +49,6 @@ public class Poller extends Controller
         }
         
         // Render poller
-		Logger.info(Json.toJson(viewersWithDetails).toString());
         return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), resourceId));
     }
 
