@@ -12,7 +12,7 @@ public class ExpiringSet<V> implements Set<V>
     // This might be an abuse of Guava caches.
     private final Cache<V, Long> cache;
 
-    ExpiringSet(Cache cache)
+    ExpiringSet(Cache<V, Long> cache)
     {
         this.cache = cache;
     }

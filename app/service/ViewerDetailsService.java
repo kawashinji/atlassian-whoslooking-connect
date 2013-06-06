@@ -13,66 +13,77 @@ import play.libs.WS.Response;
 
 import com.atlassian.connect.play.java.AC;
 
-public class ViewerDetailsService {
+public class ViewerDetailsService
+{
 
-	/**
-	 * Query cache for user details. Return details if present in cache.
-	 * Otherwise, initiate cache population and return null.
-	 * 
-	 * @return user details JsonNode, or null if not yet known.
-	 */
-	public static JsonNode primeCacheFor(final String hostId,
-			final String username) {
+    /**
+     * Query cache for user details. Return details if present in cache. Otherwise, initiate cache population and return
+     * null.
+     * 
+     * @return user details JsonNode, or null if not yet known.
+     */
+    public static JsonNode primeCacheFor(final String hostId, final String username)
+    {
 
-		Object value = Cache.get(hostId + "-" + username + "-details");
+        Object value = Cache.get(hostId + "-" + username + "-details");
 
-		if (value == null || !(value instanceof JsonNode)) {
-			if (AC.getUser() != null) {
+        if (value == null || !(value instanceof JsonNode))
+        {
+            if (AC.getUser() != null)
+            {
 
-				Logger.debug(String.format(
-						"Cache miss. Requesting details for %s on %s...",
-						username, hostId));
-				Promise<Response> promise = AC.url("/rest/api/latest/user")
-						.setQueryParameter("username", username).get();
+                Logger.debug(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
+                Promise<Response> promise = AC.url("/rest/api/latest/user").setQueryParameter("username", username).get();
 
-				promise.onRedeem(new Callback<WS.Response>() {
-					@Override
-					public void invoke(Response a) throws Throwable {
-						JsonNode asJson = a.asJson();
-						
-						if (!asJson.has("errorMessages")) {
-							Cache.set(hostId + "-" + username + "-details",
-									asJson, 
-									Play.application().configuration().getInt("whoslooking.user-details-cache-expiry.seconds", 600));
-						} else {
-							Logger.error(asJson.toString());
-						}
-					}
-				});
+                promise.onRedeem(new Callback<WS.Response>()
+                {
+                    @Override
+                    public void invoke(Response a) throws Throwable
+                    {
+                        JsonNode asJson = a.asJson();
 
-				promise.recover(new Function<Throwable, WS.Response>() {
-					@Override
-					public WS.Response apply(Throwable t) {
-						Logger.error("An error occurred", t);
-						// Can't really recover from this, so just rethrow.
-						throw new RuntimeException(t);
-					}
-				});
-			}
+                        if (!asJson.has("errorMessages"))
+                        {
+                            Cache.set(hostId + "-" + username + "-details",
+                                      asJson,
+                                      Play.application().configuration()
+                                          .getInt("whoslooking.user-details-cache-expiry.seconds", 600));
+                        }
+                        else
+                        {
+                            Logger.error(asJson.toString());
+                        }
+                    }
+                });
 
-			return null;
-		} else {
-			return (JsonNode) value;
-		}
+                promise.recover(new Function<Throwable, WS.Response>()
+                {
+                    @Override
+                    public WS.Response apply(Throwable t)
+                    {
+                        Logger.error("An error occurred", t);
+                        // Can't really recover from this, so just rethrow.
+                        throw new RuntimeException(t);
+                    }
+                });
+            }
 
-	}
-	
-	/**
-	 * @return user details if cached, null otherwise.
-	 */
-	public static JsonNode getCachedDetailsFor(final String hostId, final String username) {
-		Object value = Cache.get(hostId + "-" + username + "-details");
-		return (JsonNode) value;
-	}
+            return null;
+        }
+        else
+        {
+            return (JsonNode) value;
+        }
+
+    }
+
+    /**
+     * @return user details if cached, null otherwise.
+     */
+    public static JsonNode getCachedDetailsFor(final String hostId, final String username)
+    {
+        Object value = Cache.get(hostId + "-" + username + "-details");
+        return (JsonNode) value;
+    }
 
 }

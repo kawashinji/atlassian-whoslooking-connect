@@ -19,8 +19,9 @@ public class Viewers extends Controller
     @BodyParser.Of(BodyParser.Json.class)
     public static Result put(final String hostId_brokenOnUnicorn, final String resourceId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.        
-        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
+        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
+        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn
+            : request().getQueryString("hostId_for_unicorn");
 
         Logger.debug(String.format("Putting for host %s, resource %s", hostId, resourceId));
 
@@ -48,15 +49,16 @@ public class Viewers extends Controller
         Viewables.putViewer(hostId, resourceId, newViewer);
 
         Map<String, JsonNode> viewersWithDetails = Viewables.getViewersWithDetails(resourceId, hostId);
-        
+
         return ok(Json.toJson(viewersWithDetails));
     }
 
     public static Result delete(String hostId_brokenOnUnicorn, String resourceId, String userId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.        
-        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
-    	
+        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
+        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn
+            : request().getQueryString("hostId_for_unicorn");
+
         Logger.debug(String.format("Deleting for host %s, resource %s, user %s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
@@ -81,9 +83,9 @@ public class Viewers extends Controller
 
         Logger.debug(String.format("Cookie key: " + "signed-identity-on-" + hostId));
         Logger.debug(String.format("Cookies: %s", request().cookies()));
-        Logger.debug(String.format("Cookie: %s", request().cookies().get("signed-identity-on-"+hostId)));
-        String signature = request().cookie("signed-identity-on-"+hostId).value();
-        String expectedSignature = Crypto.sign(hostId+username);
+        Logger.debug(String.format("Cookie: %s", request().cookies().get("signed-identity-on-" + hostId)));
+        String signature = request().cookie("signed-identity-on-" + hostId).value();
+        String expectedSignature = Crypto.sign(hostId + username);
         return expectedSignature.equals(signature);
     }
 

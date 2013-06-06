@@ -23,17 +23,19 @@ import com.google.common.collect.SetMultimap;
 public class Viewables
 {
 
-    private static final CacheBuilder issueExpiryConfig = CacheBuilder.newBuilder()
-                                                            .maximumSize(10000)
-                                                            .expireAfterAccess(1, TimeUnit.HOURS);
+    private static final CacheBuilder issueExpiryConfig = CacheBuilder.newBuilder().maximumSize(10000)
+                                                                      .expireAfterAccess(1, TimeUnit.HOURS);
 
     private static final CacheBuilder viewerExpiryConfig = CacheBuilder.newBuilder()
-                                                                .maximumSize(100)
-                                                                .expireAfterWrite(Long.valueOf(Play.application().configuration().getLong("whoslooking.viewer-expiry.seconds", 10L)),
-                                                                                  TimeUnit.SECONDS);
+                                                                       .maximumSize(100)
+                                                                       .expireAfterWrite(Long.valueOf(Play.application()
+                                                                                                          .configuration()
+                                                                                                          .getLong("whoslooking.viewer-expiry.seconds",
+                                                                                                                   10L)),
+                                                                                         TimeUnit.SECONDS);
 
-    
-    private static SetMultimap<String, String> store = ExpiringSets.createExpiringSetMultimap(issueExpiryConfig, viewerExpiryConfig);
+    private static SetMultimap<String, String> store = ExpiringSets.createExpiringSetMultimap(issueExpiryConfig,
+                                                                                              viewerExpiryConfig);
 
     /**
      * @return active viewers of <code>id</code>
@@ -60,7 +62,7 @@ public class Viewables
     public static void putViewer(final String hostId, final String resourceId, final String newViewer)
     {
         String key = buildKey(hostId, resourceId);
-        store.put(key,  newViewer);
+        store.put(key, newViewer);
     }
 
     public static void deleteViewer(final String hostId, final String resourceId, final String viewer)
@@ -68,17 +70,21 @@ public class Viewables
         String key = buildKey(hostId, resourceId);
         store.remove(key, viewer);
     }
-    
-	public static Map<String, JsonNode> getViewersWithDetails(final String resourceId, final String hostId) {
-		Map<String, JsonNode> viewersWithDetails = Maps.asMap(Viewables.getViewers(hostId, resourceId),
-        		new Function<String, JsonNode>() {
-			@Override
-			@Nullable
-			public JsonNode apply(@Nullable String viewerName) {
-				return ViewerDetailsService.getCachedDetailsFor(hostId, viewerName);				
-			}        	
-        });
-		return viewersWithDetails;
-	}
+
+    public static Map<String, JsonNode> getViewersWithDetails(final String resourceId, final String hostId)
+    {
+        Map<String, JsonNode> viewersWithDetails = Maps.asMap(Viewables.getViewers(hostId, resourceId),
+                                                              new Function<String, JsonNode>()
+                                                              {
+                                                                  @Override
+                                                                  @Nullable
+                                                                  public JsonNode apply(@Nullable String viewerName)
+                                                                  {
+                                                                      return ViewerDetailsService.getCachedDetailsFor(hostId,
+                                                                                                                      viewerName);
+                                                                  }
+                                                              });
+        return viewersWithDetails;
+    }
 
 }
