@@ -19,7 +19,7 @@ public class ViewerDetailsService
     /**
      * Query cache for user details. Return details if present in cache. Otherwise, initiate cache population and return
      * null.
-     * 
+     *
      * @return user details JsonNode, or null if not yet known.
      */
     public static JsonNode primeCacheFor(final String hostId, final String username)
@@ -32,7 +32,7 @@ public class ViewerDetailsService
             if (AC.getUser() != null)
             {
 
-                Logger.debug(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
+                Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
                 Promise<Response> promise = AC.url("/rest/api/latest/user").setQueryParameter("username", username).get();
 
                 promise.onRedeem(new Callback<WS.Response>()
@@ -47,7 +47,7 @@ public class ViewerDetailsService
                             Cache.set(hostId + "-" + username + "-details",
                                       asJson,
                                       Play.application().configuration()
-                                          .getInt("whoslooking.user-details-cache-expiry.seconds", 600));
+                                          .getInt("whoslooking.user-details-cache-expiry.seconds", 604800));
                         }
                         else
                         {
