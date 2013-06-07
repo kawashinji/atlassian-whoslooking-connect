@@ -28,29 +28,28 @@ public class Poller extends Controller
         // We have validated that this request is valid for this host+username.
         // Setup session so that subsequent requests from this client are also
         // treated as such, even if they don't include the OAuth signature (i.e.
-        // Ajax requests from within the iframe). 
+        // Ajax requests from within the iframe).
         // TODO: this session() call doesn't work (ends up empty on poll calls).. so we have to roll our own.
         session("identity-on-" + hostId, username);
         response().setCookie("identity-on-" + hostId, username);
         response().setCookie("signed-identity-on-" + hostId, Crypto.sign(hostId + username));
-        
+
         Viewables.putViewer(hostId, resourceId, username);
-        
+
         // Prime cache with user details for any views that don't yet have their details cached.
         // We can currently only do this from within an @CheckValidOAuthRequest'd request.
         // This is non-blocking.
-		Map<String, JsonNode> viewersWithDetails = Viewables.getViewersWithDetails(resourceId, hostId);
-		for (Entry<String, JsonNode> entry : viewersWithDetails.entrySet())
+        Map<String, JsonNode> viewersWithDetails = Viewables.getViewersWithDetails(resourceId, hostId);
+        for (Entry<String, JsonNode> entry : viewersWithDetails.entrySet())
         {
-			if (entry.getValue() == null)
-			{
-				ViewerDetailsService.primeCacheFor(hostId, entry.getKey());
-			}
+            if (entry.getValue() == null)
+            {
+                ViewerDetailsService.primeCacheFor(hostId, entry.getKey());
+            }
         }
-        
+
         // Render poller
         return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), resourceId));
     }
-
 
 }

@@ -60,9 +60,9 @@ public class Viewers extends Controller
 
         Logger.debug(String.format("Cookie key: " + "signed-identity-on-" + hostId));
         Logger.debug(String.format("Cookies: %s", request().cookies()));
-        Logger.debug(String.format("Cookie: %s", request().cookies().get("signed-identity-on-"+hostId)));
-        String signature = request().cookie("signed-identity-on-"+hostId).value();
-        String expectedSignature = Crypto.sign(hostId+username);
+        Logger.debug(String.format("Cookie: %s", request().cookies().get("signed-identity-on-" + hostId)));
+        String signature = request().cookie("signed-identity-on-" + hostId).value();
+        String expectedSignature = Crypto.sign(hostId + username);
         return expectedSignature.equals(signature);
     }
 
