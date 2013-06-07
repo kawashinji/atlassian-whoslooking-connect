@@ -2,61 +2,44 @@ package controllers;
 
 import java.util.Map;
 
+import com.atlassian.connect.play.java.CheckValidOAuthRequest;
+import com.atlassian.whoslooking.model.Viewables;
+
 import org.codehaus.jackson.JsonNode;
 
 import play.Logger;
 import play.libs.Crypto;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import com.atlassian.connect.play.java.CheckValidOAuthRequest;
-import com.atlassian.whoslooking.model.Viewables;
-
 public class Viewers extends Controller
 {
-    @BodyParser.Of(BodyParser.Json.class)
-    public static Result put(final String hostId_brokenOnUnicorn, final String resourceId)
+
+    public static Result put(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.        
+        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
         final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
 
         Logger.debug(String.format("Putting for host %s, resource %s", hostId, resourceId));
 
-        if (request().body().isMaxSizeExceeded())
-        {
-            return badRequest("Don't flood me bro.");
-        }
-
-        final String newViewer;
-        try
-        {
-            newViewer = extractViewerFromRequest();
-        }
-        catch (Exception e)
-        {
-            Logger.error("fail", e);
-            return badRequest("Could not extract viewer information from request.");
-        }
-
-        if (!isValidRequestFromAuthenticatedUser(hostId, newViewer))
+        if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
             return badRequest("Don't spoof me bro.");
         }
 
-        Viewables.putViewer(hostId, resourceId, newViewer);
+        Viewables.putViewer(hostId, resourceId, userId);
 
         Map<String, JsonNode> viewersWithDetails = Viewables.getViewersWithDetails(resourceId, hostId);
-        
+
         return ok(Json.toJson(viewersWithDetails));
     }
 
-    public static Result delete(String hostId_brokenOnUnicorn, String resourceId, String userId)
+    public static Result delete(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.        
+        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
         final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
-    	
+
         Logger.debug(String.format("Deleting for host %s, resource %s, user %s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
@@ -69,10 +52,6 @@ public class Viewers extends Controller
         return noContent();
     }
 
-    private static String extractViewerFromRequest()
-    {
-        return request().body().asJson().get("name").asText();
-    }
 
     private static boolean isValidRequestFromAuthenticatedUser(String hostId, String username)
     {

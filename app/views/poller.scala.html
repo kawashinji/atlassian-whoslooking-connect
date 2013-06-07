@@ -10,8 +10,6 @@
     <meta charset="utf-8" />
     <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
 	<meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
-    <meta name="unknown-avatar-url-32" content="@routes.Assets.at("/images/unknown-avatar-32x32.png")" />
-	<meta name="unknown-avatar-url-24" content="@routes.Assets.at("/images/unknown-avatar-24x24.png")" />
 	<meta name="resourceId" content="@resourceId" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
     <link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-all.css")" media="all" />
@@ -24,6 +22,7 @@
     <script src="@routes.Assets.at("third-party/purl.js")"></script>    
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
+    	<meta name="host-base-url" content="@baseUrl" />
         <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>
         <link rel="stylesheet" type="text/css" href="@baseUrl/remotable-plugins/all.css"/>
 	}
@@ -32,17 +31,16 @@
   $(function() {
 	  	var pollInterval = $('meta[name=poller-interval-seconds]').attr("content") * 1000;
 		var avatarSize = $('meta[name=avatar-size]').attr("content");
-		var unknownAvatarUrl = $('meta[name=unknown-avatar-url-'+avatarSize+']').attr("content");
+  	  	var hostBaseUrl = $('meta[name=host-base-url]').attr("content");
 	  	var userId = $.url().param('user_id');
   	  	var hostId = $.url().param('oauth_consumer_key');
   	    var resourceId = $('meta[name=resourceId]').attr("content");
+  	    var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId) + '?hostId_for_unicorn='+encodeURIComponent(hostId);
   	  	
   	  	var poll = function() {
 	  	   $.ajax({
-	  	     url: '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers?hostId_for_unicorn='+encodeURIComponent(hostId),	  	     
+	  	     url: pollUrl,	  	     
 	  	     type: 'PUT',
-	  	   	 contentType: 'application/json',
-	  	     data: JSON.stringify({ name: userId }),
 	  	     success: function(data) {
 	  	         renderViewerList(data);
 	  	     }
@@ -61,20 +59,13 @@
 			var viewerList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
 			
 			$.each(viewers, function(name, details) {
-				if (details) {
-					var avatarUrl = details.avatarUrls[avatarSize+"x"+avatarSize];
-					var displayName = details.displayName;
-				} else {
-					var avatarUrl = unknownAvatarUrl;
-					var displayName = name;
-				}
-				
+				var avatarUrl = hostBaseUrl+"/secure/useravatar?ownerId="+name;
+				var displayName = (details) ? details.displayName : name;
     	        var viewerListItem = $('<li>');
     	        var userFullName = $('<span>').text(displayName).addClass('whoslooking-fullname');
     	    	var avatar = $('<img>').attr('width', avatarSize).attr('height', avatarSize).attr('src', avatarUrl).addClass('whoslooking-avatar');
     	    	viewerListItem.append(avatar).append(userFullName);
-    	    	viewerList.append(viewerListItem);
-				
+    	    	viewerList.append(viewerListItem);				
 			});
 	    	$('#whoslooking-onlookers-list').replaceWith(viewerList);
 	    	AP.resize();
@@ -84,7 +75,7 @@
   	    if (userId && hostId && resourceId) {	
 	  	  	window.onbeforeunload = function() {
 	  	    	$.ajax({
-		  	    	url: '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId) + '?hostId_for_unicorn='+encodeURIComponent(hostId),
+		  	    	url: pollUrl,
 		  	     	type: 'DELETE'
 	  	    	});
 	  	  	}
