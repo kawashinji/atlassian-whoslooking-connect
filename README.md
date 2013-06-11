@@ -7,7 +7,7 @@ The aim is to show a list of users who are currently viewing a given issue, with
 ![Who's Looking with Atlassian Connect](http://i.imgur.com/nNarePB.jpg)
 
 ## Implementation Overview
-The add-on is a remote app running on Play 2 using the [Atlassian Connect ac-play-java library](https://bitbucket.org/sleberrigaud_atlassian/ac-play-java). Source is here: https://bitbucket.org/rewbs/whoslooking-remote
+The add-on is a remote app running on Play 2 using the [Atlassian Connect ac-play-java library](https://bitbucket.org/sleberrigaud_atlassian/ac-play-java). Source is here: https://bitbucket.org/atlassianlabs/whoslooking-connect
 
 The Connect app registers an iframe in the View Issue page. The iframe content is served from the Connect app, and includes JavaScript to issue an XHR heartbeat back to the Connect app. This heartbeat results in the current user being stored as a viewer of the current issue in an in-memory map. Entries expire after a few seconds, so if the heartbeat for a given user stops, the user is dropped from the viewer set for that issue.
 
