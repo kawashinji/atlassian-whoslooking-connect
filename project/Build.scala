@@ -4,7 +4,7 @@ import play.Project._
 
 object ApplicationBuild extends Build {
 
-  val appName         = "whoslooking-remote"
+  val appName         = "whoslooking-connect"
   val appVersion      = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
