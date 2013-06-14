@@ -1,0 +1,26 @@
+@import play.mvc.Http.Context.Implicit.ctx
+@import com.atlassian.connect.play.java.AcHost
+@import play.api.Play
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
+	<meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
+    <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
+    <link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-all.css")" media="all" />
+    <!--[if lt IE 9]><link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-ie.css")" media="all"><![endif]-->
+    <!--[if IE 9]><link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-ie9.css")" media="all"><![endif]-->
+    <script src="@routes.Assets.at("aui/js/aui-all.js")"></script>
+    <!--[if lt IE 9]><script src="@routes.Assets.at("aui/js/aui-ie.js")"></script><![endif]-->
+	
+    <script src="@routes.Assets.at("third-party/jquery-2.0.1.min.js")"></script>
+    <script src="@routes.Assets.at("third-party/purl.js")"></script>    
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
+  </head>
+
+  <body>
+    Todo: make this page useful.
+  </body>
+</html>

@@ -1,6 +1,11 @@
 package service;
 
+import java.util.concurrent.Callable;
+
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonNode;
+
+import play.libs.Json;
 
 import play.Logger;
 import play.Play;
@@ -18,72 +23,81 @@ public class ViewerDetailsService
 
     /**
      * Query cache for user details. Return details if present in cache. Otherwise, initiate cache population and return
-     * null.
+     * null, so the details are available in the future. Non-blocking.
      *
-     * @return user details JsonNode, or null if not yet known.
-     */
-    public static JsonNode primeCacheFor(final String hostId, final String username)
-    {
-
-        Object value = Cache.get(hostId + "-" + username + "-details");
-
-        if (value == null || !(value instanceof JsonNode))
-        {
-            if (AC.getUser() != null)
-            {
-
-                Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
-                Promise<Response> promise = AC.url("/rest/api/latest/user").setQueryParameter("username", username).get();
-
-                promise.onRedeem(new Callback<WS.Response>()
-                {
-                    @Override
-                    public void invoke(Response a) throws Throwable
-                    {
-                        JsonNode asJson = a.asJson();
-
-                        if (!asJson.has("errorMessages"))
-                        {
-                            Cache.set(hostId + "-" + username + "-details",
-                                      asJson,
-                                      Play.application().configuration()
-                                          .getInt("whoslooking.user-details-cache-expiry.seconds", 604800));
-                        }
-                        else
-                        {
-                            Logger.error(asJson.toString());
-                        }
-                    }
-                });
-
-                promise.recover(new Function<Throwable, WS.Response>()
-                {
-                    @Override
-                    public WS.Response apply(Throwable t)
-                    {
-                        Logger.error("An error occurred", t);
-                        // Can't really recover from this, so just rethrow.
-                        throw new RuntimeException(t);
-                    }
-                });
-            }
-
-            return null;
-        }
-        else
-        {
-            return (JsonNode) value;
-        }
-
-    }
-
-    /**
-     * @return user details if cached, null otherwise.
+     * @return user details JSON String, or null if not yet known.
      */
     public static JsonNode getCachedDetailsFor(final String hostId, final String username)
     {
-        Object value = Cache.get(hostId + "-" + username + "-details");
-        return (JsonNode) value;
+
+        String cachedValue = safeCacheGet(hostId, username);
+
+        if (StringUtils.isNotEmpty(cachedValue))
+        {
+            // Found cached value, return it immediately.
+            return Json.parse(cachedValue);
+        }
+
+        Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
+
+        if (AC.getUser() == null)
+        {
+            Logger.debug("Cannot request user details from host without a authenticated user context.");
+            return null;
+        }
+
+        Promise<Response> promise = AC.url("/rest/api/latest/user").setQueryParameter("username", username).get();
+
+        promise.onRedeem(new Callback<WS.Response>()
+        {
+            @Override
+            public void invoke(Response a) throws Throwable
+            {
+                JsonNode userDetailsJson = a.asJson();
+                if (!userDetailsJson.has("errorMessages"))
+                {
+                    Logger.info(String.format("Obtained details for %s on %s.", username, hostId));
+                    Cache.set(hostId + "-" + username + "-details", userDetailsJson.toString(), getCacheExpiry());
+                }
+                else
+                {
+                    Logger.error(userDetailsJson.toString());
+                }
+            }
+
+        });
+
+        promise.recover(new Function<Throwable, WS.Response>()
+        {
+            @Override
+            public WS.Response apply(Throwable t)
+            {
+                // Can't really recover from this, so just rethrow.
+                throw new RuntimeException(t);
+            }
+        });
+
+        return null;
+    }
+
+    private static String safeCacheGet(final String hostId, final String username)
+    {
+        String cachedValue;
+        try
+        {
+            cachedValue = (String) Cache.get(hostId + "-" + username + "-details");
+        }
+        catch (Exception e)
+        {
+            // Redis cache NPE's when the value doesn't exist... :(
+            cachedValue = null;
+        }
+        return cachedValue;
+    }
+
+    private static int getCacheExpiry()
+    {
+        return Play.application().configuration().getInt("whoslooking.user-details-cache-expiry.seconds", 604800);
     }
 
 }

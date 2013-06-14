@@ -5,6 +5,12 @@ import java.util.Map.Entry;
 
 import org.codehaus.jackson.JsonNode;
 
+import service.RedisViewablesService;
+
+import service.ViewablesService;
+
+import service.ExpiringSetViewablesService;
+
 import play.api.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -13,13 +19,15 @@ import service.ViewerDetailsService;
 
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.CheckValidOAuthRequest;
-import com.atlassian.whoslooking.model.Viewables;
 
 public class Poller extends Controller
 {
 
+    //private final ViewablesService viewables = new ExpiringSetViewablesService();
+    private final ViewablesService viewables = new RedisViewablesService();
+
     @CheckValidOAuthRequest
-    public static Result index() throws Exception
+    public Result index() throws Exception
     {
         final String hostId = request().queryString().get("oauth_consumer_key")[0];
         final String username = AC.getUser().getOrNull();
@@ -34,19 +42,9 @@ public class Poller extends Controller
         response().setCookie("identity-on-" + hostId, username);
         response().setCookie("signed-identity-on-" + hostId, Crypto.sign(hostId + username));
 
-        Viewables.putViewer(hostId, resourceId, username);
+        viewables.putViewer(hostId, resourceId, username);
 
-        // Prime cache with user details for any views that don't yet have their details cached.
-        // We can currently only do this from within an @CheckValidOAuthRequest'd request.
-        // This is non-blocking.
-        Map<String, JsonNode> viewersWithDetails = Viewables.getViewersWithDetails(resourceId, hostId);
-        for (Entry<String, JsonNode> entry : viewersWithDetails.entrySet())
-        {
-            if (entry.getValue() == null)
-            {
-                ViewerDetailsService.primeCacheFor(hostId, entry.getKey());
-            }
-        }
+        Map<String, JsonNode> viewersWithDetails = viewables.getViewersWithDetails(resourceId, hostId);
 
         // Render poller
         return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), resourceId));
