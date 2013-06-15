@@ -18,6 +18,7 @@ object ApplicationBuild extends Build {
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
+        resolvers += "Robin's Maven Repository" at "http://rewbs.bitbucket.org/mavenrepo/releases",  
         resolvers += "org.sedis Maven Repository" at "http://pk11-scratch.googlecode.com/svn/trunk",
         resolvers += "Atlassian's Maven Public Repository" at "https://maven.atlassian.com/content/groups/public",
         resolvers += "Local Maven Repository" at "file://" + Path.userHome + "/.m2/repository",
