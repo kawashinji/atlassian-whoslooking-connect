@@ -40,9 +40,9 @@ public class ViewerDetailsService
 
         Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
 
-        if (AC.getUser() == null)
+        if (AC.getUser() == null || AC.getAcHost() == null)
         {
-            Logger.debug("Cannot request user details from host without a authenticated user context.");
+            Logger.warn("Cannot request user details from host without an authenticated user context.");
             return null;
         }
 
