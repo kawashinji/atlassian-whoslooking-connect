@@ -1,11 +1,7 @@
 package service;
 
-import java.util.concurrent.Callable;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
-
-import play.libs.Json;
 
 import play.Logger;
 import play.Play;
@@ -13,6 +9,7 @@ import play.cache.Cache;
 import play.libs.F.Callback;
 import play.libs.F.Function;
 import play.libs.F.Promise;
+import play.libs.Json;
 import play.libs.WS;
 import play.libs.WS.Response;
 
