@@ -1,24 +1,25 @@
 package service;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
-import org.codehaus.jackson.JsonNode;
-
-import play.Play;
-
 import com.atlassian.whoslooking.util.ExpiringSets;
 
 import com.google.common.base.Function;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
+import org.codehaus.jackson.JsonNode;
+
+import play.Play;
+
+/**
+* Provides an implementation of ViewablesService backed by an in-memory ExpiringSet.
+*/
 public class ExpiringSetViewablesService implements ViewablesService
 {
 

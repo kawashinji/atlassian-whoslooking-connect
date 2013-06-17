@@ -17,10 +17,42 @@
 	
     <script src="@routes.Assets.at("third-party/jquery-2.0.1.min.js")"></script>
     <script src="@routes.Assets.at("third-party/purl.js")"></script>    
-    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
   </head>
 
-  <body>
-    Todo: make this page useful.
-  </body>
+<body class="aui-page-fixed" id="aui-flatpack">
+    <div id="page">
+        <header id="header">
+            <nav class="aui-header aui-dropdown2-trigger-group">
+                <div class="aui-header-inner aui-header-primary">
+                    <h1 class="aui-header-logo aui-header-logo-aui" id="logo"><span>Who's Looking?<sup><small class="aui-lozenge">beta</small></sup></span></h1>
+                </div><!-- .aui-header-inner-->
+            </nav><!-- .aui-header -->
+        </header><!-- #header -->
+
+        <section id="content">
+            <div class="aui-page-panel">
+                <div class="aui-page-panel-inner">
+                    <section class="aui-page-panel-content">
+                        <p>The "Who's Looking?" Atlassian Connect add-on can show you who else is looking at a JIRA issue.</p>
+                        <ul>
+                            <li>Install it on your OnDemand instance via Atlassian Marketplace. <span class="aui-lozenge aui-lozenge-success">Coming Soon!</span></li>
+                            <li><a href="https://bitbucket.org/atlassianlabs/whoslooking-connect">Read more about <em>Who's Looking?</em></a></li>                        
+                            <li><a href="https://developer.atlassian.com/display/AC/Atlassian+Connect">Read more about Atlassian Connect.</a></li>
+                        </ul>
+                        <img src="http://i.imgur.com/nNarePB.jpg" />
+
+                    </section><!-- .aui-page-panel-content -->
+                </div><!-- .aui-page-panel-inner -->
+            </div><!-- .aui-page-panel -->
+        </section><!-- #content -->
+
+        <footer id="footer">
+            <section class="footer-body">
+                <ul id="aui-footer-list">
+                    <li>Copyright &copy; 2009-2013 Atlassian</li>
+                </ul>
+            </section>
+        </footer><!-- #footer -->
+    </div><!-- #page -->
+</body>
 </html>

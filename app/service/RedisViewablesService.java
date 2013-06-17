@@ -17,6 +17,9 @@ import play.Play;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+/**
+* Provides an implementation of ViewablesService backed by Redis.
+*/
 public class RedisViewablesService implements ViewablesService
 {
 

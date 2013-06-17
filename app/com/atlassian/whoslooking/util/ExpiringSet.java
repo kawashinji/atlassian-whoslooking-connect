@@ -6,6 +6,11 @@ import java.util.Set;
 
 import com.google.common.cache.Cache;
 
+/**
+* A <code>Set</code> with entries that expire.
+* <p>
+* Values are held in memory and backed by <code>com.google.common.cache.Cache</code>.
+*/
 public class ExpiringSet<V> implements Set<V>
 {
     // The Long value is pretty much a placeholder. We really just use the Cache's "keyset".

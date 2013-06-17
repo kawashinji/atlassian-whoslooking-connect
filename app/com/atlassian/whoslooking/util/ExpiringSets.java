@@ -9,6 +9,9 @@ import com.google.common.collect.SetMultimap;
 import static com.google.common.collect.Multimaps.newSetMultimap;
 import static com.google.common.collect.Multimaps.synchronizedSetMultimap;
 
+/**
+ * Provides factory methods for <code>ExpiringSet</code>
+ */
 public class ExpiringSets
 {
 
