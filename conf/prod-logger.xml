@@ -1,23 +1,32 @@
 <configuration>
-    <appender name="FILE_WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${application.home}/logs/warn_log.log</file>
-        <encoder>
-            <pattern>%date - [%level] - from %logger in %thread %n%message%n%xException%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${application.home}/logs/warn_log.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>60</maxHistory>
-        </rollingPolicy>
-    </appender>
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${application.home}/logs/log.log</file>
+		<encoder>
+			<pattern>%dWAate - [%level] - from %logger in %thread
+				%n%message%n%xException%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${application.home}/logs/log.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>60</maxHistory>
+		</rollingPolicy>
+	</appender>
 
-    <logger name="play" level="INFO"/>
-    <logger name="application" level="INFO" />
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
 
-    <root level="WARN">
-        <appender-ref ref="FILE_DEBUG"/>
-        <appender-ref ref="FILE_WARN"/>
-    </root>
+
+	<logger name="play" level="INFO" />
+	<logger name="application" level="INFO" />
+
+	<root level="INFO">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
 </configuration>
