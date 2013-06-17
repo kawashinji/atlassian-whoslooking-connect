@@ -8,6 +8,6 @@
         </permissions>
     </plugin-info>
 } {
-       <issue-panel-page key="whos-looking" application="jira" name="Who's Looking?" url="/poller" />
+       <issue-panel-page key="whos-looking" application="jira" name="Who's Looking? (beta)" url="/poller" />
 }
         
