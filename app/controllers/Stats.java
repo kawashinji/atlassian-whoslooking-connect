@@ -32,7 +32,7 @@ public class Stats extends Controller
         String hostname = InetAddress.getLocalHost().getCanonicalHostName();
         Runtime runtime = Runtime.getRuntime();
         Map<String, String> memoryStats = getMemoryStats(runtime);
-        return ok(views.html.stats.render(dynoName, hostname, redisStats, memoryStats));
+        return ok(views.html.stats.render(dynoName, hostname, redisStats, System.getenv()));
     }
 
     private ImmutableMap<String, String> getMemoryStats(Runtime runtime)
