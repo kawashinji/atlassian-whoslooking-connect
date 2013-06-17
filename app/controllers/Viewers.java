@@ -2,20 +2,17 @@ package controllers;
 
 import java.util.Map;
 
-import com.atlassian.connect.play.java.CheckValidOAuthRequest;
-
 import org.codehaus.jackson.JsonNode;
-
-import service.RedisViewablesService;
-
-import service.ExpiringSetViewablesService;
-import service.ViewablesService;
 
 import play.Logger;
 import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import service.RedisViewablesService;
+import service.ViewablesService;
+
+import com.atlassian.connect.play.java.CheckValidOAuthRequest;
 
 public class Viewers extends Controller
 {
