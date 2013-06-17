@@ -1,1 +1,1 @@
-web: target/start -Dhttp.port=${PORT} ${JAVA_OPTS} -DapplyEvolutions.default=true -Ddb.default.driver=org.postgresql.Driver -Ddb.default.url=${DATABASE_URL} -Dredis.uri=${REDISCLOUD_URL}  -Dconfig.resource=prod.conf -Dlogger.resource=conf/prod-logger.xml
+web: target/start -Dhttp.port=${PORT} ${JAVA_OPTS} -DapplyEvolutions.default=true -Ddb.default.driver=org.postgresql.Driver -Ddb.default.url=${DATABASE_URL} -Dredis.uri=${REDISCLOUD_URL}  -Dconfig.resource=prod.conf -Dlogger.resource=prod-logger.xml
