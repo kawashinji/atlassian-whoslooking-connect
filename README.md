@@ -30,14 +30,13 @@ The Connect app registers an iframe in the View Issue page. The iframe content i
 ### Setup
 
 + Install the Atlassian SDK, Play, Postgres and Redis.
-+ In Postgres, create database 'whoslooking'.
-++ By default, the Who's Looking will use credentials whoslooking/whoslooking to access the database 'whoslooking' on localhost. If nececssary, you can configure this in `conf/application.conf`.
-+ Start it by running `redis-server`.
-++ By default, Who's Looking will access Redis on localhost:6379 (which are Redis's defaults). If nececssary, you can configure this in `conf/application.conf`.
++ Create postgres database 'whoslooking'.
+	+ By default, Who's Looking will use credentials `whoslooking/whoslooking` to access database 'whoslooking' on localhost. If nececssary, you can configure this in `conf/application.conf`.
++ Start Redis by running `redis-server`.
+	+ By default, Who's Looking will access Redis on localhost:6379 (which are Redis's defaults). If nececssary, you can configure this in `conf/application.conf`.
 + Start a JIRA instance by running `atlas-run-standalone --product jira --version 6.0.1`. By default, JIRA will start at `http://localhost:2990/jira`. See the [Atlassian SDK documentation](https://developer.atlassian.com/display/DOCS/atlas-run-standalone) for more options.
-++ Log in to the JIRA instance as admin/admin, and change the baseURL to `http://localhost:2990/jira` if necessary. All interactions with JIRA must use the same URL (some aspects of OAuth will fail if we mix uses of `localhost` with `my-machine-name`).
+	+ All interactions with JIRA must use the same URL (some aspects of OAuth will fail if we mix uses of `localhost` with `my-machine-name`). If necessary, log in to the JIRA instance as admin/admin, and change the baseURL to `http://localhost:2990/jira`. 
 + Start the Who's Looking app in dev mode by running `play run` in the app directory. It should come up on `http://localhost:9000`. Hit that URL in the browser to trigger initialisation logic.
-++ The Connect app should automatically install into the local JIRA instance, but if it doesn't, do so manually by running: ` curl -v -u admin -X POST -d url=http://localhost:9000 http://localhost:2990/jira/rest/remotable-plugins/latest/installer`
-++ Create an issue in JIRA, view it, and ensure the "Who's Looking?" panel is visible and populated.
+	+ The Connect app should automatically install into the local JIRA instance, but if it doesn't, do so manually by running: ` curl -v -u admin -X POST -d url=http://localhost:9000 http://localhost:2990/jira/rest/remotable-plugins/latest/installer`
 
-You can now make changes to Who's Looking code, which the Play framework will pick up automatically as new requests come in.
+You can now create an issue in JIRA, view it, and ensure the "Who's Looking?" panel is visible and populated. If you make changes to Who's Looking code, the Play framework will pick up the code changes as new requests come in.
