@@ -8,6 +8,7 @@ import play.Logger;
 import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import service.RedisViewablesService;
 import service.ViewablesService;
@@ -88,7 +89,13 @@ public class Viewers extends Controller
         Logger.debug(String.format("Cookie key: " + "signed-identity-on-" + hostId));
         Logger.debug(String.format("Cookies: %s", request().cookies()));
         Logger.debug(String.format("Cookie: %s", request().cookies().get("signed-identity-on-" + hostId)));
-        String signature = request().cookie("signed-identity-on-" + hostId).value();
+        Cookie signedIdCookie = request().cookie("signed-identity-on-" + hostId);
+        if (signedIdCookie == null)
+        {
+            Logger.info("No signed ID cookie found.");
+            return false;
+        }
+        String signature = signedIdCookie.value();
         String expectedSignature = Crypto.sign(hostId + username);
         return expectedSignature.equals(signature);
     }
