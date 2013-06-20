@@ -15,7 +15,6 @@ import service.ViewablesService;
 
 import com.atlassian.connect.play.java.CheckValidOAuthRequest;
 
-
 public class Viewers extends Controller
 {
     private final ViewablesService viewables = new RedisViewablesService();
@@ -90,7 +89,6 @@ public class Viewers extends Controller
         // This should work, but doesn't. So we've rolled our own.
         // return username.equals(session().get("identity-on-"+hostId))
         Logger.trace("ID in session: " + session().get("identity-on-"+hostId));
-
         Cookie signedIdCookie = request().cookie("signed-identity-on-" + hostId);
         if (signedIdCookie == null)
         {
