@@ -6,16 +6,13 @@ import com.atlassian.connect.play.java.CheckValidOAuthRequest;
 
 import org.codehaus.jackson.JsonNode;
 
-import service.RedisViewablesService;
-
-import service.ExpiringSetViewablesService;
-import service.ViewablesService;
-
 import play.Logger;
 import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import service.RedisViewablesService;
+import service.ViewablesService;
 
 public class Viewers extends Controller
 {
@@ -24,9 +21,10 @@ public class Viewers extends Controller
     public Result put(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
     {
         // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
+        Logger.trace("hostId from path: " + hostId_brokenOnUnicorn);
         final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
 
-        Logger.debug(String.format("Putting for host %s, resource %s", hostId, resourceId));
+        Logger.debug(String.format("Putting %s/%s/%s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
@@ -43,9 +41,10 @@ public class Viewers extends Controller
     public Result delete(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
     {
         // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
+        Logger.trace("hostId from path: " + hostId_brokenOnUnicorn);
         final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
 
-        Logger.debug(String.format("Deleting for host %s, resource %s, user %s", hostId, resourceId, userId));
+        Logger.debug(String.format("Deleting %s/%s/%s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
@@ -60,9 +59,10 @@ public class Viewers extends Controller
     public Result get(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
     {
         // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
+        Logger.trace("hostId from path: " + hostId_brokenOnUnicorn);
         final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
 
-        Logger.debug(String.format("Putting for host %s, resource %s", hostId, resourceId));
+        Logger.debug(String.format("Getting %s/%s/%s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
@@ -87,10 +87,8 @@ public class Viewers extends Controller
     {
         // This should work, but doesn't. So we've rolled our own.
         // return username.equals(session().get("identity-on-"+hostId))
+        Logger.trace("ID in session: " + session().get("identity-on-"+hostId));
 
-        Logger.debug(String.format("Cookie key: " + "signed-identity-on-" + hostId));
-        Logger.debug(String.format("Cookies: %s", request().cookies()));
-        Logger.debug(String.format("Cookie: %s", request().cookies().get("signed-identity-on-" + hostId)));
         String signature = request().cookie("signed-identity-on-" + hostId).value();
         String expectedSignature = Crypto.sign(hostId + username);
         return expectedSignature.equals(signature);

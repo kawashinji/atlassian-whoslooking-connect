@@ -12,14 +12,12 @@
 	<meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
 	<meta name="resourceId" content="@resourceId" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
-    <link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-all.css")" media="all" />
-    <!--[if lt IE 9]><link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-ie.css")" media="all"><![endif]-->
-    <!--[if IE 9]><link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-ie9.css")" media="all"><![endif]-->
-    <script src="@routes.Assets.at("aui/js/aui-all.js")"></script>
-    <!--[if lt IE 9]><script src="@routes.Assets.at("aui/js/aui-ie.js")"></script><![endif]-->
+    @ac.aui.all()
 	
     <script src="@routes.Assets.at("third-party/jquery-2.0.1.min.js")"></script>
-    <script src="@routes.Assets.at("third-party/purl.js")"></script>    
+    <script src="@routes.Assets.at("third-party/purl.js")"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
+    
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
     	<meta name="host-base-url" content="@baseUrl" />
@@ -29,59 +27,86 @@
   </head>
   <script>
   $(function() {
-	  	var pollInterval = $('meta[name=poller-interval-seconds]').attr("content") * 1000;
-		var avatarSize = $('meta[name=avatar-size]').attr("content");
-  	  	var hostBaseUrl = $('meta[name=host-base-url]').attr("content");
-	  	var userId = $.url().param('user_id');
-  	  	var hostId = $.url().param('oauth_consumer_key');
-  	    var resourceId = $('meta[name=resourceId]').attr("content");
-  	    var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId) + '?hostId_for_unicorn='+encodeURIComponent(hostId);
+    var pollInterval = $('meta[name=poller-interval-seconds]').attr("content") * 1000;
+    var avatarSize = $('meta[name=avatar-size]').attr("content");
+    var hostBaseUrl = $('meta[name=host-base-url]').attr("content");
+    var userId = $.url().param('user_id');
+    var hostId = $.url().param('oauth_consumer_key');
+    var resourceId = $('meta[name=resourceId]').attr("content");
+    var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId) + '?hostId_for_unicorn='+encodeURIComponent(hostId);
   	  	
-  	  	var poll = function() {
-	  	   $.ajax({
-	  	     url: pollUrl,	  	     
-	  	     type: 'PUT',
-	  	     success: function(data) {
-	  	         renderViewerList(data);
-	  	     }
-	  	   });
-  	  	}
+    var stopViewingTimeout;
+        
+    var poll = function() {
+      if (Visibility.hidden()) {
+        console.log("Page is hidden, not polling server.");
+        return;
+      }
+      
+      if (stopViewingTimeout != null) {
+        console.log("Page is visible at poll time. Cancelling any stopViewing timeouts.");
+        clearTimeout(stopViewingTimeout)
+      }
+  	  	    
+      $.ajax({
+        url: pollUrl,	  	     
+        type: 'PUT',
+        success: function(data) {
+          renderViewerList(data);
+        }
+      });
+    }
+  	  	
+    var stopViewing = function() {
+      console.log("Removing viewership.");
+      $.ajax({
+        url: pollUrl,
+        type: 'DELETE'
+      });
+    } 
   	  
-	  	var renderedViewers;
-  	  	var renderViewerList = function(viewers) {
+    var renderedViewers;
+    var renderViewerList = function(viewers) {
 			
-			//hacky deep equals, doesn't matter too much if we get false negatives due to ordering etc...
-			if (JSON.stringify(viewers) == JSON.stringify(renderedViewers)) {
-				//console.log("Viewers unchanged, not re-rendering.");
-				return;
-			}
-			
-			var viewerList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
+      //hacky deep equals, doesn't matter too much if we get false negatives due to ordering etc...
+      if (JSON.stringify(viewers) == JSON.stringify(renderedViewers)) {
+        //console.log("Viewers unchanged, not re-rendering.");
+        return;
+      }
+
+      var viewerList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
 			
 			$.each(viewers, function(name, details) {
-				var avatarUrl = hostBaseUrl+"/secure/useravatar?ownerId="+name;
-				var displayName = (details) ? details.displayName : name;
-    	        var viewerListItem = $('<li>');
-    	        var userFullName = $('<span>').text(displayName).addClass('whoslooking-fullname');
-    	    	var avatar = $('<img>').attr('width', avatarSize).attr('height', avatarSize).attr('src', avatarUrl).addClass('whoslooking-avatar');
-    	    	viewerListItem.append(avatar).append(userFullName);
-    	    	viewerList.append(viewerListItem);				
+        var avatarUrl = hostBaseUrl+"/secure/useravatar?ownerId="+name;
+        var displayName = (details) ? details.displayName : name;
+        var viewerListItem = $('<li>');
+        var userFullName = $('<span>').text(displayName).addClass('whoslooking-fullname');
+        var avatar = $('<img>').attr('width', avatarSize).attr('height', avatarSize).attr('src', avatarUrl).addClass('whoslooking-avatar');
+        viewerListItem.append(avatar).append(userFullName);
+        viewerList.append(viewerListItem);				
 			});
-	    	$('#whoslooking-onlookers-list').replaceWith(viewerList);
-	    	AP.resize();
+      
+	   	$('#whoslooking-onlookers-list').replaceWith(viewerList);
+	    AP.resize();
 			renderedViewers = viewers;
-  	  	}  	  	
+    }  	  	
   	  	
-  	    if (userId && hostId && resourceId) {	
-	  	  	window.onbeforeunload = function() {
-	  	    	$.ajax({
-		  	    	url: pollUrl,
-		  	     	type: 'DELETE'
-	  	    	});
-	  	  	}
-			renderViewerList(@Html(viewersWithDetails));  	        
-		  	setInterval(poll, pollInterval);
-  		}
+    if (userId && hostId && resourceId) {	
+      window.onbeforeunload = stopViewing;
+      renderViewerList(@Html(viewersWithDetails));  	        
+      setInterval(poll, pollInterval);
+      
+      Visibility.change(function (e, state) {
+        if ( Visibility.hidden() ) {
+          console.log("Page is hidden, removing viewership in 5s.");
+          stopViewingTimeout = setTimeout(stopViewing, 5000);
+        } else if (stopViewingTimeout != null) {
+          console.log("Page is visible. Cancelling any stopViewing timeouts and repolling.");
+          clearTimeout(stopViewingTimeout);
+          poll();
+        }
+      });
+    }
   });
 	
   </script>
