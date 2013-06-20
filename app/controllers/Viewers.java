@@ -2,17 +2,19 @@ package controllers;
 
 import java.util.Map;
 
-import com.atlassian.connect.play.java.CheckValidOAuthRequest;
-
 import org.codehaus.jackson.JsonNode;
 
 import play.Logger;
 import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import service.RedisViewablesService;
 import service.ViewablesService;
+
+import com.atlassian.connect.play.java.CheckValidOAuthRequest;
+
 
 public class Viewers extends Controller
 {
@@ -89,7 +91,13 @@ public class Viewers extends Controller
         // return username.equals(session().get("identity-on-"+hostId))
         Logger.trace("ID in session: " + session().get("identity-on-"+hostId));
 
-        String signature = request().cookie("signed-identity-on-" + hostId).value();
+        Cookie signedIdCookie = request().cookie("signed-identity-on-" + hostId);
+        if (signedIdCookie == null)
+        {
+            Logger.info("No signed ID cookie found.");
+            return false;
+        }
+        String signature = signedIdCookie.value();
         String expectedSignature = Crypto.sign(hostId + username);
         return expectedSignature.equals(signature);
     }

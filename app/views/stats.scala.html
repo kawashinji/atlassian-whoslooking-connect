@@ -1,3 +1,5 @@
+@(dynoname: String, hostname: String, redisStats: String, memoryStats: Map[String,String])
+
 @import play.mvc.Http.Context.Implicit.ctx
 @import com.atlassian.connect.play.java.AcHost
 @import play.api.Play
@@ -30,17 +32,20 @@
         </header><!-- #header -->
 
         <section id="content">
+	        <header class="aui-page-header">
+	            <div class="aui-page-header-inner">
+	                <div class="aui-page-header-main">
+	                    <h1>Stats for dyno @dynoname on @hostname</h1>
+	                </div><!-- .aui-page-header-main -->
+	            </div><!-- .aui-page-header-inner -->
+	        </header><!-- .aui-page-header -->        
             <div class="aui-page-panel">
                 <div class="aui-page-panel-inner">
                     <section class="aui-page-panel-content">
-                        <p>The "Who's Looking?" Atlassian Connect add-on can show you who else is looking at a JIRA issue.</p>
-                        <ul>
-                            <li>Install it on your OnDemand instance via Atlassian Marketplace. <span class="aui-lozenge aui-lozenge-success">Coming Soon!</span></li>
-                            <li><a href="https://bitbucket.org/atlassianlabs/whoslooking-connect">Read more about <em>Who's Looking?</em></a></li>                        
-                            <li><a href="https://developer.atlassian.com/display/AC/Atlassian+Connect">Read more about Atlassian Connect.</a></li>
-                        </ul>
-                        <img src="//i.imgur.com/nNarePB.jpg" />
-
+	                    <h2>Memory Stats</h2>
+    	                <pre>@memoryStats</pre>                    
+	                    <h2>Redis Stats</h2>
+    	                <pre>@redisStats</pre>
                     </section><!-- .aui-page-panel-content -->
                 </div><!-- .aui-page-panel-inner -->
             </div><!-- .aui-page-panel -->
