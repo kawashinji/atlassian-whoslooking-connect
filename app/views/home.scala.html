@@ -9,11 +9,7 @@
     <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
 	<meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
-    <link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-all.css")" media="all" />
-    <!--[if lt IE 9]><link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-ie.css")" media="all"><![endif]-->
-    <!--[if IE 9]><link rel="stylesheet" href="@routes.Assets.at("aui/css/aui-ie9.css")" media="all"><![endif]-->
-    <script src="@routes.Assets.at("aui/js/aui-all.js")"></script>
-    <!--[if lt IE 9]><script src="@routes.Assets.at("aui/js/aui-ie.js")"></script><![endif]-->
+    @ac.aui.all("5.1")
 	
     <script src="@routes.Assets.at("third-party/jquery-2.0.1.min.js")"></script>
     <script src="@routes.Assets.at("third-party/purl.js")"></script>    
@@ -33,9 +29,9 @@
             <div class="aui-page-panel">
                 <div class="aui-page-panel-inner">
                     <section class="aui-page-panel-content">
-                        <p>The "Who's Looking?" Atlassian Connect add-on can show you who else is looking at a JIRA issue.</p>
+                        <p><em>Who's Looking?</em> is an Atlassian Connect add-on that can show you who else is looking at a JIRA issue.</p>
                         <ul>
-                            <li>Install it on your OnDemand instance via Atlassian Marketplace. <span class="aui-lozenge aui-lozenge-success">Coming Soon!</span></li>
+                            <li>Install <em>Who's Looking?</em> on your OnDemand instance via Atlassian Marketplace. <span class="aui-lozenge aui-lozenge-success">Coming Soon!</span></li>
                             <li><a href="https://bitbucket.org/atlassianlabs/whoslooking-connect">Read more about <em>Who's Looking?</em></a></li>                        
                             <li><a href="https://developer.atlassian.com/display/AC/Atlassian+Connect">Read more about Atlassian Connect.</a></li>
                         </ul>
