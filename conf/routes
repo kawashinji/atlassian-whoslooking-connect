@@ -11,6 +11,7 @@ PUT     /viewables/:hostid/:resourceid/viewers/:userid             @controllers.
 DELETE  /viewables/:hostid/:resourceid/viewers/:userid             @controllers.Viewers.delete(hostid, resourceid, userid)
 GET     /viewables/:hostid/:resourceid/viewers                     @controllers.Viewers.list(hostid, resourceid)
 GET     /poller                                                    @controllers.Poller.index()
+GET     /stats                                                     @controllers.Stats.index()
 
 PUT     /rest/capabilities/awareness							   controllers.Temp.capabilities()
 
