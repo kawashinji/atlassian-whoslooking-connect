@@ -12,6 +12,7 @@ DELETE  /viewables/:hostid/:resourceid/viewers/:userid             @controllers.
 GET     /viewables/:hostid/:resourceid/viewers                     @controllers.Viewers.list(hostid, resourceid)
 GET     /poller                                                    @controllers.Poller.index()
 
+PUT     /rest/capabilities/awareness							   controllers.Temp.capabilities()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                              controllers.Assets.at(path="/public", file)
