@@ -1,34 +1,28 @@
 package controllers;
 
 import java.util.Map;
-import java.util.Map.Entry;
+
+import com.atlassian.connect.play.java.AC;
+import com.atlassian.connect.play.java.CheckValidOAuthRequest;
 
 import org.codehaus.jackson.JsonNode;
-
-import service.RedisViewablesService;
-
-import service.ViewablesService;
-
-import service.ExpiringSetViewablesService;
 
 import play.api.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import service.ViewerDetailsService;
-
-import com.atlassian.connect.play.java.AC;
-import com.atlassian.connect.play.java.CheckValidOAuthRequest;
+import service.RedisViewablesService;
+import service.ViewablesService;
 
 public class Poller extends Controller
 {
-
-    //private final ViewablesService viewables = new ExpiringSetViewablesService();
     private final ViewablesService viewables = new RedisViewablesService();
 
     @CheckValidOAuthRequest
     public Result index() throws Exception
     {
+        response().setHeader("P3P", "CP=\"CAO PSA OUR\"");
+        
         final String hostId = request().queryString().get("oauth_consumer_key")[0];
         final String username = AC.getUser().getOrNull();
         String resourceId = request().getQueryString("issue_id");
@@ -41,6 +35,7 @@ public class Poller extends Controller
         session("identity-on-" + hostId, username);
         response().setCookie("identity-on-" + hostId, username);
         response().setCookie("signed-identity-on-" + hostId, Crypto.sign(hostId + username));
+
 
         viewables.putViewer(hostId, resourceId, username);
 
