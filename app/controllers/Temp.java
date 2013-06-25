@@ -1,8 +1,13 @@
 package controllers;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
+
 import org.codehaus.jackson.JsonNode;
 
 import play.Logger;
+import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -11,9 +16,10 @@ public class Temp extends Controller
 {
 
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result capabilities()
+    public static Result capabilities(String user)
     {
         JsonNode requestContent = request().body().asJson();
+
         Logger.info(requestContent.toString());
 
         String[] respondWith = request().queryString().get("respondWith");
@@ -23,7 +29,9 @@ public class Temp extends Controller
             status = Integer.parseInt(respondWith[0]);
         }
 
-        return status(status, requestContent);
+        Map<String, String> response = ImmutableMap.of("user", user, "requestBody", requestContent.toString());
+
+        return status(status, Json.toJson(response));
     }
 
 }
