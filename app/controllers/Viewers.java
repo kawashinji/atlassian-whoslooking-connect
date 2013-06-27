@@ -1,5 +1,8 @@
 package controllers;
 
+import static controllers.Poller.PER_PAGE_VIEW_TOKEN_HEADER;
+import static java.lang.String.format;
+
 import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
@@ -8,7 +11,6 @@ import play.Logger;
 import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import service.RedisViewablesService;
 import service.ViewablesService;
@@ -19,13 +21,9 @@ public class Viewers extends Controller
 {
     private final ViewablesService viewables = new RedisViewablesService();
 
-    public Result put(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
+    public Result put(final String hostId, final String resourceId, final String userId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
-        Logger.trace("hostId from path: " + hostId_brokenOnUnicorn);
-        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
-
-        Logger.debug(String.format("Putting %s/%s/%s", hostId, resourceId, userId));
+        Logger.debug(format("Putting %s/%s/%s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
@@ -39,13 +37,9 @@ public class Viewers extends Controller
         return ok(Json.toJson(viewersWithDetails));
     }
 
-    public Result delete(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
+    public Result delete(final String hostId, final String resourceId, final String userId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
-        Logger.trace("hostId from path: " + hostId_brokenOnUnicorn);
-        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
-
-        Logger.debug(String.format("Deleting %s/%s/%s", hostId, resourceId, userId));
+        Logger.debug(format("Deleting %s/%s/%s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
@@ -57,13 +51,9 @@ public class Viewers extends Controller
         return noContent();
     }
 
-    public Result get(final String hostId_brokenOnUnicorn, final String resourceId, final String userId)
+    public Result get(final String hostId, final String resourceId, final String userId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
-        Logger.trace("hostId from path: " + hostId_brokenOnUnicorn);
-        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
-
-        Logger.debug(String.format("Getting %s/%s/%s", hostId, resourceId, userId));
+        Logger.debug(format("Getting %s/%s/%s", hostId, resourceId, userId));
 
         if (!isValidRequestFromAuthenticatedUser(hostId, userId))
         {
@@ -76,28 +66,18 @@ public class Viewers extends Controller
     }
 
     @CheckValidOAuthRequest
-    public Result list(final String hostId_brokenOnUnicorn, final String resourceId)
+    public Result list(final String hostId, final String resourceId)
     {
-        // Path parsing for hostId failing on Unicorn, why? Have to pass it as a parameter for now.
-        final String hostId = (hostId_brokenOnUnicorn != null) ? hostId_brokenOnUnicorn : request().getQueryString("hostId_for_unicorn");
-
         return ok(Json.toJson(viewables.getViewersWithDetails(resourceId, hostId)));
     }
 
-    private boolean isValidRequestFromAuthenticatedUser(String hostId, String username)
+    private boolean isValidRequestFromAuthenticatedUser(final String hostId, final String username)
     {
-        // This should work, but doesn't. So we've rolled our own.
-        // return username.equals(session().get("identity-on-"+hostId))
-        Logger.trace("ID in session: " + session().get("identity-on-"+hostId));
-        Cookie signedIdCookie = request().cookie("signed-identity-on-" + hostId);
-        if (signedIdCookie == null)
-        {
-            Logger.info("No signed ID cookie found.");
-            return false;
-        }
-        String signature = signedIdCookie.value();
-        String expectedSignature = Crypto.sign(hostId + username);
-        return expectedSignature.equals(signature);
+        final String token = request().getHeader(PER_PAGE_VIEW_TOKEN_HEADER);
+        final String expectedToken = Crypto.sign(hostId + username);
+        Logger.trace(format("Token check for %s on %s: received=%s expected=%s", username, hostId, token, expectedToken));
+        
+        return expectedToken.equals(token);
     }
 
 }
