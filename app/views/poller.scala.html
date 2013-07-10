@@ -37,21 +37,10 @@
       var userId = getMeta('userId');
       var perPageViewToken = getMeta('perPageViewToken');
       var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId);
-      var stopViewingTimeout;
       $.ajaxSetup({ headers: { "@controllers.Poller.PER_PAGE_VIEW_TOKEN_HEADER" : perPageViewToken } });         
         
       var poll = function() {
-        if (Visibility.hidden()) {
-          console.log("Page is hidden, not polling server.");
-          return;
-        }
-      
-        if (stopViewingTimeout != null) {
-          console.log("Page is visible at poll time. Cancelling any stopViewing timeouts.");
-          clearTimeout(stopViewingTimeout)
-        }
-                
-        $.ajax({
+        Visibility.hidden() || $.ajax({
           url: pollUrl,               
           type: 'PUT',
           success: function(data) {
@@ -59,15 +48,14 @@
           }
         });
       }
-            
+
       var stopViewing = function() {
-        console.log("Removing viewership.");
         $.ajax({
           url: pollUrl,
           type: 'DELETE'
         });
       } 
-        
+
       var renderedViewers;
       var renderViewerList = function(viewers) {
             
@@ -92,21 +80,11 @@
         renderedViewers = viewers;
       }            
             
-      if (userId && hostId && resourceId) {    
+      if (userId && hostId && resourceId) {
         window.onbeforeunload = stopViewing;
-        renderViewerList(@Html(viewersWithDetails));              
         setInterval(poll, pollInterval);
-      
-        Visibility.change(function (e, state) {
-          if ( Visibility.hidden() ) {
-            console.log("Page is hidden, removing viewership in 5s.");
-            stopViewingTimeout = setTimeout(stopViewing, 5000);
-          } else if (stopViewingTimeout != null) {
-            console.log("Page is visible. Cancelling any stopViewing timeouts and repolling.");
-            clearTimeout(stopViewingTimeout);
-            poll();
-          }
-        });
+        Visibility.change(function (e, state) { poll(); });
+        renderViewerList(@Html(viewersWithDetails));        
       }
   });
     
