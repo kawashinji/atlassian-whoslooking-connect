@@ -7,6 +7,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader()) 
     <meta charset="utf-8" />
     <meta name="pollIntervalSeconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
     <meta name="avatarSize" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
@@ -93,5 +94,6 @@
     <div id="whoslooking-onlookers">
         <ul id="whoslooking-onlookers-list"></ul>
     </div>
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())    
   </body>
 </html>

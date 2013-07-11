@@ -5,6 +5,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader())
     <meta charset="utf-8" />
     <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
 	<meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
@@ -50,5 +51,6 @@
             </section>
         </footer><!-- #footer -->
     </div><!-- #page -->
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())
 </body>
 </html>
