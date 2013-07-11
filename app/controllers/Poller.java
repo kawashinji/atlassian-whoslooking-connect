@@ -5,7 +5,7 @@ import java.util.Map;
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.CheckValidOAuthRequest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
 
 import play.api.libs.Crypto;
