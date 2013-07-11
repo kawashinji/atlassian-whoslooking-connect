@@ -1,0 +1,37 @@
+@(hostId: String, resourceId: String, userId: String)
+
+@import play.mvc.Http.Context.Implicit.ctx
+@import com.atlassian.connect.play.java.AcHost
+@import play.api.Play
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="pollIntervalSeconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
+    <meta name="avatarSize" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
+    <meta name="hostId" content="@hostId" />    
+    <meta name="resourceId" content="@resourceId" />
+    <meta name="userId" content="@userId" />
+    <meta content="IE=EDGE" http-equiv="X-UA-Compatible" /> 
+    @ac.aui.all("5.1")
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="@routes.Assets.at("third-party/purl.js")"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
+    @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
+        <meta name="hostBaseUrl" content="@baseUrl" />
+        <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>
+        <link rel="stylesheet" type="text/css" href="@baseUrl/remotable-plugins/all.css"/>
+    }
+  </head>
+  <body>
+    <div class="aui-message hint">
+      <p class="title">
+        <span class="aui-icon icon-hint "></span>
+        <strong>Please Log In</strong>
+      </p>
+      <p>Log in to see who else is looking at this issue.</p>
+    </div>    
+  </body>
+</html>
