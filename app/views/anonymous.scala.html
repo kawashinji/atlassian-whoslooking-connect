@@ -4,6 +4,7 @@
 @import com.atlassian.connect.play.java.AcHost
 @import play.api.Play
 
+@defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -13,25 +14,20 @@
     <meta name="hostId" content="@hostId" />    
     <meta name="resourceId" content="@resourceId" />
     <meta name="userId" content="@userId" />
-    <meta content="IE=EDGE" http-equiv="X-UA-Compatible" /> 
+    <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
+    <meta name="hostBaseUrl" content="@baseUrl" />
     @ac.aui.all("5.1")
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="@routes.Assets.at("third-party/purl.js")"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
+    <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>    
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
-    @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
-        <meta name="hostBaseUrl" content="@baseUrl" />
-        <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>
-        <link rel="stylesheet" type="text/css" href="@baseUrl/remotable-plugins/all.css"/>
-    }
+    <link rel="stylesheet" type="text/css" href="@baseUrl/remotable-plugins/all.css"/>
   </head>
   <body>
     <div class="aui-message hint">
-      <p class="title">
+      <p>
         <span class="aui-icon icon-hint "></span>
-        <strong>Please Log In</strong>
+        Please <a target="_parent" href="@baseUrl/login.jsp?os_destination=%2Fsecure%2FViewIssue.jspa%3Fid%3D@resourceId">log in to JIRA</a> to see who else is looking at this issue.
       </p>
-      <p>Log in to see who else is looking at this issue.</p>
     </div>    
   </body>
 </html>
+}
