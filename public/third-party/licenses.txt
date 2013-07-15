@@ -1,0 +1,10 @@
+## Licenses of third party libraries used by the Who's Looking Connect app
+
+* Play framework 2: Apache 2 License
+* Play plugins: https://github.com/typesafehub/play-plugins#licence
+* Atlassian Connect: https://bitbucket.org/atlassian/remotable-plugins/src/d33d66ebde6fe37f7f83e8f99f59e076a7086ecc/LICENSE.txt
+* Apache Commons (lang, IO): http://www.apache.org/licenses/
+* jquery: https://jquery.org/license/
+* purl: https://github.com/allmarkedup/purl/blob/master/LICENSE
+* Visiblitiy.js: https://github.com/ai/visibility.js/blob/master/LICENSE
+* New Relic API library: https://newrelic.com/docs/java/java-agent-license

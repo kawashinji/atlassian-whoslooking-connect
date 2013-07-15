@@ -40,3 +40,7 @@ The Connect app registers an iframe in the View Issue page. The iframe content i
 	+ The Connect app should automatically install into the local JIRA instance, but if it doesn't, do so manually by running: ` curl -v -u admin -X POST -d url=http://localhost:9000 http://localhost:2990/jira/rest/remotable-plugins/latest/installer`
 
 You can now create an issue in JIRA, view it, and ensure the "Who's Looking?" panel is visible and populated. If you make changes to Who's Looking code, the Play framework will pick up the code changes as new requests come in.
+
+## License
+
+See `LICENSE.txt` and `./public/third-party/licenses.txt`
