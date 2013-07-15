@@ -1,6 +1,5 @@
 package service;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
@@ -12,9 +11,9 @@ public interface ViewablesService
 {
 
     /**
-     * @return set of userids actively viewing <code>resourceId</code> on <code>hostId</code>
+     * @return map of userids actively viewing <code>resourceId</code> on <code>hostId</code>, with the time since their last heartbeat in ms.
      */
-    Collection<String> getViewers(final String hostId, final String resourceId);
+    Map<String, String> getViewers(final String hostId, final String resourceId);
 
     /**
      * Record the fact that userId has recently viewed resourceId on hostId. It is up to the implementation to expire

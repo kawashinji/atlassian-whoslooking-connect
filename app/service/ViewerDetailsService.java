@@ -27,7 +27,7 @@ public class ViewerDetailsService
     public static JsonNode getCachedDetailsFor(final String hostId, final String username)
     {
 
-        String cachedValue = safeCacheGet(hostId, username);
+        String cachedValue = (String) Cache.get(hostId + "-" + username + "-details");
 
         if (StringUtils.isNotEmpty(cachedValue))
         {
@@ -77,20 +77,6 @@ public class ViewerDetailsService
         return null;
     }
 
-    private static String safeCacheGet(final String hostId, final String username)
-    {
-        String cachedValue;
-        try
-        {
-            cachedValue = (String) Cache.get(hostId + "-" + username + "-details");
-        }
-        catch (Exception e)
-        {
-            // Redis cache NPE's when the value doesn't exist... :(
-            cachedValue = null;
-        }
-        return cachedValue;
-    }
 
     private static int getCacheExpiry()
     {

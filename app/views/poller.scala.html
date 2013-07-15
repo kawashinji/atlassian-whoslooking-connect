@@ -20,6 +20,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
         <meta name="hostBaseUrl" content="@baseUrl" />
@@ -68,11 +69,14 @@
         var viewerList = $('<ul>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
         $.each(viewers, function(name, details) {
           var avatarUrl = hostBaseUrl+"/secure/useravatar?ownerId="+name;
-          var displayName = (details) ? details.displayName : name;
+          var displayName = (details && details.displayName) ? details.displayName : name;
           var viewerListItem = $('<li>');
-          var userFullName = $('<span>').text(displayName).addClass('whoslooking-fullname');
+          var userDisplayName = $('<span>').text(displayName).addClass('whoslooking-displayname');
+          if (details && details.lastSeen) {
+            viewerListItem.attr('title', moment.utc(details.lastSeen).fromNow());
+          }
           var avatar = $('<img>').attr('width', avatarSize).attr('height', avatarSize).attr('src', avatarUrl).addClass('whoslooking-avatar');
-          viewerListItem.append(avatar).append(userFullName);
+          viewerListItem.append(avatar).append(userDisplayName);
           viewerList.append(viewerListItem);                
         });
       
