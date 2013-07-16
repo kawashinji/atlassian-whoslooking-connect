@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.collect.Maps;
 import com.typesafe.plugin.RedisPlugin;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
