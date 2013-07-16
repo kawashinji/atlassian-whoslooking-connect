@@ -11,7 +11,7 @@ public interface ViewablesService
 {
 
     /**
-     * @return map of userids actively viewing <code>resourceId</code> on <code>hostId</code>, with the time since their last heartbeat in ms.
+     * @return map of userids actively viewing <code>resourceId</code> on <code>hostId</code>, with the UTC timestamp of their last heartbeat.
      */
     Map<String, String> getViewers(final String hostId, final String resourceId);
 

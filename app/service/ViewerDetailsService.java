@@ -1,5 +1,9 @@
 package service;
 
+import java.util.concurrent.TimeUnit;
+
+import com.atlassian.connect.play.java.AC;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
 
@@ -9,30 +13,35 @@ import play.cache.Cache;
 import play.libs.F.Callback;
 import play.libs.F.Function;
 import play.libs.F.Promise;
-import play.libs.Json;
 import play.libs.WS;
 import play.libs.WS.Response;
-
-import com.atlassian.connect.play.java.AC;
 
 public class ViewerDetailsService
 {
 
+    public static final String DISPLAY_NAME = "displayName";
+
+    public static final int DISPLAY_NAME_EXPIRY_SECONDS = Play.application().configuration()
+                                                              .getInt("whoslooking.display-name-cache-expiry.seconds",
+                                                                      (int)TimeUnit.DAYS.toSeconds(2));
+
+
     /**
-     * Query cache for user details. Return details if present in cache. Otherwise, initiate cache population and return
-     * null, so the details are available in the future. Non-blocking.
+     * Query cache for user's display name. Return if present in cache. Otherwise, initiate cache population and return
+     * null, so the full name is available in the future. Non-blocking.
      *
-     * @return user details JSON String, or null if not yet known.
+     * @return user display name, or null if not yet known.
      */
-    public static JsonNode getCachedDetailsFor(final String hostId, final String username)
+    public static String getCachedDisplayNameFor(final String hostId, final String username)
     {
 
-        String cachedValue = (String) Cache.get(hostId + "-" + username + "-details");
+        final String key = buildDisplayNameKey(hostId, username);
+        String cachedValue = (String) Cache.get(key);
 
         if (StringUtils.isNotEmpty(cachedValue))
         {
             // Found cached value, return it immediately.
-            return Json.parse(cachedValue);
+            return cachedValue;
         }
 
         Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
@@ -51,14 +60,16 @@ public class ViewerDetailsService
             public void invoke(Response a) throws Throwable
             {
                 JsonNode userDetailsJson = a.asJson();
-                if (!userDetailsJson.has("errorMessages"))
+                JsonNode displayNameNode = userDetailsJson.get(DISPLAY_NAME);
+                if (displayNameNode != null)
                 {
-                    Logger.info(String.format("Obtained details for %s on %s.", username, hostId));
-                    Cache.set(hostId + "-" + username + "-details", userDetailsJson.toString(), getCacheExpiry());
+                    String displayName = displayNameNode.asText();
+                    Logger.info(String.format("Obtained display name for %s on %s: %s", username, hostId, displayName));
+                    Cache.set(key, displayName, DISPLAY_NAME_EXPIRY_SECONDS);
                 }
                 else
                 {
-                    Logger.error(userDetailsJson.toString());
+                    Logger.error("Could not extract full name from user details, which were: " + userDetailsJson.toString());
                 }
             }
 
@@ -78,9 +89,10 @@ public class ViewerDetailsService
     }
 
 
-    private static int getCacheExpiry()
+    private static String buildDisplayNameKey(final String hostId, final String username)
     {
-        return Play.application().configuration().getInt("whoslooking.user-details-cache-expiry.seconds", 604800);
+        return hostId + "-" + username + "-"  + DISPLAY_NAME;
     }
+
 
 }

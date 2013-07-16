@@ -23,10 +23,10 @@ import redis.clients.jedis.Transaction;
 public class RedisViewablesService implements ViewablesService
 {
 
-    // A viewer is considered to not be looking anymore if no heartbeat has been recieved in this amount of time.
+    // A viewer is considered to not be looking anymore if no heartbeat has been received in this amount for time.
     private static final int VIEWER_EXPIRY_SECONDS = Play.application().configuration().getInt("whoslooking.viewer-expiry.seconds", 10);
 
-    // A viewer set associated with an issue is purged if no one has requested it in this amount of time.
+    // A viewer set associated with an issue is purged if no one has requested it for this amount of time.
     private static final int VIEWER_SET_EXPIRY_SECONDS = Play.application().configuration().getInt("whoslooking.viewer-set-expiry.seconds", (int)TimeUnit.DAYS.toSeconds(1));
 
     @Override
@@ -67,7 +67,7 @@ public class RedisViewablesService implements ViewablesService
     }
 
     @Override
-    public  void putViewer(final String hostId, final String resourceId, final String newViewer)
+    public void putViewer(final String hostId, final String resourceId, final String newViewer)
     {
         final String viewerKey = buildViewerKey(hostId, resourceId, newViewer);
         final String resourceKey = buildResourceKey(hostId, resourceId);
@@ -111,11 +111,7 @@ public class RedisViewablesService implements ViewablesService
             public JsonNode transformEntry(String username, String lastSeen)
             {
                 ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-                JsonNode cachedDetails = ViewerDetailsService.getCachedDetailsFor(hostId, username);
-                if (cachedDetails != null && cachedDetails.has("displayName"))
-                {
-                    objectNode.put("displayName", cachedDetails.get("displayName"));
-                }
+                objectNode.put("displayName", ViewerDetailsService.getCachedDisplayNameFor(hostId, username));
                 objectNode.put("lastSeen", lastSeen);
                 return objectNode;
             }

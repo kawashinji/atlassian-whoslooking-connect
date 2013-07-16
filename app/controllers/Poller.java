@@ -17,8 +17,6 @@ import service.ViewablesService;
 
 public class Poller extends Controller
 {
-    private static final String ANONYMOUS = "anonymous";
-
     public static final String PER_PAGE_VIEW_TOKEN_HEADER = "x-per-page-view-token";
 
     private final ViewablesService viewables = new RedisViewablesService();
