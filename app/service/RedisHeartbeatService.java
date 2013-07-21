@@ -16,6 +16,7 @@ import utils.Constants;
 
 import static utils.KeyUtils.buildHeartbeatKey;
 import static utils.KeyUtils.buildViewerSetKey;
+import static utils.RedisUtils.jedisPool;
 
 /**
 * Provides an implementation of HeartbeatService backed by Redis.
@@ -105,8 +106,4 @@ public class RedisHeartbeatService implements HeartbeatService
         }
     }
 
-    private JedisPool jedisPool()
-    {
-        return play.Play.application().plugin(RedisPlugin.class).jedisPool();
-    }
 }

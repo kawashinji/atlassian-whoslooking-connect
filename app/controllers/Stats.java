@@ -1,6 +1,7 @@
 package controllers;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
+import static utils.RedisUtils.jedisPool;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,10 +17,6 @@ import com.typesafe.plugin.RedisPlugin;
 
 public class Stats extends Controller
 {
-    private JedisPool jedisPool()
-    {
-        return play.Play.application().plugin(RedisPlugin.class).jedisPool();
-    }
     
     public Result index() throws UnknownHostException
     {

@@ -16,6 +16,7 @@ import static play.test.Helpers.*;
 import static utils.Constants.VIEWER_EXPIRY_SECONDS;
 import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
 import static util.TimedAsserts.assertStartsPassingAfter;
+import static utils.RedisUtils.jedisPool;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -105,15 +106,14 @@ public class RedisHeartbeatServiceTest {
     }
 
     private static void assertRedisKeyAbsent(String key) {
-        JedisPool jp = Play.application().plugin(RedisPlugin.class).jedisPool();
-        Jedis j = jp.getResource();
+        Jedis j = jedisPool().getResource();
         try
         {
             assertFalse("Viewer set " + key + " should have expired. You might have a leak.", j.exists(key));
         }
         finally
         {
-            jp.returnResource(j);
+            jedisPool().returnResource(j);
         }
     }
 
