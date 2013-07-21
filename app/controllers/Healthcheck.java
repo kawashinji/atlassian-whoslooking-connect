@@ -4,7 +4,7 @@ import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.controllers.AcController;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
