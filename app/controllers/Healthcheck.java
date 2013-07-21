@@ -1,10 +1,6 @@
 package controllers;
 
-import com.atlassian.connect.play.java.AC;
-import com.atlassian.connect.play.java.controllers.AcController;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -12,16 +8,12 @@ import play.mvc.Result;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.split;
 import static utils.RedisUtils.jedisPool;
 
 public class Healthcheck  extends Controller
