@@ -9,8 +9,8 @@
   <head>
     @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader()) 
     <meta charset="utf-8" />
-    <meta name="pollIntervalSeconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
-    <meta name="avatarSize" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
+    <meta name="pollIntervalSeconds" content="@Play.current.configuration.getInt(utils.Constants.POLLER_INTERVAL_SECONDS).getOrElse(utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT)" />
+    <meta name="avatarSize" content="@Play.current.configuration.getInt(utils.Constants.AVATAR_SIZE_PX).getOrElse(utils.Constants.AVATAR_SIZE_PX_DEFAULT)" />
     <meta name="hostId" content="@hostId" />    
     <meta name="resourceId" content="@resourceId" />
     <meta name="userId" content="@userId" />
@@ -39,7 +39,7 @@
       var userId = getMeta('userId');
       var perPageViewToken = getMeta('perPageViewToken');
       var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId);
-      $.ajaxSetup({ headers: { "@controllers.Poller.PER_PAGE_VIEW_TOKEN_HEADER" : perPageViewToken } });         
+      $.ajaxSetup({ headers: { "@utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER" : perPageViewToken } });
         
       var poll = function() {
         Visibility.hidden() || $.ajax({

@@ -2,8 +2,6 @@ package controllers;
 
 import java.util.Map;
 
-import com.atlassian.connect.play.java.CheckValidOAuthRequest;
-
 import org.codehaus.jackson.JsonNode;
 
 import play.mvc.Http.Cookie;
@@ -13,15 +11,17 @@ import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import service.RedisViewablesService;
-import service.ViewablesService;
+import service.RedisHeartbeatService;
+import service.HeartbeatService;
+import service.ViewerDetailsService;
 
-import static controllers.Poller.PER_PAGE_VIEW_TOKEN_HEADER;
+import static utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER;
 import static java.lang.String.format;
 
 public class Viewers extends Controller
 {
-    private final ViewablesService viewables = new RedisViewablesService();
+    private final HeartbeatService heartbeatService = new RedisHeartbeatService();
+    private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
 
     public Result put(final String hostId, final String resourceId, final String userId)
     {
@@ -32,9 +32,9 @@ public class Viewers extends Controller
             return badRequest("Don't spoof me bro.");
         }
 
-        viewables.putViewer(hostId, resourceId, userId);
+        heartbeatService.put(hostId, resourceId, userId);
 
-        Map<String, JsonNode> viewersWithDetails = viewables.getViewersWithDetails(resourceId, hostId);
+        Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
 
         return ok(Json.toJson(viewersWithDetails));
     }
@@ -48,29 +48,9 @@ public class Viewers extends Controller
             return badRequest("Don't spoof me bro.");
         }
 
-        viewables.deleteViewer(hostId, resourceId, userId);
+        heartbeatService.delete(hostId, resourceId, userId);
 
         return noContent();
-    }
-
-    public Result get(final String hostId, final String resourceId, final String userId)
-    {
-        Logger.debug(format("Getting %s/%s/%s", hostId, resourceId, userId));
-
-        if (!isValidRequestFromAuthenticatedUser(hostId, userId))
-        {
-            return badRequest("Don't spoof me bro.");
-        }
-
-        Map<String, JsonNode> viewersWithDetails = viewables.getViewersWithDetails(resourceId, hostId);
-
-        return ok(Json.toJson(viewersWithDetails.get(userId)));
-    }
-
-    @CheckValidOAuthRequest
-    public Result list(final String hostId, final String resourceId)
-    {
-        return ok(Json.toJson(viewables.getViewersWithDetails(resourceId, hostId)));
     }
 
     private boolean isValidRequestFromAuthenticatedUser(final String hostId, final String username)

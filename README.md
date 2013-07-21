@@ -3,7 +3,7 @@ Who's Looking, with Atlassian Connect
 
 This is an Atlassian Connect approximation of the [Who's Lookin'](https://marketplace.atlassian.com/plugins/com.atlassian.jira.plugins.whoslookin) plugin for JIRA.  
 
-The aim is to show a list of users who are currently viewing a given issue, without causing much load on the host application. Once installed on a JIRA instance, it looks like this:
+The aim is to show a list of users who are currently viewing an issue, without causing much load on the host application. Once installed on a JIRA instance, it looks like this:
 ![Who's Looking with Atlassian Connect](http://i.imgur.com/nNarePB.jpg)
 
 ## Implementation Overview

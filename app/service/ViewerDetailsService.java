@@ -1,12 +1,11 @@
 package service;
 
-import java.util.concurrent.TimeUnit;
-
 import com.atlassian.connect.play.java.AC;
-
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
-
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
 import play.Logger;
 import play.Play;
 import play.cache.Cache;
@@ -16,15 +15,48 @@ import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
 
+import java.util.Map;
+
+import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
+import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
+import static utils.KeyUtils.buildDisplayNameKey;
+
+/**
+ * Retrieves user details from remote hosts.
+ */
 public class ViewerDetailsService
 {
 
     public static final String DISPLAY_NAME = "displayName";
 
-    public static final int DISPLAY_NAME_EXPIRY_SECONDS = Play.application().configuration()
-                                                              .getInt("whoslooking.display-name-cache-expiry.seconds",
-                                                                      (int)TimeUnit.DAYS.toSeconds(2));
+    private final HeartbeatService heartbeatService;
+    private final int displayNameCacheExpirySeconds;
 
+    public ViewerDetailsService(final HeartbeatService heartbeatService)
+    {
+        this.heartbeatService = heartbeatService;
+        this.displayNameCacheExpirySeconds = Play.application().configuration().getInt(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT);
+    }
+
+    /**
+     * @return map of userids actively viewing <code>resourceId</code> on <code>hostId</code> to any additional details
+     *         we have about the user.
+     */
+    public Map<String, JsonNode> getViewersWithDetails(final String resourceId, final String hostId)
+    {
+        Map<String, String> viewers = heartbeatService.list(hostId, resourceId);
+
+        Map<String, JsonNode> viewersWithDetails = Maps.transformEntries(viewers, new Maps.EntryTransformer<String, String, JsonNode>() {
+            @Override
+            public JsonNode transformEntry(String username, String lastSeen) {
+                ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
+                objectNode.put("displayName", getCachedDisplayNameFor(hostId, username));
+                objectNode.put("lastSeen", lastSeen);
+                return objectNode;
+            }
+        });
+        return viewersWithDetails;
+    }
 
     /**
      * Query cache for user's display name. Return if present in cache. Otherwise, initiate cache population and return
@@ -32,7 +64,7 @@ public class ViewerDetailsService
      *
      * @return user display name, or null if not yet known.
      */
-    public static String getCachedDisplayNameFor(final String hostId, final String username)
+    private String getCachedDisplayNameFor(final String hostId, final String username)
     {
 
         final String key = buildDisplayNameKey(hostId, username);
@@ -65,7 +97,7 @@ public class ViewerDetailsService
                 {
                     String displayName = displayNameNode.asText();
                     Logger.info(String.format("Obtained display name for %s on %s: %s", username, hostId, displayName));
-                    Cache.set(key, displayName, DISPLAY_NAME_EXPIRY_SECONDS);
+                    Cache.set(key, displayName, displayNameCacheExpirySeconds);
                 }
                 else
                 {
@@ -87,12 +119,5 @@ public class ViewerDetailsService
 
         return null;
     }
-
-
-    private static String buildDisplayNameKey(final String hostId, final String username)
-    {
-        return hostId + "-" + username + "-"  + DISPLAY_NAME;
-    }
-
 
 }
