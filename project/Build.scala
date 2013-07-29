@@ -16,7 +16,9 @@ object ApplicationBuild extends Build {
     "com.typesafe" %% "play-plugins-redis" % "2.1-1-RC2-robinf-3",
     "com.atlassian.connect" % "ac-play-java_2.10" % "0.5.4",
     "org.apache.commons" % "commons-lang3" % "3.1",
-    "com.newrelic.agent.java" % "newrelic-api" % "2.20.0"    
+    "com.google.guava" % "guava" % "14.0.1",
+    "commons-codec" % "commons-codec" % "1.8",
+    "com.newrelic.agent.java" % "newrelic-api" % "2.20.0"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(

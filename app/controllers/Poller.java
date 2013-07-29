@@ -12,14 +12,14 @@ import play.api.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import service.RedisViewablesService;
-import service.ViewablesService;
+import service.HeartbeatService;
+import service.RedisHeartbeatService;
+import service.ViewerDetailsService;
 
 public class Poller extends Controller
 {
-    public static final String PER_PAGE_VIEW_TOKEN_HEADER = "x-per-page-view-token";
-
-    private final ViewablesService viewables = new RedisViewablesService();
+    private final HeartbeatService heartbeatService = new RedisHeartbeatService();
+    private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
 
     @CheckValidOAuthRequest
     public Result index() throws Exception
@@ -34,8 +34,8 @@ public class Poller extends Controller
             return unauthorized(views.html.anonymous.render(hostId, resourceId, userId));
         }
 
-        viewables.putViewer(hostId, resourceId, userId);
-        final Map<String, JsonNode> viewersWithDetails = viewables.getViewersWithDetails(resourceId, hostId);
+        heartbeatService.put(hostId, resourceId, userId);
+        final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
 
         final String perPageViewToken = Crypto.sign(hostId + userId);
         return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, userId, perPageViewToken));
