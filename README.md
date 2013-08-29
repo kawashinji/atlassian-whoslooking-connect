@@ -41,6 +41,11 @@ The Connect app registers an iframe in the View Issue page. The iframe content i
 
 You can now create an issue in JIRA, view it, and ensure the "Who's Looking?" panel is visible and populated. If you make changes to Who's Looking code, the Play framework will pick up the code changes as new requests come in.
 
+## Running Integration Tests
+
+Run `play test`. Requires a local Redis instance.
+
+
 ## License
 
 See `LICENSE.txt` and `./public/third-party/licenses.txt`
