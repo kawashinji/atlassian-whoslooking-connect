@@ -1,23 +1,21 @@
 package controllers;
 
-import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
-import static utils.RedisUtils.jedisPool;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
+
 import play.mvc.Controller;
 import play.mvc.Result;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
-import com.google.common.collect.ImmutableMap;
-import com.typesafe.plugin.RedisPlugin;
+import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
+import static utils.RedisUtils.jedisPool;
 
 public class Stats extends Controller
 {
-    
+
     public Result index() throws UnknownHostException
     {
         String redisStats = getRedisStats();

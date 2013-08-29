@@ -4,13 +4,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Maps;
-import com.typesafe.plugin.RedisPlugin;
 
 import org.apache.commons.lang3.StringUtils;
 
 import play.Play;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Transaction;
 import utils.Constants;
 
