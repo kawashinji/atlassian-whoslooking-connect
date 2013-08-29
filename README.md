@@ -43,7 +43,9 @@ You can now create an issue in JIRA, view it, and ensure the "Who's Looking?" pa
 
 ## Running Integration Tests
 
-Run `play test`. Requires a local Redis instance.
+Run `play test`. Requires a Redis instance; by default will try `localhost:6379`, but can be overridden with env var `REDIS_URI`.
+For example, to test using a rediscloud instance: `REDIS_URI=redis://rediscloud:PASSWORD@pub-redis-1234.us-east-1-4.1.ec2.garantiadata.com:1234 play test`.
+
 
 
 ## License
