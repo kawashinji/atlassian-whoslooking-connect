@@ -1,31 +1,30 @@
 package it.service;
 
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.plugin.RedisPlugin;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import play.Play;
+
 import play.test.FakeApplication;
+import redis.clients.jedis.Jedis;
+import service.RedisHeartbeatService;
+import util.FakeHeartbeat;
+import utils.KeyUtils;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static play.test.Helpers.*;
+import static play.test.Helpers.fakeApplication;
+import static play.test.Helpers.start;
+import static play.test.Helpers.stop;
+import static util.TimedAsserts.assertStartsPassingAfter;
 import static utils.Constants.VIEWER_EXPIRY_SECONDS;
 import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
-import static util.TimedAsserts.assertStartsPassingAfter;
 import static utils.RedisUtils.jedisPool;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import utils.KeyUtils;
-import service.RedisHeartbeatService;
-import util.FakeHeartbeat;
-
-import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * Heartbeat integration test with Redis. Requires that Redis is up and running locally.
@@ -70,7 +69,7 @@ public class RedisHeartbeatServiceTest {
         final FakeHeartbeat hb = FakeHeartbeat.build();
         sut.put(hb.hostId, hb.resourceId, hb.userId);
 
-        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_EXPIRY_SECONDS_TEST_VALUE), new Callable<Void>() {
+        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_EXPIRY_SECONDS_TEST_VALUE*2), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Map<String, String> hbs = sut.list(hb.hostId, hb.resourceId);
@@ -96,7 +95,7 @@ public class RedisHeartbeatServiceTest {
         sut.put(hb.hostId, hb.resourceId, hb.userId);
 
         final String viewerSetKey = KeyUtils.buildViewerSetKey(hb.hostId, hb.resourceId);
-        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE), new Callable<Void>() {
+        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE*2), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 assertRedisKeyAbsent(viewerSetKey);

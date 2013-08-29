@@ -2,8 +2,6 @@ package service;
 
 import java.util.Map;
 
-import org.codehaus.jackson.JsonNode;
-
 
 public interface HeartbeatService
 {
