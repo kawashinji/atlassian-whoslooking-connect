@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.Config;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -14,12 +13,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import redis.embedded.RedisServer;
 import play.test.FakeApplication;
 import redis.clients.jedis.Jedis;
+import redis.embedded.RedisServer;
 import service.RedisHeartbeatService;
 import util.FakeHeartbeat;
 import utils.KeyUtils;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,9 +32,10 @@ import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
 import static utils.RedisUtils.jedisPool;
 
 /**
- * Heartbeat integration test with Redis. Requires that Redis is up and running locally.
+ * Heartbeat integration test with Redis. Starts a local Redis instance.
  */
-public class RedisHeartbeatServiceTest {
+public class RedisHeartbeatServiceTest
+{
     private static final int VIEWER_EXPIRY_SECONDS_TEST_VALUE = 1;
     private static final int VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE = 2;
 
@@ -58,12 +59,12 @@ public class RedisHeartbeatServiceTest {
     }
 
     @Before
-    public void startApp() {
+    public void startApp()
+    {
 
-        Map<String, String> fakeConfig = ImmutableMap.of(
-                VIEWER_EXPIRY_SECONDS, String.valueOf(VIEWER_EXPIRY_SECONDS_TEST_VALUE),
-                VIEWER_SET_EXPIRY_SECONDS, String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE),
-                "redis.uri", "redis://localhost:" + redisPort);
+        Map<String, String> fakeConfig = ImmutableMap.of(VIEWER_EXPIRY_SECONDS, String.valueOf(VIEWER_EXPIRY_SECONDS_TEST_VALUE),
+                                                         VIEWER_SET_EXPIRY_SECONDS, String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE),
+                                                         "redis.uri", "redis://localhost:" + redisPort);
 
         fakeApplication = fakeApplication(fakeConfig);
         start(fakeApplication);
@@ -72,12 +73,14 @@ public class RedisHeartbeatServiceTest {
     }
 
     @After
-    public void stopApp() {
+    public void stopApp()
+    {
         stop(fakeApplication);
     }
 
     @Test
-    public void heartbeatShouldPersist() {
+    public void heartbeatShouldPersist()
+    {
         FakeHeartbeat hb = FakeHeartbeat.build();
 
         sut.put(hb.hostId, hb.resourceId, hb.userId);
@@ -87,22 +90,26 @@ public class RedisHeartbeatServiceTest {
     }
 
     @Test
-    public void heartbeatShouldExpire() throws Exception {
+    public void heartbeatShouldExpire() throws Exception
+    {
         final FakeHeartbeat hb = FakeHeartbeat.build();
         sut.put(hb.hostId, hb.resourceId, hb.userId);
 
-        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_EXPIRY_SECONDS_TEST_VALUE*2), new Callable<Void>() {
+        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_EXPIRY_SECONDS_TEST_VALUE * 2), new Callable<Void>()
+        {
             @Override
-            public Void call() throws Exception {
+            public Void call() throws Exception
+            {
                 Map<String, String> hbs = sut.list(hb.hostId, hb.resourceId);
-                assertFalse("Unexpected heartbeat " + hb.userId + " in db. Got: " +hbs, hbs.containsKey(hb.userId));
+                assertFalse("Unexpected heartbeat " + hb.userId + " in db. Got: " + hbs, hbs.containsKey(hb.userId));
                 return null;
             }
         });
     }
 
     @Test
-    public void heartbeatShouldBeDeletable() {
+    public void heartbeatShouldBeDeletable()
+    {
         FakeHeartbeat hb = FakeHeartbeat.build();
         sut.put(hb.hostId, hb.resourceId, hb.userId);
         sut.delete(hb.hostId, hb.resourceId, hb.userId);
@@ -112,21 +119,25 @@ public class RedisHeartbeatServiceTest {
     }
 
     @Test
-    public void viewerSetShouldExpire() throws Exception {
+    public void viewerSetShouldExpire() throws Exception
+    {
         FakeHeartbeat hb = FakeHeartbeat.build();
         sut.put(hb.hostId, hb.resourceId, hb.userId);
 
         final String viewerSetKey = KeyUtils.buildViewerSetKey(hb.hostId, hb.resourceId);
-        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE*2), new Callable<Void>() {
+        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE * 2), new Callable<Void>()
+        {
             @Override
-            public Void call() throws Exception {
+            public Void call() throws Exception
+            {
                 assertRedisKeyAbsent(viewerSetKey);
                 return null;
             }
         });
     }
 
-    private static void assertRedisKeyAbsent(String key) {
+    private static void assertRedisKeyAbsent(String key)
+    {
         Jedis j = jedisPool().getResource();
         try
         {

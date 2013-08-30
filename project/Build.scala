@@ -20,7 +20,7 @@ object ApplicationBuild extends Build {
     "commons-codec" % "commons-codec" % "1.8",
     "com.newrelic.agent.java" % "newrelic-api" % "2.20.0",
     "redis.embedded" % "embedded-redis" % "1.0-robinf-1" % "test" exclude("com.google.guava", "guava-io")
-    
+//    "com.atlassian.jira" % "atlassian-jira-pageobjects" % "6.1-OD-06" % "test" exclude("com.google.collections", "google-collections")  exclude("org.apache.ws.commons", "XmlSchema")     
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
