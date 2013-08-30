@@ -28,7 +28,6 @@ public class Poller extends Controller
         final String resourceId = request().getQueryString("issue_id");
         final String userId = AC.getUser().getOrNull();
 
-
         if (StringUtils.isBlank(userId))
         {
             return unauthorized(views.html.anonymous.render(hostId, resourceId, userId));

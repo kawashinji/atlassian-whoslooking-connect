@@ -8,6 +8,6 @@
         </permissions>
     </plugin-info>
 } {
-       <issue-panel-page key="whos-looking" application="jira" name="Who's Looking?" url="/poller" />
+    <remote-web-panel location="atl.jira.view.issue.right.context" key="whos-looking" application="jira" name="Who's Looking?" url="/poller?issue_id=${issue.id}" />
 }
         

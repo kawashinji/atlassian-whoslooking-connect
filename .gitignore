@@ -1,6 +1,7 @@
 logs
 project/project
 project/target
+project/boot
 target
 tmp
 .history
@@ -17,3 +18,4 @@ dist
 
 public-key.pem
 private-key.pem
+/bin
