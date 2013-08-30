@@ -2,8 +2,6 @@ package pdv;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * Runs Who's Looking post-deployment verification tests against a JIRA instance with Who's Looking installed. Assumptions:
  * Who's Looking is installed on the instance.
@@ -39,4 +37,21 @@ public class WhosLookingSpec
 
     }
 
+    @Test
+    public void shouldPassHealthCheck()
+    {
+
+    }
+    
+    @Test
+    public void shouldServeDescriptor()
+    {
+
+    }
+
+    @Test
+    public void shouldServeHomepage()
+    {
+
+    }
 }

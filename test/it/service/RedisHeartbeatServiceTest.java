@@ -1,21 +1,16 @@
 package it.service;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.google.common.collect.ImmutableMap;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import play.test.FakeApplication;
 import redis.clients.jedis.Jedis;
-import redis.embedded.RedisServer;
 import service.RedisHeartbeatService;
 import util.FakeHeartbeat;
 import utils.KeyUtils;
@@ -23,59 +18,36 @@ import utils.KeyUtils;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static play.test.Helpers.fakeApplication;
-import static play.test.Helpers.start;
-import static play.test.Helpers.stop;
+import static util.RedisTestUtils.startNewFakeAppWithRedis;
+import static util.RedisTestUtils.stopFakeAppWithRedis;
 import static util.TimedAsserts.assertStartsPassingAfter;
 import static utils.Constants.VIEWER_EXPIRY_SECONDS;
 import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
 import static utils.RedisUtils.jedisPool;
 
 /**
- * Heartbeat integration test with Redis. Starts a local Redis instance.
+ * Heartbeat integration test with Redis. Starts local Redis instances.
  */
 public class RedisHeartbeatServiceTest
 {
     private static final int VIEWER_EXPIRY_SECONDS_TEST_VALUE = 1;
     private static final int VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE = 2;
-
-    private FakeApplication fakeApplication;
+    
+    private FakeApplication fakeApp;
     private RedisHeartbeatService sut;
-    private static RedisServer redisServer;
-    private static int redisPort;
-
-    @BeforeClass
-    public static void startRedis() throws Exception
-    {
-        redisPort = findFreePort();
-        redisServer = new RedisServer(redisPort);
-        redisServer.start();
-    }
-
-    @AfterClass
-    public static void stopRedis() throws Exception
-    {
-        redisServer.stop();
-    }
 
     @Before
-    public void startApp()
+    public void startApp() throws Exception
     {
-
-        Map<String, String> fakeConfig = ImmutableMap.of(VIEWER_EXPIRY_SECONDS, String.valueOf(VIEWER_EXPIRY_SECONDS_TEST_VALUE),
-                                                         VIEWER_SET_EXPIRY_SECONDS, String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE),
-                                                         "redis.uri", "redis://localhost:" + redisPort);
-
-        fakeApplication = fakeApplication(fakeConfig);
-        start(fakeApplication);
-
+        fakeApp = startNewFakeAppWithRedis(ImmutableMap.of(VIEWER_EXPIRY_SECONDS, String.valueOf(VIEWER_EXPIRY_SECONDS_TEST_VALUE),
+                                                           VIEWER_SET_EXPIRY_SECONDS, String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE)));
         sut = new RedisHeartbeatService();
     }
 
     @After
     public void stopApp()
     {
-        stop(fakeApplication);
+        stopFakeAppWithRedis(fakeApp);
     }
 
     @Test
@@ -148,13 +120,5 @@ public class RedisHeartbeatServiceTest
             jedisPool().returnResource(j);
         }
     }
-
-    private static int findFreePort() throws IOException
-    {
-        ServerSocket s = new ServerSocket(0);
-        int port = s.getLocalPort();
-        s.close();
-        return port;
-    }
-
+    
 }

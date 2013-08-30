@@ -1,6 +1,12 @@
 package controllers;
 
+import java.lang.management.ManagementFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Scanner;
+
 import com.google.common.collect.ImmutableMap;
+
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -8,11 +14,7 @@ import play.mvc.Result;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
 
-import java.lang.management.ManagementFactory;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Scanner;
-
+import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.split;
 import static utils.RedisUtils.jedisPool;
 
@@ -33,13 +35,12 @@ public class Healthcheck  extends Controller
         catch(JedisException e)
         {
             Logger.error("Health check failed to access Redis", e);
-            Map<String, Object> redisHealthInfo = redisHealthInfo();
-            return ok(Json.toJson(
-                    ImmutableMap.builder()
-                            .putAll(basicHealthInfo())
-                            .put("isHealthy", false)
-                            .put("failureReason", "Health check failed to access Redis" + e.getMessage())
-                            .build()
+            return status(HTTP_UNAVAILABLE, Json.toJson(
+                            ImmutableMap.builder()
+                                .putAll(basicHealthInfo())
+                                .put("isHealthy", false)
+                                .put("failureReason", "Health check failed to access Redis" + e.getMessage())
+                                .build()
             ));
         }
     }
@@ -79,16 +80,17 @@ public class Healthcheck  extends Controller
     {
         Map<String, Object> redisStats = new LinkedHashMap<String, Object>();
         for (String section: split(rawStatsString, "#")) {
-            Scanner scanner = new Scanner(section);
+            try (Scanner scanner = new Scanner(section)) {
 
-            String sectionTitle = scanner.nextLine().trim();
-            Map<String, String> sectionEntries = new LinkedHashMap<String, String>();
-            redisStats.put(sectionTitle, sectionEntries);
-
-            while (scanner.hasNextLine()) {
-                String[] kvp = split(scanner.nextLine(), ":");
-                if (kvp.length > 1) {
-                    sectionEntries.put(kvp[0], kvp[1]);
+                String sectionTitle = scanner.nextLine().trim();
+                Map<String, String> sectionEntries = new LinkedHashMap<String, String>();
+                redisStats.put(sectionTitle, sectionEntries);
+    
+                while (scanner.hasNextLine()) {
+                    String[] kvp = split(scanner.nextLine(), ":");
+                    if (kvp.length > 1) {
+                        sectionEntries.put(kvp[0], kvp[1]);
+                    }
                 }
             }
         }

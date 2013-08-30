@@ -1,95 +1,179 @@
 package it.controller;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Map;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
+import play.api.libs.Crypto;
+import play.libs.Json;
 import play.mvc.Result;
-
-import controllers.Viewers;
 import play.test.FakeApplication;
-import redis.embedded.RedisServer;
-import service.RedisHeartbeatService;
-import static play.test.Helpers.fakeApplication;
-import static play.test.Helpers.start;
-import static play.test.Helpers.stop;
-import static utils.Constants.VIEWER_EXPIRY_SECONDS;
-import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
+import play.test.FakeRequest;
 
-import static play.test.Helpers.*;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.route;
+import static play.test.Helpers.status;
+import static util.RedisTestUtils.startNewFakeAppWithRedis;
+import static util.RedisTestUtils.stopFakeAppWithRedis;
+import static utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER;
 
 /**
- * Heartbeat integration test with Redis. Starts a local Redis instance.
+ * Viewer controller test. Starts a local Redis instance.
  */
 public class ViewerTest
 {
-    private static final int VIEWER_EXPIRY_SECONDS_TEST_VALUE = 1;
-    private static final int VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE = 2;
+    private static final String TEST_RESOURCE_ID = "test-resource-id";
+    private static final String TEST_HOST_ID = "test-host-id";
 
-    private FakeApplication fakeApplication;
-    private RedisHeartbeatService sut;
-    private static RedisServer redisServer;
-    private static int redisPort;
-
-    @BeforeClass
-    public static void startRedis() throws Exception
-    {
-        redisPort = findFreePort();
-        redisServer = new RedisServer(redisPort);
-        redisServer.start();
-    }
-
-    @AfterClass
-    public static void stopRedis() throws Exception
-    {
-        redisServer.stop();
-    }
+    private FakeApplication fakeApp;
 
     @Before
-    public void startApp()
+    public void startApp() throws Exception
     {
-
-        Map<String, String> fakeConfig = ImmutableMap.of(VIEWER_EXPIRY_SECONDS,
-                                                         String.valueOf(VIEWER_EXPIRY_SECONDS_TEST_VALUE),
-                                                         VIEWER_SET_EXPIRY_SECONDS,
-                                                         String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE),
-                                                         "redis.uri",
-                                                         "redis://localhost:" + redisPort);
-
-        fakeApplication = fakeApplication(fakeConfig);
-        start(fakeApplication);
-
-        sut = new RedisHeartbeatService();
+        fakeApp = startNewFakeAppWithRedis();
     }
 
     @After
     public void stopApp()
     {
-        stop(fakeApplication);
+        stopFakeAppWithRedis(fakeApp);
     }
 
     @Test
+    public void shouldRejectPutIfTokenIsMissing()
+    {
+        Result result = route(putViewer("some-user"));    
+        assertEquals(HTTP_BAD_REQUEST, status(result));
+    }
+    
+    @Test
     public void shouldRejectPutIfTokenIsInvalid()
     {
-        Result result = route(fakeRequest("PUT", "/viewables/some-host/some-resource/viewers/some-user"));
-        System.out.println(status(result));
+        Result result = route(putViewer("some-user").withHeader(PER_PAGE_VIEW_TOKEN_HEADER, "garbage"));   
+        assertEquals(HTTP_BAD_REQUEST, status(result));
+    }
+    
+    @Test
+    public void shouldRejectDeleteIfTokenIsMissing()
+    {
+        Result result = route(deleteViewer("some-user"));    
+        assertEquals(HTTP_BAD_REQUEST, status(result));
+    }
+    
+    @Test
+    public void shouldRejectDeleteIfTokenIsInvalid()
+    {
+        Result result = route(deleteViewer("some-user").withHeader(PER_PAGE_VIEW_TOKEN_HEADER, "garbage"));   
+        assertEquals(HTTP_BAD_REQUEST, status(result));
+    }    
+
+    @Test
+    public void shouldAcceptPutIfTokenIsValid()
+    {
+        Result result = routeAndExpectSuccess(putViewerWithValidToken("some-user"));   
+        assertEquals(ImmutableSet.of("some-user"), extractViewers(result));
     }
 
-
-    private static int findFreePort() throws IOException
+    @Test
+    public void shouldTrackMultipleViewers()
     {
-        ServerSocket s = new ServerSocket(0);
-        int port = s.getLocalPort();
-        s.close();
-        return port;
+        routeAndExpectSuccess(putViewerWithValidToken("some-user-1"));
+        Result result = routeAndExpectSuccess(putViewerWithValidToken("some-user-2"));
+
+        assertEquals(ImmutableSet.of("some-user-1", "some-user-2"), extractViewers(result));
+    }
+    
+    @Test
+    public void shouldNotListDeletedViewer()
+    {
+        routeAndExpectSuccess(putViewerWithValidToken("some-user-1"));
+        routeAndExpectSuccess(putViewerWithValidToken("some-user-2"));
+        routeAndExpectSuccess(deleteViewerWithValidToken("some-user-2"));
+        Result result = routeAndExpectSuccess(putViewerWithValidToken("some-user-1"));
+
+        assertEquals(ImmutableSet.of("some-user-1"), extractViewers(result));
+    }
+    
+    @Test
+    public void shouldNotConflateViewersOfDifferentResources()
+    {
+        routeAndExpectSuccess(putViewerWithValidToken(TEST_HOST_ID, "resource-1", "some-user-1"));
+        Result result = routeAndExpectSuccess(putViewerWithValidToken(TEST_HOST_ID, "resource-2", "some-user-2"));
+
+        assertEquals(ImmutableSet.of("some-user-2"), extractViewers(result));
+    }
+    
+    @Test
+    public void shouldNotConflateViewersOfDifferentHosts()
+    {
+        routeAndExpectSuccess(putViewerWithValidToken("host-1", TEST_RESOURCE_ID, "some-user-1"));
+        Result result = routeAndExpectSuccess(putViewerWithValidToken("host-2", TEST_RESOURCE_ID, "some-user-2"));
+        
+        assertEquals(ImmutableSet.of("some-user-2"), extractViewers(result));
+    }
+    
+    public static Result routeAndExpectSuccess(FakeRequest req)
+    {
+        Result result = route(req);
+        int status = status(result);
+        assertTrue(String.format("Unexpected status %s. Body: %s", status, contentAsString(result)),
+                   HTTP_OK == status || HTTP_NO_CONTENT == status);
+        return result;
+    }
+    
+    private static Set<String> extractViewers(Result result)
+    {
+        return ImmutableSet.copyOf(Json.parse(contentAsString(result)).getFieldNames());
+    }
+
+    private static FakeRequest putViewer(String user)
+    {
+        return putViewer(TEST_HOST_ID, TEST_RESOURCE_ID, user);
+    }
+    
+    private static FakeRequest putViewer(String host, String resource, String user)
+    {
+        return fakeRequest("PUT", viewerUriFor(host, resource, user));
+    }
+
+    private static FakeRequest putViewerWithValidToken(String user)
+    {
+        return putViewerWithValidToken(TEST_HOST_ID, TEST_RESOURCE_ID, user);
+    }
+    
+    private static FakeRequest putViewerWithValidToken(String host, String resource, String user)
+    {
+        return putViewer(host, resource, user).withHeader(PER_PAGE_VIEW_TOKEN_HEADER, tokenFor(host, user));
+    }
+
+    private static FakeRequest deleteViewer(String user)
+    {
+        return fakeRequest("DELETE", viewerUriFor(TEST_HOST_ID, TEST_RESOURCE_ID, user));
+    }
+
+    private static FakeRequest deleteViewerWithValidToken(String user)
+    {
+        return deleteViewer(user).withHeader(PER_PAGE_VIEW_TOKEN_HEADER, tokenFor(TEST_HOST_ID, user));
+    }
+
+    private static String tokenFor(String host, String user)
+    {
+        return Crypto.sign(host + user);
+    }
+
+    private static String viewerUriFor(String host, String resource, String user)
+    {
+        return "/viewables/" + host + "/" + resource + "/viewers/" + user;
     }
 
 }

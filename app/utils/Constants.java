@@ -1,7 +1,5 @@
 package utils;
 
-import play.Play;
-
 import java.util.concurrent.TimeUnit;
 
 public class Constants {
