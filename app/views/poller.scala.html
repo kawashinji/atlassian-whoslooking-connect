@@ -16,7 +16,12 @@
     <meta name="userId" content="@userId" />
     <meta name="perPageViewToken" content="@perPageViewToken" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" /> 
-    @ac.aui.all("5.1")
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all">
+    <!--[if lt IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie.css" media="all"><![endif]-->
+    <!--[if IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie9.css" media="all"><![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui.js"></script>
+    <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui-ie.js"></script><![endif]-->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
@@ -26,6 +31,8 @@
         <meta name="hostBaseUrl" content="@baseUrl" />
         <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>
         <link rel="stylesheet" type="text/css" href="@baseUrl/remotable-plugins/all.css"/>
+        <script type="text/javascript" src="@baseUrl/atlassian-connect/all.js"></script>
+        <link rel="stylesheet" type="text/css" href="@baseUrl/atlassian-connect/all.css"/>        
     }
   </head>
   <script>
