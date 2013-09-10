@@ -4,7 +4,6 @@ import java.util.concurrent.Callable;
 
 public class TimedAsserts {
 
-
     public static final int DEFAULT_RETRY_INTERVAL_MS = 100;
     public static final int DEFAULT_ERROR_MARGIN_MS = 200;
 

@@ -17,10 +17,10 @@
     <meta name="userId" content="@userId" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
     <meta name="hostBaseUrl" content="@baseUrl" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all">
     <!--[if lt IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie.css" media="all"><![endif]-->
     <!--[if IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie9.css" media="all"><![endif]-->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui.js"></script>
     <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui-ie.js"></script><![endif]-->
     <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>
@@ -34,7 +34,7 @@
     <div class="aui-message hint">
       <p id="whoslooking-anonymous">
         <span class="aui-icon icon-hint "></span>
-        Please <a target="_parent" href="@baseUrl/login.jsp?os_destination=%2Fsecure%2FViewIssue.jspa%3Fid%3D@resourceId">log in to JIRA</a> to see who else is looking at this issue.
+        Please <a id="whoslooking-anonymous-login-link" target="_parent" href="@baseUrl/login.jsp?os_destination=%2Fbrowse%2F@resourceId">log in to JIRA</a> to see who else is looking at this issue.
       </p>
     </div>    
   </body>
