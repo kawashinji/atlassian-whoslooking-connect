@@ -25,9 +25,8 @@ public class Poller extends Controller
     public Result index() throws Exception
     {
         final String hostId = request().queryString().get("oauth_consumer_key")[0];
-        final String resourceId = request().getQueryString("issue_id");
+        final String resourceId = request().getQueryString("issue_key");
         final String userId = AC.getUser().getOrNull();
-
 
         if (StringUtils.isBlank(userId))
         {
