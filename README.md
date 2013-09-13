@@ -7,7 +7,7 @@ The aim is to show a list of users who are currently viewing an issue, without c
 ![Who's Looking with Atlassian Connect](http://i.imgur.com/nNarePB.jpg)
 
 ## Implementation Overview
-The add-on is a remote app running on Play 2 using the [Atlassian Connect ac-play-java library](https://bitbucket.org/sleberrigaud_atlassian/ac-play-java). Source is here: https://bitbucket.org/atlassianlabs/whoslooking-connect
+The add-on is a remote app running on Play 2 using the [Atlassian Connect ac-play-java library](https://bitbucket.org/atlassian/atlassian-connect-play-java). Source is here: https://bitbucket.org/atlassian/whoslooking-connect
 
 The Connect app registers an iframe in the View Issue page. The iframe content is served from the Connect app, and includes JavaScript to issue an XHR heartbeat back to the Connect app. This heartbeat results in the current user being stored as a viewer of the current issue in an in-memory map backed by Redis. Entries expire after a few seconds, so if the heartbeat for a given user stops, the user is dropped from the viewer set for that issue.
 
@@ -43,9 +43,12 @@ You can now create an issue in JIRA, view it, and ensure the "Who's Looking?" pa
 
 ## Running Integration Tests
 
-Run `play test`. Requires a Redis instance; by default will try `localhost:6379`, but can be overridden with env var `REDIS_URI`.
-For example, to test using a rediscloud instance: `REDIS_URI=redis://rediscloud:PASSWORD@pub-redis-1234.us-east-1-4.1.ec2.garantiadata.com:1234 play test`.
+* Run `play test` for basic unit/integration tests.
+* See [the Who's Looking PDV test suite](https://bitbucket.org/rewbs/whoslooking-connect-pdv) for a full battery of browser tests.
 
+## Reporting Bugs
+
+Please report issues here: https://ecosystem.atlassian.net/browse/WLC
 
 
 ## License

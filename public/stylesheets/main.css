@@ -7,10 +7,6 @@ body {
 	padding: 0;
 }
 
-#whoslooking-onlookers-list li {
-	margin-top: 5px
-}
-
 .whoslooking-displayname {
 	line-height: 24px;
 	padding: 2px 30px 2px 5px;
