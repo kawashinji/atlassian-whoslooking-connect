@@ -1,7 +1,7 @@
 @ac.descriptor() {
     <plugin-info>
         <description>Who&apos;s Looking for OnDemand. See who else is looking at a JIRA issue.</description>
-        <version>1.3</version>
+        <version>@utils.VersionUtils.VERSION</version>
         <vendor name="Atlassian" url="http://www.atlassian.com" />
         <permissions>
             <permission>create_oauth_link</permission>

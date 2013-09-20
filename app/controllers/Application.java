@@ -1,6 +1,5 @@
 package controllers;
 
-import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.controllers.AcController;
 
 import com.google.common.base.Supplier;
@@ -10,9 +9,6 @@ import play.mvc.Result;
 
 public class Application extends Controller
 {
-
-
-
     public static Result index()
     {
         // serve the descriptor when accept header is 'application/xml', try
