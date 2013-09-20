@@ -1,12 +1,13 @@
 @ac.descriptor() {
     <plugin-info>
-        <description>Whoslooking remote</description>
-        <version>1.1-SNAPSHOT</version>
+        <description>Who&apos;s Looking for OnDemand. See who else is looking at a JIRA issue.</description>
+        <version>1.3</version>
         <vendor name="Atlassian" url="http://www.atlassian.com" />
         <permissions>
             <permission>create_oauth_link</permission>
             <permission>read_users_and_groups</permission>
         </permissions>
+        <param name="documentation.url">@com.atlassian.connect.play.java.AC.baseUrl.get()</param>
     </plugin-info>
 } {
     <remote-web-panel location="atl.jira.view.issue.right.context" key="whos-looking" application="jira" name="Who's Looking?" url="/poller?issue_id=${issue.id}&amp;issue_key=${issue.key}" />
