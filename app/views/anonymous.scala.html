@@ -10,6 +10,7 @@
   <head>
     @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader())
     <meta charset="utf-8" />
+    <meta version="@utils.VersionUtils.VERSION" />
     <meta name="pollIntervalSeconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
     <meta name="avatarSize" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
     <meta name="hostId" content="@hostId" />    

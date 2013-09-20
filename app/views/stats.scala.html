@@ -9,6 +9,7 @@
   <head>
     @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader())
     <meta charset="utf-8" />
+    <meta version="@utils.VersionUtils.VERSION" />
     <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
     <meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
@@ -54,6 +55,7 @@
         <footer id="footer">
             <section class="footer-body">
                 <ul id="aui-footer-list">
+                    <li>Version @utils.VersionUtils.VERSION</li>
                     <li>Copyright &copy; 2009-2013 Atlassian</li>
                 </ul>
             </section>

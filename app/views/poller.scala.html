@@ -9,6 +9,7 @@
   <head>
     @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader()) 
     <meta charset="utf-8" />
+    <meta version="@utils.VersionUtils.VERSION" />
     <meta name="pollIntervalSeconds" content="@Play.current.configuration.getInt(utils.Constants.POLLER_INTERVAL_SECONDS).getOrElse(utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT)" />
     <meta name="avatarSize" content="@Play.current.configuration.getInt(utils.Constants.AVATAR_SIZE_PX).getOrElse(utils.Constants.AVATAR_SIZE_PX_DEFAULT)" />
     <meta name="hostId" content="@hostId" />    

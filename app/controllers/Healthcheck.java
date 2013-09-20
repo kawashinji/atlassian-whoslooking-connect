@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.atlassian.connect.play.java.AC;
+import com.atlassian.connect.play.java.model.AcHostModel;
+
 import com.google.common.collect.ImmutableMap;
 
 import play.Logger;
@@ -13,13 +16,17 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
+import utils.VersionUtils;
 
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.split;
 import static utils.RedisUtils.jedisPool;
 
 public class Healthcheck  extends Controller
 {
+
+    @play.db.jpa.Transactional
     public Result index() {
         try
         {
@@ -47,8 +54,11 @@ public class Healthcheck  extends Controller
 
     private Map<String, Object> basicHealthInfo() {
         return ImmutableMap.<String, Object>builder()
-                .put("name", "Who's Looking Connect")
-                .put("description", "Who's Looking on Dyno " + System.getenv().get("PS"))
+                .put("name", AC.PLUGIN_NAME)
+                .put("key", AC.PLUGIN_KEY)
+                .put("version", VersionUtils.VERSION)
+                .put("dyno", defaultIfEmpty(System.getenv().get("DYNO"), "unknown"))
+                .put("hosts", AcHostModel.all().size())
                 .put("time", System.currentTimeMillis())
                 .put("freeMemory", Runtime.getRuntime().freeMemory())
                 .put("systemLoad", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage())
@@ -85,7 +95,7 @@ public class Healthcheck  extends Controller
                 String sectionTitle = scanner.nextLine().trim();
                 Map<String, String> sectionEntries = new LinkedHashMap<String, String>();
                 redisStats.put(sectionTitle, sectionEntries);
-    
+
                 while (scanner.hasNextLine()) {
                     String[] kvp = split(scanner.nextLine(), ":");
                     if (kvp.length > 1) {
