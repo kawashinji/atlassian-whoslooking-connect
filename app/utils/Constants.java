@@ -13,7 +13,7 @@ public class Constants {
     public static final int VIEWER_SET_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(1);
 
     public static final String DISPLAY_NAME_CACHE_EXPIRY_SECONDS = "whoslooking.display-name-cache-expiry.seconds";
-    public static final int DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(2);
+    public static final int DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(1);
 
     public static final String POLLER_INTERVAL_SECONDS = "whoslooking.poller-interval.seconds";
     public static final int POLLER_INTERVAL_SECONDS_DEFAULT = 10;

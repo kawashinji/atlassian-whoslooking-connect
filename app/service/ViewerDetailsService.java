@@ -84,7 +84,7 @@ public class ViewerDetailsService
             return null;
         }
 
-        Promise<Response> promise = AC.url("/rest/api/latest/user").setQueryParameter("username", username).get();
+        Promise<Response> promise = AC.url("/rest/api/2/user").setQueryParameter("username", username).get();
 
         promise.onRedeem(new Callback<WS.Response>()
         {
