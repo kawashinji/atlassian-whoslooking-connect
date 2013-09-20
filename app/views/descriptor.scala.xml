@@ -2,6 +2,7 @@
     <plugin-info>
         <description>Whoslooking remote</description>
         <version>1.1-SNAPSHOT</version>
+        <vendor name="Atlassian" url="http://www.atlassian.com" />
         <permissions>
             <permission>create_oauth_link</permission>
             <permission>read_users_and_groups</permission>

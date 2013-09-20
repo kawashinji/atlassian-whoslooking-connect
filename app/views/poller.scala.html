@@ -28,8 +28,6 @@
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
         <meta name="hostBaseUrl" content="@baseUrl" />
-        <script type="text/javascript" src="@baseUrl/remotable-plugins/all.js"></script>
-        <link rel="stylesheet" type="text/css" href="@baseUrl/remotable-plugins/all.css"/>
         <script type="text/javascript" src="@baseUrl/atlassian-connect/all.js"></script>
         <link rel="stylesheet" type="text/css" href="@baseUrl/atlassian-connect/all.css"/>        
     }

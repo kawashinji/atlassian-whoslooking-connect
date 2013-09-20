@@ -2,7 +2,7 @@
 
 * Play framework 2: Apache 2 License
 * Play plugins: https://github.com/typesafehub/play-plugins#licence
-* Atlassian Connect: https://bitbucket.org/atlassian/remotable-plugins/src/d33d66ebde6fe37f7f83e8f99f59e076a7086ecc/LICENSE.txt
+* Atlassian Connect: https://bitbucket.org/atlassian/atlassian-connect/src/master/LICENSE.txt
 * Apache Commons (lang, IO): http://www.apache.org/licenses/
 * jquery: https://jquery.org/license/
 * purl: https://github.com/allmarkedup/purl/blob/master/LICENSE

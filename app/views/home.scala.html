@@ -8,14 +8,14 @@
     @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader())
     <meta charset="utf-8" />
     <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
-	<meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
+    <meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all" />
     <!--[if lt IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie.css" media="all"><![endif]-->
     <!--[if IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie9.css" media="all"><![endif]-->
-    
-    <title>Who's Looking Connect</title>
+    <link rel="shortcut icon" type="image/png" href="//atlassian.com/dms/wac/favicon_wac.ico" />
+    <title>Who's Looking for OnDemand</title>
   </head>
 
 <body class="aui-page-fixed" id="aui-flatpack">
@@ -24,7 +24,9 @@
             <nav class="aui-header aui-dropdown2-trigger-group">
                 <div class="aui-header-inner aui-header-primary">
                     <h1 class="aui-header-logo aui-header-logo-aui" id="logo">
-                        <a href="https://developer.atlassian.com/display/AC/Atlassian+Connect"><img src="//i.imgur.com/s7zrl7B.png" /></a>
+                        <a href="https://developer.atlassian.com/display/AC/Atlassian+Connect">
+                            <img style="margin-top: 5px" src="http://i.imgur.com/s7zrl7B.png" />
+                        </a>
                     </h1>
                 </div><!-- .aui-header-inner-->
             </nav><!-- .aui-header -->
@@ -34,7 +36,7 @@
             <header class="aui-page-header">
                 <div class="aui-page-header-inner">
                     <div class="aui-page-header-main">
-                        <h1>Who's Looking?  <sup><small class="aui-lozenge">beta</small></sup></h1>
+                        <h1>Who's Looking for OnDemand <sup><small class="aui-lozenge">beta</small></sup></h1>
                     </div><!-- .aui-page-header-main -->
                 </div><!-- .aui-page-header-inner -->
             </header><!-- .aui-page-header -->        
@@ -42,10 +44,10 @@
             <div class="aui-page-panel">
                 <div class="aui-page-panel-inner">
                     <section class="aui-page-panel-content">
-                        <p><em>Who's Looking?</em> shows you who else is looking at a JIRA issue. It's an Atlassian Connect add-on.</p>
+                        <p><em>Who's Looking for OnDemand</em> shows you who else is looking at a JIRA issue. It's an Atlassian Connect add-on.</p>
                         <ul>
-                            <li>Install <em>Who's Looking?</em> on your OnDemand instance via Atlassian Marketplace. <span class="aui-lozenge aui-lozenge-success">Coming Soon!</span></li>
-                            <li><a href="https://bitbucket.org/atlassian/whoslooking-connect">Find out how <em>Who's Looking?</em> is implemented.</a></li>                        
+                            <li><a href="https://marketplace.atlassian.com/plugins/whoslooking-connect">Install <em>Who's Looking</em> on your OnDemand instance</a> via Atlassian Marketplace. <span class="aui-lozenge aui-lozenge-success">New!</span></li>
+                            <li><a href="https://bitbucket.org/atlassian/whoslooking-connect">Find out how <em>Who's Looking</em> is implemented.</a></li>                        
                             <li><a href="https://developer.atlassian.com/display/AC/Atlassian+Connect">Read more about Atlassian Connect.</a></li>
                         </ul>
                         <img src="//i.imgur.com/nNarePB.jpg" />

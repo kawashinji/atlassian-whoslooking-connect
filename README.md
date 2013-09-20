@@ -37,7 +37,7 @@ The Connect app registers an iframe in the View Issue page. The iframe content i
 + Start a JIRA instance by running `atlas-run-standalone --product jira --version 6.0.1`. By default, JIRA will start at `http://localhost:2990/jira`. See the [Atlassian SDK documentation](https://developer.atlassian.com/display/DOCS/atlas-run-standalone) for more options.
 	+ All interactions with JIRA must use the same URL (some aspects of OAuth will fail if we mix uses of `localhost` with `my-machine-name`). If necessary, log in to the JIRA instance as admin/admin, and change the baseURL to `http://localhost:2990/jira`. 
 + Start the Who's Looking app in dev mode by running `play run` in the app directory. It should come up on `http://localhost:9000`. Hit that URL in the browser to trigger initialisation logic.
-	+ The Connect app should automatically install into the local JIRA instance, but if it doesn't, do so manually by running: ` curl -v -u admin -X POST -d url=http://localhost:9000 http://localhost:2990/jira/rest/remotable-plugins/latest/installer`
+	+ The Connect app should automatically install into the local JIRA instance, but if it doesn't, do so manually by running: ` curl -v -u admin -X POST -d url=http://localhost:9000 http://localhost:2990/jira/rest/atlassian-connect/1.0/installer`
 
 You can now create an issue in JIRA, view it, and ensure the "Who's Looking?" panel is visible and populated. If you make changes to Who's Looking code, the Play framework will pick up the code changes as new requests come in.
 
