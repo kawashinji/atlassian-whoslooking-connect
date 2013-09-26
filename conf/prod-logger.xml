@@ -3,7 +3,7 @@
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${application.home}/logs/log.log</file>
 		<encoder>
-			<pattern>%dWAate - [%level] - from %logger in %thread
+			<pattern>%date - [%level] - from %logger in %thread
 				%n%message%n%xException%n</pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -26,7 +26,6 @@
 	<logger name="application" level="INFO" />
 
 	<root level="INFO">
-		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
