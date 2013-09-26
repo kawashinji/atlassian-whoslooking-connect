@@ -9,7 +9,6 @@ GET     /                                                          controllers.A
 PUT     /viewables/:hostid/:resourceid/viewers/:userid             @controllers.Viewers.put(hostid, resourceid, userid)
 DELETE  /viewables/:hostid/:resourceid/viewers/:userid             @controllers.Viewers.delete(hostid, resourceid, userid)
 GET     /poller                                                    @controllers.Poller.index()
-GET     /stats                                                     @controllers.Stats.index()
 GET     /healthcheck                                               @controllers.Healthcheck.index()
 
 # Map static resources from the /public folder to the /assets URL path

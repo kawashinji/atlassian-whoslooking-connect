@@ -89,16 +89,20 @@ public class Healthcheck  extends Controller
     private Map<String, Object> parseRawRedisStats(String rawStatsString)
     {
         Map<String, Object> redisStats = new LinkedHashMap<String, Object>();
-        for (String section: split(rawStatsString, "#")) {
-            try (Scanner scanner = new Scanner(section)) {
+        for (String section : split(rawStatsString, "#"))
+        {
+            try (Scanner scanner = new Scanner(section))
+            {
 
                 String sectionTitle = scanner.nextLine().trim();
                 Map<String, String> sectionEntries = new LinkedHashMap<String, String>();
                 redisStats.put(sectionTitle, sectionEntries);
 
-                while (scanner.hasNextLine()) {
+                while (scanner.hasNextLine())
+                {
                     String[] kvp = split(scanner.nextLine(), ":");
-                    if (kvp.length > 1) {
+                    if (kvp.length > 1)
+                    {
                         sectionEntries.put(kvp[0], kvp[1]);
                     }
                 }

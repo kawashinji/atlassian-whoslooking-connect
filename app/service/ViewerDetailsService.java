@@ -1,11 +1,16 @@
 package service;
 
 import com.atlassian.connect.play.java.AC;
+import com.atlassian.connect.play.java.AcHost;
+import com.atlassian.fugue.Option;
+
 import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
+
 import play.Logger;
 import play.Play;
 import play.cache.Cache;
@@ -50,7 +55,7 @@ public class ViewerDetailsService
             @Override
             public JsonNode transformEntry(String username, String lastSeen) {
                 ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-                objectNode.put("displayName", getCachedDisplayNameFor(hostId, username));
+                objectNode.put("displayName", getCachedDisplayNameFor(hostId, username).getOrElse(username));
                 objectNode.put("lastSeen", lastSeen);
                 return objectNode;
             }
@@ -64,7 +69,7 @@ public class ViewerDetailsService
      *
      * @return user display name, or null if not yet known.
      */
-    private String getCachedDisplayNameFor(final String hostId, final String username)
+    private Option<String> getCachedDisplayNameFor(final String hostId, final String username)
     {
 
         final String key = buildDisplayNameKey(hostId, username);
@@ -73,18 +78,20 @@ public class ViewerDetailsService
         if (StringUtils.isNotEmpty(cachedValue))
         {
             // Found cached value, return it immediately.
-            return cachedValue;
+            return Option.some(cachedValue);
         }
 
         Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
 
-        if (AC.getUser() == null || AC.getAcHost() == null)
+        Option<? extends AcHost> acHost = AC.getAcHost(hostId);
+
+        if (acHost.isEmpty())
         {
-            Logger.warn("Cannot request user details from host without an authenticated user context.");
-            return null;
+            Logger.warn("Could not find host for id: " + acHost);
+            return Option.none();
         }
 
-        Promise<Response> promise = AC.url("/rest/api/2/user").setQueryParameter("username", username).get();
+        Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.some(username)).setQueryParameter("username", username).get();
 
         promise.onRedeem(new Callback<WS.Response>()
         {
@@ -117,7 +124,7 @@ public class ViewerDetailsService
             }
         });
 
-        return null;
+        return Option.none();
     }
 
 }

@@ -14,7 +14,7 @@ object ApplicationBuild extends Build {
     javaEbean,
     "commons-io" % "commons-io" % "2.4",
     "com.typesafe" %% "play-plugins-redis" % "2.1-1-RC2-robinf-3",
-    "com.atlassian.connect" % "ac-play-java_2.10" % "0.6.0",
+    "com.atlassian.connect" % "ac-play-java_2.10" % "0.6.1",
     "org.apache.commons" % "commons-lang3" % "3.1",
     "com.google.guava" % "guava" % "14.0.1",
     "commons-codec" % "commons-codec" % "1.8",
