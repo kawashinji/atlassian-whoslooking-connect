@@ -44,7 +44,7 @@ You can now create an issue in JIRA, view it, and ensure the "Who's Looking?" pa
 ## Running Integration Tests
 
 * Run `play test` for basic unit/integration tests.
-* See [the Who's Looking PDV test suite](https://bitbucket.org/rewbs/whoslooking-connect-pdv) for a full battery of browser tests.
+* Run `cd pdv; mvn3 test -Plocal` to run browser-based PDV tests. See `pdv/README.md` for more info.
 
 ## Reporting Bugs
 

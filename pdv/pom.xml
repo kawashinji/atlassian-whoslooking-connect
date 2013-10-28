@@ -1,0 +1,196 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.atlassian</groupId>
+  <artifactId>whoslooking-connect-pdv</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <name>${project.artifactId}</name>
+  <description>Post deployment verification tests for whoslooking-connect</description>
+  <inceptionYear>2013</inceptionYear>
+
+  <properties>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+    <encoding>UTF-8</encoding>
+    <scala.tools.version>2.10</scala.tools.version>
+    <scala.version>2.10.1</scala.version>
+    
+    <!-- Default values common to all profiles. Can be overridden at invocation time. -->  
+    <xvfb.enable>true</xvfb.enable>
+    <public.issue.key>DEMO-1</public.issue.key>
+    <admin.username>whoslooking-admin</admin.username>
+    <admin.password>admin</admin.password>
+    <admin.displayname>Admin Full Name</admin.displayname>            
+    <user.username>whoslooking-user</user.username>
+    <user.password>user</user.password>
+    <user.displayname>User Full Name</user.displayname>      
+  </properties>
+  
+  <!-- Profile-specific defaults. Can also be overridden at invocation time. -->  
+  <profiles>
+    <profile>
+      <id>local</id>
+      <properties>
+        <baseurl.whoslooking>http://localhost:9000</baseurl.whoslooking>
+        <baseurl.jira>http://localhost:2990/jira</baseurl.jira>       
+        <http.jira.port>2990</http.jira.port>
+      </properties>      
+    </profile>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <!-- Passwords overridden by CI plan -->
+        <baseurl.whoslooking>https://whoslooking-dev.herokuapp.com</baseurl.whoslooking>
+        <baseurl.jira>https://whoslooking-dev.jira-dev.com</baseurl.jira>        
+        <http.jira.port>443</http.jira.port>
+      </properties>
+    </profile>
+    <profile>
+      <id>stg</id>
+      <properties>
+        <!-- Passwords overridden by CI plan -->
+        <baseurl.whoslooking>https://whoslooking-stg.herokuapp.com</baseurl.whoslooking>
+        <baseurl.jira>https://whoslooking-stg.jira-dev.com</baseurl.jira>        
+        <http.jira.port>443</http.jira.port>
+      </properties>
+    </profile>
+    <profile>
+      <id>prd</id>
+      <properties>
+        <!-- Passwords overridden by CI plan -->
+        <public.issue.key>MON-1</public.issue.key>
+        <baseurl.whoslooking>https://whoslooking.herokuapp.com</baseurl.whoslooking>
+        <baseurl.jira>https://monitor.jira.com</baseurl.jira>        
+        <http.jira.port>443</http.jira.port>
+      </properties>      
+    </profile>    
+  </profiles>  
+
+  <build>
+    <sourceDirectory>src/main/scala</sourceDirectory>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <!-- see http://davidb.github.com/scala-maven-plugin -->
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.1.3</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <args>
+                <arg>-make:transitive</arg>
+                <arg>-dependencyfile</arg>
+                <arg>${project.build.directory}/.scala_dependencies</arg>
+              </args>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.13</version>
+        <configuration>
+          <systemPropertyVariables>
+            <xvfb.enable>${xvfb.enable}</xvfb.enable>
+            <baseurl.whoslooking>${baseurl.whoslooking}</baseurl.whoslooking>
+            <baseurl.jira>${baseurl.jira}</baseurl.jira>
+            <http.jira.port>${http.jira.port}</http.jira.port>
+            <public.issue.key>${public.issue.key}</public.issue.key>
+            <admin.username>${admin.username}</admin.username>
+            <admin.password>${admin.password}</admin.password>
+            <admin.displayname>${admin.displayname}</admin.displayname>            
+            <user.username>${user.username}</user.username>
+            <user.password>${user.password}</user.password>
+            <user.displayname>${user.displayname}</user.displayname>            
+          </systemPropertyVariables>
+        </configuration>        
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+    <!-- Test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.specs2</groupId>
+      <artifactId>specs2_${scala.tools.version}</artifactId>
+      <version>1.13</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_${scala.tools.version}</artifactId>
+      <version>2.0.M6-SNAP8</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.atlassian.jira</groupId>
+      <artifactId>jira-rest-java-client-core</artifactId>
+      <version>2.0.0-m15</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.atlassian.jira</groupId>
+      <artifactId>atlassian-jira-pageobjects</artifactId>
+      <version>6.1-OD-06</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.atlassian.selenium</groupId>
+          <artifactId>atlassian-webdriver-core</artifactId>          
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.atlassian.selenium</groupId>
+      <artifactId>atlassian-webdriver-core</artifactId>
+      <version>2.2-rc2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>  
+    </dependency>
+    <dependency>
+      <groupId>net.databinder.dispatch</groupId>
+      <artifactId>dispatch-core_${scala.tools.version}</artifactId>
+      <version>0.11.0</version>
+      <scope>test</scope> 
+    </dependency>
+    <dependency>
+      <groupId>net.databinder.dispatch</groupId>
+      <artifactId>dispatch-jsoup_${scala.tools.version}</artifactId>
+      <version>0.11.0</version>
+      <scope>test</scope>       
+    </dependency>
+    <dependency>
+      <groupId>net.databinder.dispatch</groupId>
+      <artifactId>dispatch-lift-json_${scala.tools.version}</artifactId>
+      <version>0.11.0</version>
+      <scope>test</scope>       
+    </dependency>
+  </dependencies>  
+  
+</project>
