@@ -10,8 +10,11 @@ import org.apache.commons.lang3.StringUtils;
 import play.Play;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
-import utils.Constants;
 
+import static utils.Constants.VIEWER_EXPIRY_SECONDS;
+import static utils.Constants.VIEWER_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
+import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS_DEFAULT;
 import static utils.KeyUtils.buildHeartbeatKey;
 import static utils.KeyUtils.buildViewerSetKey;
 import static utils.RedisUtils.jedisPool;
@@ -27,8 +30,8 @@ public class RedisHeartbeatService implements HeartbeatService
 
     public RedisHeartbeatService()
     {
-        this.viewerExpirySeconds = Play.application().configuration().getInt(Constants.VIEWER_EXPIRY_SECONDS, Constants.VIEWER_EXPIRY_SECONDS_DEFAULT);
-        this.viewerSetExpirySeconds = Play.application().configuration().getInt(Constants.VIEWER_SET_EXPIRY_SECONDS, Constants.VIEWER_SET_EXPIRY_SECONDS_DEFAULT);
+        this.viewerExpirySeconds = Play.application().configuration().getInt(VIEWER_EXPIRY_SECONDS, VIEWER_EXPIRY_SECONDS_DEFAULT);
+        this.viewerSetExpirySeconds = Play.application().configuration().getInt(VIEWER_SET_EXPIRY_SECONDS, VIEWER_SET_EXPIRY_SECONDS_DEFAULT);
     }
 
     @Override

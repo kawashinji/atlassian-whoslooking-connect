@@ -11,6 +11,7 @@ import com.atlassian.connect.play.java.model.AcHostModel;
 import com.google.common.collect.ImmutableMap;
 
 import play.Logger;
+import play.Play;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -21,6 +22,8 @@ import utils.VersionUtils;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.split;
+import static utils.Constants.POLLER_INTERVAL_SECONDS;
+import static utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT;
 import static utils.RedisUtils.jedisPool;
 
 public class Healthcheck  extends Controller
@@ -62,6 +65,7 @@ public class Healthcheck  extends Controller
                 .put("time", System.currentTimeMillis())
                 .put("freeMemory", Runtime.getRuntime().freeMemory())
                 .put("systemLoad", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage())
+                .put(POLLER_INTERVAL_SECONDS, Play.application().configuration().getInt(POLLER_INTERVAL_SECONDS, POLLER_INTERVAL_SECONDS_DEFAULT))
                 .build();
     }
 
