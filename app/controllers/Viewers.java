@@ -1,22 +1,21 @@
 package controllers;
 
-import java.util.Map;
 
-import org.codehaus.jackson.JsonNode;
-
-import play.mvc.Http.Cookie;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import play.Logger;
 import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http.Cookie;
 import play.mvc.Result;
-import service.RedisHeartbeatService;
 import service.HeartbeatService;
+import service.RedisHeartbeatService;
 import service.ViewerDetailsService;
 
-import static utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER;
+import java.util.Map;
+
 import static java.lang.String.format;
+import static utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER;
 
 public class Viewers extends Controller
 {
