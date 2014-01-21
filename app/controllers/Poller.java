@@ -22,7 +22,7 @@ public class Poller extends Controller
     @AuthenticateJwtRequest
     public Result index() throws Exception
     {
-        final String hostId = request().queryString().get("oauth_consumer_key")[0];
+        final String hostId = AC.getAcHost().getKey();
         final String resourceId = request().getQueryString("issue_key");
         final String userId = AC.getUser().getOrNull();
 
