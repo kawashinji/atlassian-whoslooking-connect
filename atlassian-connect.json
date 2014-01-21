@@ -21,7 +21,7 @@
             "name": {
                 "value": "Who's Looking?"
             },
-            "url": "/poller?issue_id={issue.id}&amp;issue_key={issue.key}",
+            "url": "/poller?issue_id={issue.id}&issue_key={issue.key}",
             "location": "atl.jira.view.issue.right.context"
         }]
     }
