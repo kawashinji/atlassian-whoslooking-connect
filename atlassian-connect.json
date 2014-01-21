@@ -1,0 +1,29 @@
+{
+    "key": "whoslooking-connect",
+    "name": "Who's Looking for OnDemand",
+    "description": "Who&apos;s Looking for OnDemand. See who else is looking at a JIRA issue.",
+    "version": "1.0",
+    "vendor": {
+        "name": "Atlassian",
+        "url": "http://www.atlassian.com"
+    },
+    "baseUrl": "${localBaseUrl}",
+    "authentication": {
+        "type": "jwt"
+    },
+    "lifecycle": {
+        "installed": "/remote_plugin_enabled"
+    },
+    "modules": {
+
+        "webPanels": [{
+            "key" : "whos-looking",
+            "name": {
+                "value": "Who's Looking?"
+            },
+            "url": "/poller?issue_id={issue.id}&amp;issue_key={issue.key}",
+            "location": "atl.jira.view.issue.right.context"
+        }]
+    }
+}
+
