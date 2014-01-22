@@ -24,6 +24,7 @@
             "url": "/poller?issue_id={issue.id}&issue_key={issue.key}",
             "location": "atl.jira.view.issue.right.context"
         }]
-    }
+    },
+    "scopes": ["READ"]
 }
 
