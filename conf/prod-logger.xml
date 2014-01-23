@@ -1,4 +1,8 @@
 <configuration>
+    <property name="PLAY_LOG_LEVEL" value="INFO" />
+    <property name="APPLICATION_LOG_LEVEL" value="INFO" />
+    <property name="AC_LOG_LEVEL" value="INFO" />
+
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${application.home}/logs/log.log</file>
@@ -22,10 +26,13 @@
 	</appender>
 
 
-	<logger name="play" level="INFO" />
-	<logger name="application" level="INFO" />
+	<logger name="play" level="${PLAY_LOG_LEVEL}" />
+	<logger name="application" level="${APPLICATION_LOG_LEVEL}" />
+    <logger name="ac" level="${AC_LOG_LEVEL}" />
+    <logger name="com.atlassian.jwt" level="${AC_LOG_LEVEL}" />
 
-	<root level="INFO">
+
+    <root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
