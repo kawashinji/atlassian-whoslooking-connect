@@ -1,5 +1,5 @@
 {
-    "key": "whoslooking-connect",
+    "key": "${addonKey}",
     "name": "Who's Looking for OnDemand",
     "description": "Who&apos;s Looking for OnDemand. See who else is looking at a JIRA issue.",
     "vendor": {
