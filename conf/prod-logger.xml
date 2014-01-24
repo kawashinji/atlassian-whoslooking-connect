@@ -29,7 +29,9 @@
 	<logger name="play" level="${PLAY_LOG_LEVEL}" />
 	<logger name="application" level="${APPLICATION_LOG_LEVEL}" />
     <logger name="ac" level="TRACE" />
-    <logger name="com.atlassian.jwt" level="${AC_LOG_LEVEL}" />
+    <logger name="com.atlassian.jwt" level="TRACE" />
+    <logger name="com.atlassian" level="TRACE" />
+
 
 
     <root level="TRACE">
