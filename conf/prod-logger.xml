@@ -32,7 +32,7 @@
     <logger name="com.atlassian.jwt" level="${AC_LOG_LEVEL}" />
 
 
-    <root level="INFO">
+    <root level="TRACE">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
