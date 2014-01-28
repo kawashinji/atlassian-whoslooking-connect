@@ -1,6 +1,7 @@
 package controllers;
 
 
+import com.atlassian.connect.play.java.token.CheckValidToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import play.Logger;
 import play.libs.Crypto;
@@ -22,14 +23,10 @@ public class Viewers extends Controller
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
 
+    @CheckValidToken
     public Result put(final String hostId, final String resourceId, final String userId)
     {
         Logger.debug(format("Putting %s/%s/%s", hostId, resourceId, userId));
-
-        if (!isValidRequestFromAuthenticatedUser(hostId, userId))
-        {
-            return badRequest("Don't spoof me bro.");
-        }
 
         heartbeatService.put(hostId, resourceId, userId);
 
@@ -38,14 +35,10 @@ public class Viewers extends Controller
         return ok(Json.toJson(viewersWithDetails));
     }
 
+    @CheckValidToken
     public Result delete(final String hostId, final String resourceId, final String userId)
     {
         Logger.debug(format("Deleting %s/%s/%s", hostId, resourceId, userId));
-
-        if (!isValidRequestFromAuthenticatedUser(hostId, userId))
-        {
-            return badRequest("Don't spoof me bro.");
-        }
 
         heartbeatService.delete(hostId, resourceId, userId);
 
