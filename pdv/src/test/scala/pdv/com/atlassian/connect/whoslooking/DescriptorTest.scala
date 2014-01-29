@@ -13,6 +13,8 @@ import dispatch.implyRequestHandlerTuple
 import dispatch.url
 import junit.framework.TestCase
 import pdv.util.WhosLookingTestConfig
+import scala.concurrent.duration.Duration
+import scala.concurrent.Await
 
 
 class DescriptorTest extends ShouldMatchers with EitherValues {
@@ -21,9 +23,42 @@ class DescriptorTest extends ShouldMatchers with EitherValues {
 
   @Test
   def shouldServeDescriptorWithExpectedTopLevelElement() {
-    val req = url(Config.WhosLookingBaseUrl) <:< Map("Accept" -> "application/xml")
-    val descriptor = Http(req OK as.xml.Elem)
-    descriptor().label should be === "atlassian-plugin"
+    val req = url(Config.WhosLookingBaseUrl) <:< Map("Accept" -> "application/json")
+    val descriptorFuture = Http(req OK as.String)
+    val descriptorStr = descriptorFuture()
+    descriptorStr should be === expectedDescriptorJson
   }
+
+  val expectedDescriptorJson =
+    """{
+    "key": "whoslooking-connect",
+    "name": "Who's Looking for OnDemand",
+    "description": "Who&apos;s Looking for OnDemand. See who else is looking at a JIRA issue.",
+    "vendor": {
+        "name": "Atlassian",
+        "url": "http://www.atlassian.com"
+    },
+    "baseUrl": "http://localhost:9000",
+    "authentication": {
+        "type": "jwt"
+    },
+    "lifecycle": {
+        "installed": "/installed"
+    },
+    "modules": {
+
+        "webPanels": [{
+            "key" : "whos-looking",
+            "name": {
+                "value": "Who's Looking?"
+            },
+            "url": "/poller?issue_id={issue.id}&issue_key={issue.key}",
+            "location": "atl.jira.view.issue.right.context"
+        }]
+    },
+    "scopes": ["READ"]
+}
+
+"""
 
 }
