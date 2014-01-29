@@ -45,15 +45,6 @@ public class Viewers extends Controller
         return noContent();
     }
 
-    private boolean isValidRequestFromAuthenticatedUser(final String hostId, final String username)
-    {
-        final String token = request().getHeader(PER_PAGE_VIEW_TOKEN_HEADER);
-        final String expectedToken = Crypto.sign(hostId + username);
-        Logger.trace(format("Token check for %s on %s: received=%s expected=%s", username, hostId, token, expectedToken));
-
-        return expectedToken.equals(token) || isValidLegacyRequest(hostId, expectedToken);
-    }
-
     /**
      * This is legacy code to be removed shortly. Avoids throwing errors on receiving request from tabs that have been open for multiple upgrades.
      *
