@@ -1,7 +1,6 @@
 package pdv.com.atlassian.connect.whoslooking
 
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.scalatest.EitherValues
 import org.scalatest.matchers.ShouldMatchers
 
@@ -11,10 +10,7 @@ import dispatch.as
 import dispatch.enrichFuture
 import dispatch.implyRequestHandlerTuple
 import dispatch.url
-import junit.framework.TestCase
 import pdv.util.WhosLookingTestConfig
-import scala.concurrent.duration.Duration
-import scala.concurrent.Await
 
 
 class DescriptorTest extends ShouldMatchers with EitherValues {
@@ -29,6 +25,7 @@ class DescriptorTest extends ShouldMatchers with EitherValues {
     descriptorStr should be === expectedDescriptorJson
   }
 
+  // TODO: rather than a string compare do a json compare. Not sure how to do that in scala though
   val expectedDescriptorJson =
     """{
     "key": "whoslooking-connect",
