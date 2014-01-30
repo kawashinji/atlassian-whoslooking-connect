@@ -1,7 +1,6 @@
 package pdv.com.atlassian.connect.whoslooking
 
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.scalatest.EitherValues
 import org.scalatest.matchers.ShouldMatchers
 
@@ -11,7 +10,6 @@ import dispatch.as
 import dispatch.enrichFuture
 import dispatch.implyRequestHandlerTuple
 import dispatch.url
-import junit.framework.TestCase
 import pdv.util.WhosLookingTestConfig
 
 
@@ -21,9 +19,11 @@ class DescriptorTest extends ShouldMatchers with EitherValues {
 
   @Test
   def shouldServeDescriptorWithExpectedTopLevelElement() {
-    val req = url(Config.WhosLookingBaseUrl) <:< Map("Accept" -> "application/xml")
-    val descriptor = Http(req OK as.xml.Elem)
-    descriptor().label should be === "atlassian-plugin"
+    val req = url(Config.WhosLookingBaseUrl) <:< Map("Accept" -> "application/json")
+    val descriptorFuture = Http(req OK as.String)
+    val descriptorStr = descriptorFuture()
+    // TODO: make comparison more comprehensive. Note some fields change per env and this test is run on diff envs
+    // so can't do a full json comparison
+    descriptorStr should include (""""name": "Who's Looking for OnDemand"""")
   }
-
 }

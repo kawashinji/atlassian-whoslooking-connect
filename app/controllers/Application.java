@@ -23,7 +23,7 @@ public class Application extends Controller
             @Override
             public Result get()
             {
-                return ok(views.xml.descriptor.render());
+                return AcController.descriptor();
             }
         };
     }

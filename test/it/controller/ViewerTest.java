@@ -133,7 +133,7 @@ public class ViewerTest
     
     private static Set<String> extractViewers(Result result)
     {
-        return ImmutableSet.copyOf(Json.parse(contentAsString(result)).getFieldNames());
+        return ImmutableSet.copyOf(Json.parse(contentAsString(result)).fieldNames());
     }
 
     private static FakeRequest putViewer(String user)

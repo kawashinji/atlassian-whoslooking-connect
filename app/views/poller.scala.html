@@ -1,8 +1,10 @@
-@(viewersWithDetails: String, hostId: String, resourceId: String, userId: String, perPageViewToken: String)
+@(viewersWithDetails: String, hostId: String, resourceId: String, userId: String)
 
 @import play.mvc.Http.Context.Implicit.ctx
 @import com.atlassian.connect.play.java.AcHost
 @import play.api.Play
+@import com.atlassian.connect.play.java.AC
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +17,9 @@
     <meta name="hostId" content="@hostId" />    
     <meta name="resourceId" content="@resourceId" />
     <meta name="userId" content="@userId" />
-    <meta name="perPageViewToken" content="@perPageViewToken" />
+    @if(AC.getToken.isDefined) {
+      <meta name="acpt" content="@AC.getToken.get">
+    }
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" /> 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all">
@@ -32,6 +36,8 @@
         <script type="text/javascript" src="@baseUrl/atlassian-connect/all.js"></script>
         <link rel="stylesheet" type="text/css" href="@baseUrl/atlassian-connect/all.css"/>        
     }
+  <script type="text/javascript" src="@com.atlassian.connect.play.java.controllers.routes.AcController.asset("js/pagetoken.js")"></script>
+
   </head>
   <script>
     $(function() {
@@ -42,10 +48,8 @@
       var hostId = getMeta('hostId');
       var resourceId = getMeta('resourceId');      
       var userId = getMeta('userId');
-      var perPageViewToken = getMeta('perPageViewToken');
       var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId);
-      $.ajaxSetup({ headers: { "@utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER" : perPageViewToken } });
-        
+
       var poll = function() {
         Visibility.hidden() || $.ajax({
           url: pollUrl,               
