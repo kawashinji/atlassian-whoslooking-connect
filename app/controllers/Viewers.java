@@ -35,7 +35,7 @@ public class Viewers extends Controller
         return ok(Json.toJson(viewersWithDetails));
     }
 
-    @CheckValidToken
+    @CheckValidToken(allowInsecurePolling = true)
     public Result delete(final String hostId, final String resourceId, final String userId)
     {
         Logger.debug(format("Deleting %s/%s/%s", hostId, resourceId, userId));
