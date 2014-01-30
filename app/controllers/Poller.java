@@ -34,8 +34,7 @@ public class Poller extends Controller
         heartbeatService.put(hostId, resourceId, userId);
         final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
 
-        final String perPageViewToken = Crypto.sign(hostId + userId);
-        return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, userId, perPageViewToken));
+        return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, userId));
 
     }
 

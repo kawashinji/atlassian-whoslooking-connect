@@ -1,4 +1,4 @@
-@(viewersWithDetails: String, hostId: String, resourceId: String, userId: String, perPageViewToken: String)
+@(viewersWithDetails: String, hostId: String, resourceId: String, userId: String)
 
 @import play.mvc.Http.Context.Implicit.ctx
 @import com.atlassian.connect.play.java.AcHost
@@ -48,10 +48,8 @@
       var hostId = getMeta('hostId');
       var resourceId = getMeta('resourceId');      
       var userId = getMeta('userId');
-      var perPageViewToken = getMeta('perPageViewToken');
       var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId);
-      $.ajaxSetup({ headers: { "@utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER" : perPageViewToken } });
-        
+
       var poll = function() {
         Visibility.hidden() || $.ajax({
           url: pollUrl,               

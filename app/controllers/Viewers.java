@@ -23,7 +23,7 @@ public class Viewers extends Controller
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
 
-    @CheckValidToken
+    @CheckValidToken(allowInsecurePolling = true)
     public Result put(final String hostId, final String resourceId, final String userId)
     {
         Logger.debug(format("Putting %s/%s/%s", hostId, resourceId, userId));
@@ -43,23 +43,6 @@ public class Viewers extends Controller
         heartbeatService.delete(hostId, resourceId, userId);
 
         return noContent();
-    }
-
-    /**
-     * This is legacy code to be removed shortly. Avoids throwing errors on receiving request from tabs that have been open for multiple upgrades.
-     *
-     * @return true if client is sending a valid token in the cookie.
-     */
-    private boolean isValidLegacyRequest(final String hostId, final String expectedToken)
-    {
-        Cookie signedIdCookie = request().cookie("signed-identity-on-" + hostId);
-        boolean validLegacyRequest = false;
-        if (signedIdCookie != null)
-        {
-            Logger.info("Cookie found, looks like a legacy request.");
-            validLegacyRequest = expectedToken.equals(signedIdCookie.value());
-        }
-        return validLegacyRequest;
     }
 
 }
