@@ -23,5 +23,8 @@ public class Constants {
 
     public static final String KEY_SEPARATOR = "#";
     public static final String PER_PAGE_VIEW_TOKEN_HEADER = "x-per-page-view-token";
+    
+    public static final String ANALYTICS_EXPIRY_DAYS = "whoslooking.analytics-expiry.days";
+    public static final int ANALYTICS_EXPIRY_DAYS_DEFAULT = 14;
 
 }

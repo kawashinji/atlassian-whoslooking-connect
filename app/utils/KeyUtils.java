@@ -33,6 +33,11 @@ public class KeyUtils
     {
         return buildKey("viewerset", hostId, resourceId);
     }
+    
+    public static String buildUserKey(final String hostId, final String userId)
+    {
+        return buildKey(hostId, userId);
+    }
 
     public static String buildDisplayNameKey(final String hostId, final String username)
     {

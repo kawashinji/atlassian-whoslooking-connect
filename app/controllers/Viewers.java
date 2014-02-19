@@ -1,26 +1,28 @@
 package controllers;
 
 
+import java.util.Map;
+
 import com.atlassian.connect.play.java.token.CheckValidToken;
+
 import com.fasterxml.jackson.databind.JsonNode;
+
+import service.RedisAnalyticsService;
+
 import play.Logger;
-import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
+import service.AnalyticsService;
 import service.HeartbeatService;
 import service.RedisHeartbeatService;
 import service.ViewerDetailsService;
-
-import java.util.Map;
-
 import static java.lang.String.format;
-import static utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER;
 
 public class Viewers extends Controller
 {
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
+    private final AnalyticsService analyticsService = new RedisAnalyticsService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
 
     @CheckValidToken(allowInsecurePolling = true)
@@ -31,6 +33,8 @@ public class Viewers extends Controller
         heartbeatService.put(hostId, resourceId, userId);
 
         Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
+        analyticsService.fire(AnalyticsService.ACTIVE_USER, hostId+userId);
+        analyticsService.fire(AnalyticsService.ACTIVE_HOST, hostId);
 
         return ok(Json.toJson(viewersWithDetails));
     }
