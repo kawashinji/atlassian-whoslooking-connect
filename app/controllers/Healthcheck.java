@@ -74,7 +74,7 @@ public class Healthcheck  extends Controller
         analyticsService.gc();
         
         return ImmutableMap.<String, Long>builder()
-            .put("DailyActiveUsers", analyticsService.count(ACTIVE_USER, yesterday, now))
+            .put("dailyActiveUsers", analyticsService.count(ACTIVE_USER, yesterday, now))
             .put("dailyActiveHosts", analyticsService.count(ACTIVE_HOST, yesterday, now))
             .put("weeklyActiveUsers", analyticsService.count(ACTIVE_USER, lastWeek, now))
             .put("weeklyActiveHosts", analyticsService.count(ACTIVE_HOST, lastWeek, now))
