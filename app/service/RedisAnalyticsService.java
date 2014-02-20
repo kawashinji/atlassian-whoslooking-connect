@@ -1,7 +1,6 @@
 package service;
 
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
 
@@ -11,26 +10,27 @@ import play.libs.F.Promise;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
-import static utils.Constants.ANALYTICS_EXPIRY_DAYS;
-import static utils.Constants.ANALYTICS_EXPIRY_DAYS_DEFAULT;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static utils.Constants.ANALYTICS_EXPIRY_SECONDS;
+import static utils.Constants.ANALYTICS_EXPIRY_SECONDS_DEFAULT;
 import static utils.RedisUtils.jedisPool;
 
 public class RedisAnalyticsService implements AnalyticsService
 {
 
-    private final long analyticsExpiryDays;
+    private final long analyticsExpirySeconds;
 
     public RedisAnalyticsService()
     {
-        this.analyticsExpiryDays = Play.application().configuration()
-                                       .getInt(ANALYTICS_EXPIRY_DAYS, ANALYTICS_EXPIRY_DAYS_DEFAULT);
+        this.analyticsExpirySeconds = Play.application().configuration()
+                                       .getInt(ANALYTICS_EXPIRY_SECONDS, ANALYTICS_EXPIRY_SECONDS_DEFAULT);
     }
 
     @Override
-    public void fire(final String eventName, final String eventData)
+    public void fire(final String metricName, final String eventKey)
     {
         final long eventTime = System.currentTimeMillis();
-        final String eventKey = buildEventKey(eventName);
+        final String metricKey = buildEventKey(metricName);
 
         Promise.promise(new Function0<Void>()
         {
@@ -41,8 +41,8 @@ public class RedisAnalyticsService implements AnalyticsService
                 try
                 {
                     Transaction t = j.multi();
-                    t.sadd("analytics-event-keys", eventKey);
-                    t.zadd(eventKey, eventTime, eventData);
+                    t.sadd("analytics-metrics", metricKey);
+                    t.zadd(metricKey, eventTime, eventKey);
                     t.exec();
                 }
                 finally
@@ -73,16 +73,16 @@ public class RedisAnalyticsService implements AnalyticsService
     @Override
     public void gc()
     {
-        final long nowMs = System.currentTimeMillis();
+        final long oldestWantedMetric = System.currentTimeMillis() - SECONDS.toMillis(analyticsExpirySeconds);
 
         Jedis j = jedisPool().getResource();
         try
         {
-            Set<String> eventKeys = j.smembers("analytics-event-keys");
+            Set<String> metricKeys = j.smembers("analytics-metrics");
             Transaction t = j.multi();
-            for (String eventKey : eventKeys)
+            for (String metricKey : metricKeys)
             {
-                t.zremrangeByScore(eventKey, 0, nowMs - TimeUnit.DAYS.toMillis(analyticsExpiryDays));
+                t.zremrangeByScore(metricKey, 0, oldestWantedMetric);
             }
             t.exec();
         }
@@ -92,9 +92,9 @@ public class RedisAnalyticsService implements AnalyticsService
         }
     }
 
-    private static String buildEventKey(String eventName)
+    private static String buildEventKey(String metricsName)
     {
-        return "analytics-" + eventName;
+        return "analytics-" + metricsName;
     }
 
 }

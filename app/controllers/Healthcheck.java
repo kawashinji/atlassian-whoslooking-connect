@@ -71,11 +71,13 @@ public class Healthcheck  extends Controller
         final DateTime yesterday = now.minusDays(1);
         final DateTime lastWeek = now.minusDays(7);
         
+        analyticsService.gc();
+        
         return ImmutableMap.<String, Long>builder()
-            .put("Daily Active Users", analyticsService.count(ACTIVE_USER, yesterday, now))
-            .put("Daily Active Hosts", analyticsService.count(ACTIVE_HOST, yesterday, now))
-            .put("Weekly Active Users", analyticsService.count(ACTIVE_USER, lastWeek, now))
-            .put("Weekly Active Hosts", analyticsService.count(ACTIVE_HOST, lastWeek, now))
+            .put("DailyActiveUsers", analyticsService.count(ACTIVE_USER, yesterday, now))
+            .put("dailyActiveHosts", analyticsService.count(ACTIVE_HOST, yesterday, now))
+            .put("weeklyActiveUsers", analyticsService.count(ACTIVE_USER, lastWeek, now))
+            .put("weeklyActiveHosts", analyticsService.count(ACTIVE_HOST, lastWeek, now))
             .build();
     }
 

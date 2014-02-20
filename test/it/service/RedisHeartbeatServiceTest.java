@@ -10,10 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import play.test.FakeApplication;
-import redis.clients.jedis.Jedis;
 import service.RedisHeartbeatService;
 import util.FakeHeartbeat;
-import utils.KeyUtils;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
@@ -23,7 +21,6 @@ import static util.RedisTestUtils.stopFakeAppWithRedis;
 import static util.TimedAsserts.assertStartsPassingAfter;
 import static utils.Constants.VIEWER_EXPIRY_SECONDS;
 import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
-import static utils.RedisUtils.jedisPool;
 
 /**
  * Heartbeat integration test with Redis. Starts local Redis instances.
@@ -40,7 +37,7 @@ public class RedisHeartbeatServiceTest
     public void startApp() throws Exception
     {
         fakeApp = startNewFakeAppWithRedis(ImmutableMap.of(VIEWER_EXPIRY_SECONDS, String.valueOf(VIEWER_EXPIRY_SECONDS_TEST_VALUE),
-                                                           VIEWER_SET_EXPIRY_SECONDS, String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE)));
+                                                           VIEWER_SET_EXPIRY_SECONDS, String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE)));        
         sut = new RedisHeartbeatService();
     }
 
@@ -88,37 +85,6 @@ public class RedisHeartbeatServiceTest
 
         Map<String, String> hbs = sut.list(hb.hostId, hb.resourceId);
         assertFalse("Could not find heartbeat " + hb.userId + " in db. Got: " + hbs, hbs.containsKey(hb.userId));
-    }
-
-    @Test
-    public void viewerSetShouldExpire() throws Exception
-    {
-        FakeHeartbeat hb = FakeHeartbeat.build();
-        sut.put(hb.hostId, hb.resourceId, hb.userId);
-
-        final String viewerSetKey = KeyUtils.buildViewerSetKey(hb.hostId, hb.resourceId);
-        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE * 2), new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                assertRedisKeyAbsent(viewerSetKey);
-                return null;
-            }
-        });
-    }
-
-    private static void assertRedisKeyAbsent(String key)
-    {
-        Jedis j = jedisPool().getResource();
-        try
-        {
-            assertFalse("Viewer set " + key + " should have expired. You might have a leak.", j.exists(key));
-        }
-        finally
-        {
-            jedisPool().returnResource(j);
-        }
     }
     
 }

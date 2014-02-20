@@ -1,47 +1,41 @@
 package it.service;
 
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import play.test.FakeApplication;
-import redis.clients.jedis.Jedis;
-import service.RedisHeartbeatService;
-import util.FakeHeartbeat;
-import utils.KeyUtils;
+import service.RedisAnalyticsService;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static util.RedisTestUtils.startNewFakeAppWithRedis;
 import static util.RedisTestUtils.stopFakeAppWithRedis;
 import static util.TimedAsserts.assertStartsPassingAfter;
-import static utils.Constants.VIEWER_EXPIRY_SECONDS;
-import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
-import static utils.RedisUtils.jedisPool;
+import static util.TimedAsserts.assertStartsPassingBefore;
+import static utils.Constants.ANALYTICS_EXPIRY_SECONDS;
 
 /**
- * Heartbeat integration test with Redis. Starts local Redis instances.
+ * Analytics integration test with Redis. Starts local Redis instances.
  */
 public class RedisAnalyticsServiceTest
 {
-    private static final int VIEWER_EXPIRY_SECONDS_TEST_VALUE = 1;
-    private static final int VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE = 2;
+    private static final int ANALYTICS_EXPIRY_SECONDS_TEST_VALUE = 3;
     
     private FakeApplication fakeApp;
-    private RedisHeartbeatService sut;
+    private RedisAnalyticsService sut2;
 
     @Before
     public void startApp() throws Exception
     {
-        fakeApp = startNewFakeAppWithRedis(ImmutableMap.of(VIEWER_EXPIRY_SECONDS, String.valueOf(VIEWER_EXPIRY_SECONDS_TEST_VALUE),
-                                                           VIEWER_SET_EXPIRY_SECONDS, String.valueOf(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE)));
-        sut = new RedisHeartbeatService();
+        fakeApp = startNewFakeAppWithRedis(ImmutableMap.of(ANALYTICS_EXPIRY_SECONDS, String.valueOf(ANALYTICS_EXPIRY_SECONDS_TEST_VALUE)));
+
+        sut2 = new RedisAnalyticsService();
     }
 
     @After
@@ -51,73 +45,47 @@ public class RedisAnalyticsServiceTest
     }
 
     @Test
-    public void heartbeatShouldPersist()
+    public void analyticsShouldPersist() throws Exception
     {
-        FakeHeartbeat hb = FakeHeartbeat.build();
-
-        sut.put(hb.hostId, hb.resourceId, hb.userId);
-        Map<String, String> hbs = sut.list(hb.hostId, hb.resourceId);
-
-        assertTrue("Could not find heartbeat " + hb.userId + " in db. Got: " + hbs, hbs.containsKey(hb.userId));
-    }
-
-    @Test
-    public void heartbeatShouldExpire() throws Exception
-    {
-        final FakeHeartbeat hb = FakeHeartbeat.build();
-        sut.put(hb.hostId, hb.resourceId, hb.userId);
-
-        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_EXPIRY_SECONDS_TEST_VALUE * 2), new Callable<Void>()
+        final int numEventsToFire = 1000;
+        fireEvents(numEventsToFire);
+        
+        assertStartsPassingBefore(SECONDS.toMillis(1), new Callable<Void>()
         {
             @Override
             public Void call() throws Exception
             {
-                Map<String, String> hbs = sut.list(hb.hostId, hb.resourceId);
-                assertFalse("Unexpected heartbeat " + hb.userId + " in db. Got: " + hbs, hbs.containsKey(hb.userId));
+                long count = sut2.count("test-metric", DateTime.now().minusMinutes(1), DateTime.now());
+                assertEquals("Unexpected count. Got: " + count, numEventsToFire, count);
                 return null;
             }
         });
     }
 
     @Test
-    public void heartbeatShouldBeDeletable()
+    public void analyticsShouldExpire() throws Exception
     {
-        FakeHeartbeat hb = FakeHeartbeat.build();
-        sut.put(hb.hostId, hb.resourceId, hb.userId);
-        sut.delete(hb.hostId, hb.resourceId, hb.userId);
+        final int numEventsToFire = 1000;
+        fireEvents(numEventsToFire);
 
-        Map<String, String> hbs = sut.list(hb.hostId, hb.resourceId);
-        assertFalse("Could not find heartbeat " + hb.userId + " in db. Got: " + hbs, hbs.containsKey(hb.userId));
-    }
-
-    @Test
-    public void viewerSetShouldExpire() throws Exception
-    {
-        FakeHeartbeat hb = FakeHeartbeat.build();
-        sut.put(hb.hostId, hb.resourceId, hb.userId);
-
-        final String viewerSetKey = KeyUtils.buildViewerSetKey(hb.hostId, hb.resourceId);
-        assertStartsPassingAfter(SECONDS.toMillis(VIEWER_SET_EXPIRY_SECONDS_TEST_VALUE * 2), new Callable<Void>()
+        assertStartsPassingAfter(SECONDS.toMillis(ANALYTICS_EXPIRY_SECONDS_TEST_VALUE * 2), new Callable<Void>()
         {
             @Override
             public Void call() throws Exception
             {
-                assertRedisKeyAbsent(viewerSetKey);
+                sut2.gc();
+                long count = sut2.count("test-metric", DateTime.now().minusMinutes(1), DateTime.now());
+                assertEquals("Unexpected count. Got: " + count, 0, count);
                 return null;
             }
         });
     }
-
-    private static void assertRedisKeyAbsent(String key)
+    
+    private void fireEvents(final int numEventsToFire)
     {
-        Jedis j = jedisPool().getResource();
-        try
+        for (int i=0; i<numEventsToFire; i++)
         {
-            assertFalse("Viewer set " + key + " should have expired. You might have a leak.", j.exists(key));
-        }
-        finally
-        {
-            jedisPool().returnResource(j);
+            sut2.fire("test-metric", "key-" + i);
         }
     }
     
