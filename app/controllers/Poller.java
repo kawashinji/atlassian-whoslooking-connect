@@ -1,18 +1,20 @@
 package controllers;
 
+import java.util.Map;
+
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.auth.jwt.AuthenticateJwtRequest;
+
 import com.fasterxml.jackson.databind.JsonNode;
+
 import org.apache.commons.lang3.StringUtils;
-import play.api.libs.Crypto;
+
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import service.HeartbeatService;
 import service.RedisHeartbeatService;
 import service.ViewerDetailsService;
-
-import java.util.Map;
 
 public class Poller extends Controller
 {

@@ -22,7 +22,7 @@ public class Constants {
     public static final int AVATAR_SIZE_PX_DEFAULT = 24;
 
     public static final String KEY_SEPARATOR = "#";
-    public static final String PER_PAGE_VIEW_TOKEN_HEADER = "x-per-page-view-token";
+    public static final String PER_PAGE_VIEW_TOKEN_HEADER = "X-acpt";
     
     public static final String ANALYTICS_EXPIRY_SECONDS = "whoslooking.analytics-expiry.seconds";
     public static final int ANALYTICS_EXPIRY_SECONDS_DEFAULT = 1209600;
