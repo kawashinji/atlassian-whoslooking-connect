@@ -10,6 +10,8 @@ import com.atlassian.connect.play.java.model.AcHostModel;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.joda.time.DateTime;
+
 import play.Logger;
 import play.Play;
 import play.libs.Json;
@@ -17,11 +19,15 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
+import service.AnalyticsService;
+import service.RedisAnalyticsService;
 import utils.VersionUtils;
 
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.split;
+import static service.AnalyticsService.ACTIVE_HOST;
+import static service.AnalyticsService.ACTIVE_USER;
 import static utils.Constants.POLLER_INTERVAL_SECONDS;
 import static utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT;
 import static utils.RedisUtils.jedisPool;
@@ -29,14 +35,18 @@ import static utils.RedisUtils.jedisPool;
 public class Healthcheck  extends Controller
 {
 
+    private final AnalyticsService analyticsService = new RedisAnalyticsService();
+    
     @play.db.jpa.Transactional
     public Result index() {
         try
         {
             Map<String, Object> redisHealthInfo = redisHealthInfo();
+            Map<String, Long> activity = getActivity();
             return ok(Json.toJson(
                     ImmutableMap.builder()
                             .putAll(basicHealthInfo())
+                            .put("activity", activity)
                             .put("redisStatus", redisHealthInfo)
                             .put("isHealthy", true)
                             .build()
@@ -53,6 +63,22 @@ public class Healthcheck  extends Controller
                                 .build()
             ));
         }
+    }
+
+    private Map<String, Long> getActivity()
+    {
+        final DateTime now = DateTime.now();
+        final DateTime yesterday = now.minusDays(1);
+        final DateTime lastWeek = now.minusDays(7);
+        
+        analyticsService.gc();
+        
+        return ImmutableMap.<String, Long>builder()
+            .put("dailyActiveUsers", analyticsService.count(ACTIVE_USER, yesterday, now))
+            .put("dailyActiveHosts", analyticsService.count(ACTIVE_HOST, yesterday, now))
+            .put("weeklyActiveUsers", analyticsService.count(ACTIVE_USER, lastWeek, now))
+            .put("weeklyActiveHosts", analyticsService.count(ACTIVE_HOST, lastWeek, now))
+            .build();
     }
 
     private Map<String, Object> basicHealthInfo() {

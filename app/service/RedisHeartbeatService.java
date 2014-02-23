@@ -2,14 +2,14 @@ package service;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Maps;
-
-import org.apache.commons.lang3.StringUtils;
 
 import play.Play;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
+import redis.clients.jedis.Tuple;
 
 import static utils.Constants.VIEWER_EXPIRY_SECONDS;
 import static utils.Constants.VIEWER_EXPIRY_SECONDS_DEFAULT;
@@ -17,6 +17,7 @@ import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
 import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS_DEFAULT;
 import static utils.KeyUtils.buildHeartbeatKey;
 import static utils.KeyUtils.buildViewerSetKey;
+import static utils.KeyUtils.extractUseridFromHeartbeatKey;
 import static utils.RedisUtils.jedisPool;
 
 /**
@@ -37,30 +38,21 @@ public class RedisHeartbeatService implements HeartbeatService
     @Override
     public Map<String, String> list(final String hostId, final String resourceId)
     {
-
         final String resourceKey = buildViewerSetKey(hostId, resourceId);
+        final long nowMs = System.currentTimeMillis();
+        
         Jedis j = jedisPool().getResource();
         Map<String, String> activeViewers = Maps.newHashMap();
         try
         {
-            Set<String> allUserIds  = j.smembers(resourceKey);
             j.expire(resourceKey, viewerSetExpirySeconds);
-
-            // Filter out expired viewers
-            for (String userId : allUserIds)
+            Set<Tuple> activeViewersSet = j.zrangeByScoreWithScores(resourceKey, nowMs - TimeUnit.SECONDS.toMillis(viewerExpirySeconds), Double.MAX_VALUE);
+            
+            for (Tuple t : activeViewersSet)
             {
-                String heartbeatKey = buildHeartbeatKey(hostId, resourceId, userId);
-                String lastSeen = j.get(heartbeatKey);
-                if (StringUtils.isBlank(lastSeen))
-                {
-                    // Viewer has expired, remove them from resource set.
-                    j.srem(resourceKey, userId);
-                }
-                else
-                {
-                    activeViewers.put(userId, lastSeen);
-                }
+                activeViewers.put(extractUseridFromHeartbeatKey(t.getElement()), String.valueOf(t.getScore()));
             }
+            
         }
         finally
         {
@@ -75,14 +67,14 @@ public class RedisHeartbeatService implements HeartbeatService
     {
         final String heartbeatKey = buildHeartbeatKey(hostId, resourceId, userId);
         final String resourceKey = buildViewerSetKey(hostId, resourceId);
+        final long nowMs = System.currentTimeMillis();
 
         Jedis j = jedisPool().getResource();
         try
         {
             Transaction t = j.multi();
-            t.sadd(resourceKey, userId);
-            t.set(heartbeatKey, String.valueOf(System.currentTimeMillis()));
-            t.expire(heartbeatKey, viewerExpirySeconds);
+            t.zremrangeByScore(resourceKey, 0, nowMs - TimeUnit.SECONDS.toMillis(viewerExpirySeconds));
+            t.zadd(resourceKey, nowMs, heartbeatKey);
             t.expire(resourceKey, viewerSetExpirySeconds);
             t.exec();
         }
@@ -93,18 +85,52 @@ public class RedisHeartbeatService implements HeartbeatService
     }
 
     @Override
-    public void delete(final String hostId, final String resourceId, final String viewer)
+    public void delete(final String hostId, final String resourceId, final String userId)
     {
-        String key = buildHeartbeatKey(hostId, resourceId, viewer);
+        final String heartbeatKey = buildHeartbeatKey(hostId, resourceId, userId);
+        final String resourceKey = buildViewerSetKey(hostId, resourceId);
+        
         Jedis j = jedisPool().getResource();
         try
         {
-            j.del(key);
+            j.zrem(resourceKey, heartbeatKey);
         }
         finally
         {
             jedisPool().returnResource(j);
         }
     }
+    
+    public long activeUsers(int days)
+    {
+        final long nowMs = System.currentTimeMillis();
+        
+        Jedis j = jedisPool().getResource();
+        try
+        {
+            return j.zcount("active-users", nowMs - TimeUnit.DAYS.toMillis(days), Double.MAX_VALUE);
+        }
+        finally
+        {
+            jedisPool().returnResource(j);
+        }
+    }
+    
+    public long activeHosts(int days)
+    {
+        final long nowMs = System.currentTimeMillis();
+        
+        Jedis j = jedisPool().getResource();
+        try
+        {
+            return j.zcount("active-hosts", nowMs - TimeUnit.DAYS.toMillis(days), Double.MAX_VALUE);
+        }
+        finally
+        {
+            jedisPool().returnResource(j);
+        }
+    }
+    
+    
 
 }

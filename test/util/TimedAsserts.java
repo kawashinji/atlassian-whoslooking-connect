@@ -4,15 +4,20 @@ import java.util.concurrent.Callable;
 
 public class TimedAsserts {
 
-    public static final int DEFAULT_RETRY_INTERVAL_MS = 100;
-    public static final int DEFAULT_ERROR_MARGIN_MS = 200;
+    public static final long DEFAULT_RETRY_INTERVAL_MS = 100;
+    public static final long DEFAULT_TIMEOUT_MS = 200;
 
     public static void assertStartsPassingAfter(long timeToWaitMs, Callable<Void> callable) throws Exception
     {
-        TimedAsserts.assertStartsPassingAfter(timeToWaitMs, callable, DEFAULT_RETRY_INTERVAL_MS, DEFAULT_ERROR_MARGIN_MS);
+        TimedAsserts.assertStartsPassingAfter(timeToWaitMs, callable, DEFAULT_TIMEOUT_MS, DEFAULT_RETRY_INTERVAL_MS);
+    }
+    
+    public static void assertStartsPassingBefore(long timeOut, Callable<Void> callable) throws Exception
+    {
+        TimedAsserts.assertStartsPassingAfter(0L, callable, timeOut, DEFAULT_RETRY_INTERVAL_MS);
     }
 
-    public static void assertStartsPassingAfter(long timeToWaitMs, Callable<Void> callable, int retryIntervalMs, int errorMarginMs) throws Exception
+    public static void assertStartsPassingAfter(long timeToWaitMs, Callable<Void> callable, long timeOutMs, long retryIntervalMs) throws Exception
     {
         long startTime = System.currentTimeMillis();
         while (true)
@@ -21,7 +26,7 @@ public class TimedAsserts {
             try
             {
                 callable.call();
-                if (waitedMs < (timeToWaitMs-errorMarginMs))
+                if (waitedMs < timeToWaitMs)
                 {
                     throw new AssertionError("Started passing too soon: " + waitedMs);
                 }
@@ -29,7 +34,7 @@ public class TimedAsserts {
             }
             catch (AssertionError e)
             {
-                if (waitedMs > timeToWaitMs+errorMarginMs)
+                if (waitedMs > timeToWaitMs+timeOutMs)
                 {
                     throw e;
                 }
@@ -37,4 +42,5 @@ public class TimedAsserts {
             Thread.sleep(retryIntervalMs);
         }
     }
+
 }
