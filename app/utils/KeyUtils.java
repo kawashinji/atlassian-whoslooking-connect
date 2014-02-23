@@ -31,7 +31,7 @@ public class KeyUtils
 
     public static String buildViewerSetKey(final String hostId, final String resourceId)
     {
-        return buildKey("viewerset", hostId, resourceId);
+        return buildKey("viewersetv2", hostId, resourceId);
     }
     
     public static String buildUserKey(final String hostId, final String userId)

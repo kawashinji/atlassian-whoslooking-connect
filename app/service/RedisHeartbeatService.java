@@ -99,38 +99,6 @@ public class RedisHeartbeatService implements HeartbeatService
         {
             jedisPool().returnResource(j);
         }
-    }
-    
-    public long activeUsers(int days)
-    {
-        final long nowMs = System.currentTimeMillis();
-        
-        Jedis j = jedisPool().getResource();
-        try
-        {
-            return j.zcount("active-users", nowMs - TimeUnit.DAYS.toMillis(days), Double.MAX_VALUE);
-        }
-        finally
-        {
-            jedisPool().returnResource(j);
-        }
-    }
-    
-    public long activeHosts(int days)
-    {
-        final long nowMs = System.currentTimeMillis();
-        
-        Jedis j = jedisPool().getResource();
-        try
-        {
-            return j.zcount("active-hosts", nowMs - TimeUnit.DAYS.toMillis(days), Double.MAX_VALUE);
-        }
-        finally
-        {
-            jedisPool().returnResource(j);
-        }
-    }
-    
-    
+    }    
 
 }
