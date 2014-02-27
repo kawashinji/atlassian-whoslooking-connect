@@ -2,9 +2,13 @@ package service;
 
 import java.util.Set;
 
+import com.newrelic.api.agent.Trace;
+
 import org.joda.time.DateTime;
 
+import play.Logger;
 import play.Play;
+import play.libs.F.Callback;
 import play.libs.F.Function0;
 import play.libs.F.Promise;
 import redis.clients.jedis.Jedis;
@@ -32,9 +36,10 @@ public class RedisAnalyticsService implements AnalyticsService
         final long eventTime = System.currentTimeMillis();
         final String metricKey = buildEventKey(metricName);
 
-        Promise.promise(new Function0<Void>()
+        Promise<Void> promise = Promise.promise(new Function0<Void>()
         {
             @Override
+            @Trace(metricName="write-analytics-event", dispatcher=true)
             public Void apply()
             {
                 Jedis j = jedisPool().getResource();
@@ -51,6 +56,25 @@ public class RedisAnalyticsService implements AnalyticsService
                 }
 
                 return null;
+            }
+        });
+
+        promise.onFailure(new Callback<Throwable>()
+        {
+            @Override
+            @Trace(metricName="write-analytics-events-error", dispatcher=true)
+            public void invoke(Throwable e) throws Throwable
+            {
+                Logger.warn("Failed to write analitics event " + metricName + "/" + eventKey, e);
+            }
+        });
+
+        promise.onRedeem(new Callback<Void>()
+        {
+            @Override
+            public void invoke(Void v) throws Throwable
+            {
+                Logger.trace("Wrote analytics event.");
             }
         });
     }
