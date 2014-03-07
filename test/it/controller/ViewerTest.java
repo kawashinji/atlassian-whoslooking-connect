@@ -192,7 +192,7 @@ public class ViewerTest
     private static void registerHost(String key)
     {
         Map<String, String> host = ImmutableMap.of("clientKey", key,
-                                                   "baseUrl", "http://ac-mock-apps-robinf.herokuapp.com/jira/" + key,
+                                                   "baseUrl", "http://ac-mock-tenants.herokuapp.com/jira/" + key,
                                                    "productType", "jira",
                                                    "sharedSecret", "xyz",
                                                    "publicKey", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCJwaijNZVbGHO/rO58TRSwAbwu0XTQJxHHkDFR1U0OM8VDoHLn/42UBg+tW8GobG6xrPBwINL8MyNYULgzv1NYx6a5HTom3hFA3pBkmi1fy6vFVIE+M3gYA2+A514A227MUZlBIzSr2jldmP+EFYh0J449f+BbWM7VJpZqqV+4WQIDAQAB");
