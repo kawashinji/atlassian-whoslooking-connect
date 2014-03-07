@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
+import com.newrelic.api.agent.Trace;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -96,6 +97,7 @@ public class ViewerDetailsService
         promise.onRedeem(new Callback<WS.Response>()
         {
             @Override
+            @Trace(metricName="process-viewer-details", dispatcher=true)
             public void invoke(Response a) throws Throwable
             {
                 JsonNode userDetailsJson = a.asJson();
@@ -117,6 +119,7 @@ public class ViewerDetailsService
         promise.recover(new Function<Throwable, WS.Response>()
         {
             @Override
+            @Trace(metricName="process-viewer-details-error", dispatcher=true)
             public WS.Response apply(Throwable t)
             {
                 // Can't really recover from this, so just rethrow.

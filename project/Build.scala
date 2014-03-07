@@ -14,11 +14,11 @@ object ApplicationBuild extends Build {
     javaEbean,
     "commons-io" % "commons-io" % "2.4",
     "com.typesafe" %% "play-plugins-redis" % "2.1-1-RC2-robinf-3",
-    "com.atlassian.connect" % "ac-play-java_2.10" % "0.7.0-BETA8" withSources(),
+    "com.atlassian.connect" % "ac-play-java_2.10" % "0.7.0-BETA10-robinf" withSources(),
     "org.apache.commons" % "commons-lang3" % "3.1",
     "com.google.guava" % "guava" % "14.0.1",
     "commons-codec" % "commons-codec" % "1.8",
-    "com.newrelic.agent.java" % "newrelic-api" % "3.1.1",
+    "com.newrelic.agent.java" % "newrelic-api" % "3.5.0",
     "redis.embedded" % "embedded-redis" % "0.1" % "test" exclude("com.google.guava", "guava-io")
   )
 
@@ -38,6 +38,6 @@ object ApplicationBuild extends Build {
             val newArg = if(ta.framework == Some(TestFrameworks.JUnit)) ta.copy(args = List.empty[String]) else ta
           } yield newArg
         }
-  )
+  ).settings(net.virtualvoid.sbt.graph.Plugin.graphSettings: _*)
 
 }
