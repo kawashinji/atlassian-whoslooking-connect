@@ -3,12 +3,12 @@ package controllers;
 import java.util.Map;
 
 import com.atlassian.connect.play.java.AC;
-import com.atlassian.connect.play.java.auth.jwt.AuthenticateJwtRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.apache.commons.lang3.StringUtils;
 
+import oauth.jwt.compat.CheckValidRequest;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -21,7 +21,7 @@ public class Poller extends Controller
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
 
-    @AuthenticateJwtRequest
+    @CheckValidRequest
     public Result index() throws Exception
     {
         final String hostId = AC.getAcHost().getKey();
