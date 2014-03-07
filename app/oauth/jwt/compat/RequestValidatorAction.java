@@ -3,7 +3,6 @@ package oauth.jwt.compat;
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.AcHost;
 import com.atlassian.connect.play.java.PublicKeyStore;
-import com.atlassian.connect.play.java.auth.InvalidAuthenticationRequestException;
 import com.atlassian.connect.play.java.auth.jwt.JwtAuthConfig;
 import com.atlassian.connect.play.java.auth.jwt.JwtAuthenticationResult;
 import com.atlassian.connect.play.java.oauth.OAuthRequestValidator;
@@ -18,7 +17,6 @@ import play.libs.F.Either;
 import play.libs.F.Promise;
 import play.mvc.Action;
 import play.mvc.Http;
-import play.mvc.Http.Context;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.SimpleResult;
@@ -33,11 +31,21 @@ public final class RequestValidatorAction extends Action.Simple
     {
         try
         {
-            return new AuthenticationHelper().authenticate(context, delegate);
+            Either<Status, Jwt> authResult = authenticator.authenticate(context.request(), context.response()).getResult();
+            if (authResult.left.isDefined()) {
+                throw new RuntimeException("JWT auth failed.");
+            }
+
+            Jwt jwt = authResult.right.get();
+            AC.setAcHost(jwt.getIssuer());
+            AC.setUser(jwt.getSubject());
+            AC.refreshToken(false);
+
+            return delegate.call(context);
         }
         catch (Exception e)
         {
-            Logger.info("Could not validate JWT, falling back to OAuth.");
+            Logger.info("Could not validate JWT, falling back to OAuth.", e);
             AC.setAcHost(validator.validate(context.request()));
             AC.refreshToken(false);
 
@@ -60,32 +68,5 @@ public final class RequestValidatorAction extends Action.Simple
                 }
             }).getOrNull();
         }
-    }
-
-
-    // exists to make it easier to test
-    static class AuthenticationHelper {
-        public Promise<SimpleResult> authenticate(Context context, Action<?> delegate) throws Throwable
-        {
-            try
-            {
-                Either<Status, Jwt> authResult = authenticator.authenticate(context.request(), context.response()).getResult();
-                if (authResult.left.isDefined()) {
-                    return Promise.pure((SimpleResult)authResult.left.get());
-                }
-
-                Jwt jwt = authResult.right.get();
-                AC.setAcHost(jwt.getIssuer());
-                AC.setUser(jwt.getSubject());
-                AC.refreshToken(false);
-
-                return delegate.call(context);
-            }
-            catch (InvalidAuthenticationRequestException e)
-            {
-                return Promise.pure((SimpleResult)badRequest("Bad request: " + e.getMessage()));
-            }
-        }
-
     }
 }
