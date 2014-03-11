@@ -30,13 +30,12 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
+    <link rel="stylesheet" type="text/css" href="//d1cq5befmb1l41.cloudfront.net/v1/main.css" />
+    <script type="text/javascript" src="//d1cq5befmb1l41.cloudfront.net/v1/pagetoken.js"></script>
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
         <meta name="hostBaseUrl" content="@baseUrl" />
-        <script type="text/javascript" src="@baseUrl/atlassian-connect/all.js"></script>
-        <link rel="stylesheet" type="text/css" href="@baseUrl/atlassian-connect/all.css"/>        
     }
-  <script type="text/javascript" src="@com.atlassian.connect.play.java.controllers.routes.AcController.asset("js/pagetoken.js")"></script>
+
 
   </head>
   <script>
