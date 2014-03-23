@@ -6,8 +6,10 @@ import java.util.Set;
 import com.atlassian.connect.play.java.token.Token;
 import com.atlassian.fugue.Option;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.hash.Hashing;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.After;
@@ -71,6 +73,21 @@ public class ViewerTest
     }
     
     @Test
+    public void shouldRejectPutIfTokenIsForDifferentUser()
+    {
+        Result result = route(putViewer("some-user").withHeader(PER_PAGE_VIEW_TOKEN_HEADER,  tokenFor(TEST_HOST_ID, "other-user")));   
+        assertEquals(HTTP_UNAUTHORIZED, status(result));
+    }
+    
+    @Test
+    public void shouldRejectPutIfTokenIsForDifferentHost()
+    {
+        Result result = route(putViewer("some-user", TEST_RESOURCE_ID, "other-host")
+                              .withHeader(PER_PAGE_VIEW_TOKEN_HEADER,  tokenFor(TEST_HOST_ID, "some-user")));
+        assertEquals(HTTP_UNAUTHORIZED, status(result));
+    }      
+    
+    @Test
     public void shouldRejectDeleteIfTokenIsMissing()
     {
         Result result = route(deleteViewer("some-user"));    
@@ -82,7 +99,22 @@ public class ViewerTest
     {
         Result result = route(deleteViewer("some-user").withHeader(PER_PAGE_VIEW_TOKEN_HEADER, "garbage"));   
         assertEquals(HTTP_UNAUTHORIZED, status(result));
-    }    
+    }
+    
+    @Test
+    public void shouldRejectDeleteIfTokenIsForDifferentUser()
+    {
+        Result result = route(deleteViewer("some-user").withHeader(PER_PAGE_VIEW_TOKEN_HEADER,  tokenFor(TEST_HOST_ID, "other-user")));   
+        assertEquals(HTTP_UNAUTHORIZED, status(result));
+    }
+    
+    @Test
+    public void shouldRejectDeleteIfTokenIsForDifferentHost()
+    {
+        Result result = route(deleteViewer("some-user", TEST_RESOURCE_ID, "other-host")
+                              .withHeader(PER_PAGE_VIEW_TOKEN_HEADER,  tokenFor(TEST_HOST_ID, "some-user")));   
+        assertEquals(HTTP_UNAUTHORIZED, status(result));
+    }     
 
     @Test
     public void shouldAcceptPutIfTokenIsValid()
@@ -90,6 +122,14 @@ public class ViewerTest
         Result result = routeAndExpectSuccess(putViewerWithValidToken("some-user"));   
         assertEquals(ImmutableSet.of("some-user"), extractViewers(result));
     }
+    
+    @Test
+    public void shouldAcceptPutIfTokenIsValidWithLegacyUrl()
+    {
+        Result result = routeAndExpectSuccess(legacyPutViewer("some-user")
+                                              .withHeader(PER_PAGE_VIEW_TOKEN_HEADER, tokenFor(TEST_HOST_ID, "some-user")));   
+        assertEquals(ImmutableSet.of("some-user"), extractViewers(result));
+    }       
 
     @Test
     public void shouldTrackMultipleViewers()
@@ -106,6 +146,18 @@ public class ViewerTest
         routeAndExpectSuccess(putViewerWithValidToken("some-user-1"));
         routeAndExpectSuccess(putViewerWithValidToken("some-user-2"));
         routeAndExpectSuccess(deleteViewerWithValidToken("some-user-2"));
+        Result result = routeAndExpectSuccess(putViewerWithValidToken("some-user-1"));
+
+        assertEquals(ImmutableSet.of("some-user-1"), extractViewers(result));
+    }
+    
+    @Test
+    public void shouldNotListDeletedViewerWithLegacyUrl()
+    {
+        routeAndExpectSuccess(putViewerWithValidToken("some-user-1"));
+        routeAndExpectSuccess(putViewerWithValidToken("some-user-2"));
+        routeAndExpectSuccess(legacyDeleteViewer("some-user-2")
+                              .withHeader(PER_PAGE_VIEW_TOKEN_HEADER, tokenFor(TEST_HOST_ID, "some-user-2")));   
         Result result = routeAndExpectSuccess(putViewerWithValidToken("some-user-1"));
 
         assertEquals(ImmutableSet.of("some-user-1"), extractViewers(result));
@@ -168,8 +220,23 @@ public class ViewerTest
 
     private static FakeRequest deleteViewer(String user)
     {
-        return fakeRequest("DELETE", viewerUriFor(TEST_HOST_ID, TEST_RESOURCE_ID, user));
+        return deleteViewer(TEST_HOST_ID, TEST_RESOURCE_ID, user);
     }
+    
+    private static FakeRequest deleteViewer(String host, String resource, String user)
+    {
+        return fakeRequest("DELETE", viewerUriFor(host, resource, user));
+    }
+    
+    private static FakeRequest legacyDeleteViewer(String user)
+    {
+        return fakeRequest("DELETE", legacyViewerUriFor(TEST_HOST_ID, TEST_RESOURCE_ID, user));
+    }
+    
+    private static FakeRequest legacyPutViewer(String user)
+    {
+        return fakeRequest("PUT", legacyViewerUriFor(TEST_HOST_ID, TEST_RESOURCE_ID, user));
+    }      
 
     private static FakeRequest deleteViewerWithValidToken(String user)
     {
@@ -186,8 +253,14 @@ public class ViewerTest
 
     private static String viewerUriFor(String host, String resource, String user)
     {
-        return "/viewables/" + host + "/" + resource + "/viewers/" + user + "?ac-host=" + TEST_HOST_ID;
+        String viewerHash = Hashing.sha1().hashString(user, Charsets.UTF_8).toString(); 
+        return "/viewables/" + host + "/" + resource + "/viewers/" + viewerHash;
     }
+    
+    private static String legacyViewerUriFor(String host, String resource, String user)
+    {
+        return "/viewables/" + host + "/" + resource + "/viewers/" + user;
+    }    
     
     private static void registerHost(String key)
     {
