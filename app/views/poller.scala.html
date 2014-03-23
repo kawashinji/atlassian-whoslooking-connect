@@ -30,6 +30,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
+    <script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")" />
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
         <meta name="hostBaseUrl" content="@baseUrl" />
@@ -48,7 +49,8 @@
       var hostId = getMeta('hostId');
       var resourceId = getMeta('resourceId');      
       var userId = getMeta('userId');
-      var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userId);
+      var userHash = CryptoJS.SHA1(userId);
+      var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ encodeURIComponent(userHash);
 
       var poll = function() {
         Visibility.hidden() || $.ajax({
