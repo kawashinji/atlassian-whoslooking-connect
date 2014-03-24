@@ -83,9 +83,6 @@
           var displayName = (details && details.displayName) ? details.displayName : name;
           var viewerListItem = $('<p>');
           var userDisplayName = $('<span>').text(displayName).addClass('whoslooking-displayname');
-          if (details && details.lastSeen) {
-            viewerListItem.attr('title', moment.utc(details.lastSeen).fromNow());
-          }
           var avatar = $('<img>').attr('width', avatarSize + 'px').attr('height', avatarSize + 'px').attr('src', avatarUrl).addClass('whoslooking-avatar');
           viewerListItem.append(avatar).append(userDisplayName);
           viewerList.append(viewerListItem);

@@ -57,7 +57,6 @@ public class ViewerDetailsService
             public JsonNode transformEntry(String username, String lastSeen) {
                 ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
                 objectNode.put("displayName", getCachedDisplayNameFor(hostId, username).getOrElse(username));
-                objectNode.put("lastSeen", lastSeen);
                 return objectNode;
             }
         });
