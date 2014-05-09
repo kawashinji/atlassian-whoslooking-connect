@@ -22,6 +22,7 @@ import play.libs.WS;
 import play.libs.WS.Response;
 
 import java.util.Map;
+import java.util.Random;
 
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
@@ -37,6 +38,7 @@ public class ViewerDetailsService
 
     private final HeartbeatService heartbeatService;
     private final int displayNameCacheExpirySeconds;
+    private final Random random = new Random();
 
     public ViewerDetailsService(final HeartbeatService heartbeatService)
     {
@@ -105,7 +107,8 @@ public class ViewerDetailsService
                 {
                     String displayName = displayNameNode.asText();
                     Logger.info(String.format("Obtained display name for %s on %s: %s", username, hostId, displayName));
-                    Cache.set(key, displayName, displayNameCacheExpirySeconds);
+                    int jitter = random.nextInt(displayNameCacheExpirySeconds);
+                    Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
                 }
                 else
                 {
