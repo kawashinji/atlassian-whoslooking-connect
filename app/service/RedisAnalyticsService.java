@@ -6,6 +6,8 @@ import com.newrelic.api.agent.Trace;
 
 import org.joda.time.DateTime;
 
+import play.libs.Akka;
+
 import play.Logger;
 import play.Play;
 import play.libs.F.Callback;
@@ -13,7 +15,6 @@ import play.libs.F.Function0;
 import play.libs.F.Promise;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
-
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static utils.Constants.ANALYTICS_EXPIRY_SECONDS;
 import static utils.Constants.ANALYTICS_EXPIRY_SECONDS_DEFAULT;
