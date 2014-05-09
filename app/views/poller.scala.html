@@ -34,6 +34,7 @@
     <link rel="stylesheet" type="text/css" href="//d1cq5befmb1l41.cloudfront.net/v1/main.css" />
     <script type="text/javascript" src="//d1cq5befmb1l41.cloudfront.net/v1/pagetoken.js"></script>
     @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
+        <script type="text/javascript" src="@baseUrl/atlassian-connect/all.js"></script>
         <meta name="hostBaseUrl" content="@baseUrl" />
     }
 
