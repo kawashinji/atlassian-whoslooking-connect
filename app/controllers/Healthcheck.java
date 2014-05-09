@@ -41,13 +41,11 @@ public class Healthcheck  extends Controller
     public Result index() {
         try
         {
-            Map<String, Object> redisHealthInfo = redisHealthInfo();
             Map<String, Long> activity = getActivity();
             return ok(Json.toJson(
                     ImmutableMap.builder()
                             .putAll(basicHealthInfo())
                             .put("activity", activity)
-                            .put("redisStatus", redisHealthInfo)
                             .put("isHealthy", true)
                             .build()
             ));
