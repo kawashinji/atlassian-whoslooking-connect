@@ -12,6 +12,9 @@ import com.google.common.collect.ImmutableMap;
 
 import org.joda.time.DateTime;
 
+import static service.AnalyticsService.ACTIVE_USER_V2;
+
+import static service.AnalyticsService.ACTIVE_HOST_V2;
 import play.Logger;
 import play.Play;
 import play.libs.Json;
@@ -22,7 +25,6 @@ import redis.clients.jedis.exceptions.JedisException;
 import service.AnalyticsService;
 import service.RedisAnalyticsService;
 import utils.VersionUtils;
-
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.split;
@@ -76,6 +78,10 @@ public class Healthcheck  extends Controller
             .put("dailyActiveHosts", analyticsService.count(ACTIVE_HOST, yesterday, now))
             .put("weeklyActiveUsers", analyticsService.count(ACTIVE_USER, lastWeek, now))
             .put("weeklyActiveHosts", analyticsService.count(ACTIVE_HOST, lastWeek, now))
+            .put("dailyV2ActiveUsers", analyticsService.count(ACTIVE_USER_V2, yesterday, now))
+            .put("dailyV2ActiveHosts", analyticsService.count(ACTIVE_HOST_V2, yesterday, now))
+            .put("weeklyV2ActiveUsers", analyticsService.count(ACTIVE_USER_V2, lastWeek, now))
+            .put("weeklyV2ActiveHosts", analyticsService.count(ACTIVE_HOST_V2, lastWeek, now))            
             .build();
     }
 

@@ -43,6 +43,7 @@ public class RedisAnalyticsService implements AnalyticsService
             public Void apply()
             {
                 Jedis j = jedisPool().getResource();
+                
                 try
                 {
                     Transaction t = j.multi();
