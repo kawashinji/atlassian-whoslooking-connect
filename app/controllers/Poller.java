@@ -8,20 +8,19 @@ import com.atlassian.connect.play.java.auth.jwt.AuthenticateJwtRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.util.security.Credential.MD5;
 
-import static org.eclipse.jetty.util.security.Credential.MD5.digest;
-
-import static service.AnalyticsService.ACTIVE_HOST_V2;
-import static service.AnalyticsService.ACTIVE_USER_V2;
-import service.AnalyticsService;
-import service.RedisAnalyticsService;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import service.AnalyticsService;
 import service.HeartbeatService;
+import service.RedisAnalyticsService;
 import service.RedisHeartbeatService;
 import service.ViewerDetailsService;
+
+import static play.api.libs.Codecs.sha1;
+import static service.AnalyticsService.ACTIVE_HOST_V2;
+import static service.AnalyticsService.ACTIVE_USER_V2;
 
 public class Poller extends Controller
 {
@@ -43,8 +42,8 @@ public class Poller extends Controller
         
         heartbeatService.put(hostId, resourceId, userId);
         
-        analyticsService.fire(ACTIVE_HOST_V2, digest(hostId));
-        analyticsService.fire(ACTIVE_USER_V2, digest(hostId)+":"+digest(userId));
+        analyticsService.fire(ACTIVE_HOST_V2, sha1(hostId));
+        analyticsService.fire(ACTIVE_USER_V2, sha1(hostId)+":"+sha1(userId));
         
         final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
         return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, userId));
