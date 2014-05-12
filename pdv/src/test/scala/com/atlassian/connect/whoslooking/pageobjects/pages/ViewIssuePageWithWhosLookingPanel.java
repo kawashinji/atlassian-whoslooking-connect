@@ -31,7 +31,7 @@ public class ViewIssuePageWithWhosLookingPanel extends ViewIssuePage
     private static final Logger log = LoggerFactory.getLogger(ViewIssuePageWithWhosLookingPanel.class);
 
     private static final By ONLOOKER_SELECTOR = By.cssSelector("#whoslooking-onlookers-list .whoslooking-displayname");
-    private static final By IFRAME_SELECTOR = By.xpath("//iframe[contains(@name, 'whos-looking')]");
+    private static final By IFRAME_SELECTOR = By.xpath("//iframe[contains(@id, 'whos-looking')]");
     private static final By ANON_SELECTOR = By.id("whoslooking-anonymous");
     private static final By ANON_LOGIN_LINK_SELECTOR = By.id("whoslooking-anonymous-login-link");
 
