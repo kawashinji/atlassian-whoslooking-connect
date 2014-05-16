@@ -27,4 +27,8 @@ public class Constants {
     public static final String ANALYTICS_EXPIRY_SECONDS = "whoslooking.analytics-expiry.seconds";
     public static final int ANALYTICS_EXPIRY_SECONDS_DEFAULT = 1209600;
 
+    // feature flags
+    public static final String ENABLE_FULL_NAME_FETCH = "whoslooking.feature.full-name-fetch";
+    public static final String ENABLE_FULL_NAME_FETCH_BLACKLIST = "whoslooking.feature.full-name-fetch-blacklist";
+    
 }

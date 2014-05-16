@@ -10,10 +10,10 @@ import com.atlassian.connect.play.java.model.AcHostModel;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.javasimon.SimonManager;
 import org.joda.time.DateTime;
 
 import static service.AnalyticsService.ACTIVE_USER_V2;
-
 import static service.AnalyticsService.ACTIVE_HOST_V2;
 import play.Logger;
 import play.Play;
@@ -48,6 +48,11 @@ public class Healthcheck  extends Controller
                     ImmutableMap.builder()
                             .putAll(basicHealthInfo())
                             .put("activity", activity)
+                            .put("poller.db", SimonManager.getStopwatch("poller.db").sample())
+                            .put("poller.hb", SimonManager.getStopwatch("poller.hb").sample())
+                            .put("poller.a", SimonManager.getStopwatch("poller.a").sample())
+                            .put("poller.v", SimonManager.getStopwatch("poller.v").sample())
+                            .put("poller.r", SimonManager.getStopwatch("poller.r").sample())
                             .put("isHealthy", true)
                             .build()
             ));

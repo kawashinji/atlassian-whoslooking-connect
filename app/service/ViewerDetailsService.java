@@ -12,6 +12,7 @@ import com.newrelic.api.agent.Trace;
 
 import org.apache.commons.lang3.StringUtils;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import play.Logger;
 import play.Play;
 import play.cache.Cache;
@@ -26,6 +27,8 @@ import java.util.Random;
 
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.ENABLE_FULL_NAME_FETCH;
+import static utils.Constants.ENABLE_FULL_NAME_FETCH_BLACKLIST;
 import static utils.KeyUtils.buildDisplayNameKey;
 
 /**
@@ -40,10 +43,15 @@ public class ViewerDetailsService
     private final int displayNameCacheExpirySeconds;
     private final Random random = new Random();
 
+    private boolean enableFullNameFetchBlackList;
+    private boolean enableFullNameFetch;
+    
     public ViewerDetailsService(final HeartbeatService heartbeatService)
     {
         this.heartbeatService = heartbeatService;
         this.displayNameCacheExpirySeconds = Play.application().configuration().getInt(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT);
+        this.enableFullNameFetch = Play.application().configuration().getBoolean(ENABLE_FULL_NAME_FETCH, true);
+        this.enableFullNameFetchBlackList = Play.application().configuration().getBoolean(ENABLE_FULL_NAME_FETCH_BLACKLIST, true);
     }
 
     /**
@@ -77,59 +85,86 @@ public class ViewerDetailsService
         final String key = buildDisplayNameKey(hostId, username);
         String cachedValue = (String) Cache.get(key);
 
-        if (StringUtils.isNotEmpty(cachedValue))
+        if (isNotEmpty(cachedValue))
         {
             // Found cached value, return it immediately.
             return Option.some(cachedValue);
         }
-
-        Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
-
-        Option<? extends AcHost> acHost = AC.getAcHost(hostId);
-
-        if (acHost.isEmpty())
+        else
         {
-            Logger.warn("Could not find host for id: " + acHost);
-            return Option.none();
+            // Populate the cache in the background and return none for now
+            if (!isBlackListed(key)) {
+              asyncFetch(hostId, username, key);
+            }
         }
-
-        Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.some(username)).setQueryParameter("username", username).get();
-
-        promise.onRedeem(new Callback<WS.Response>()
-        {
-            @Override
-            @Trace(metricName="process-viewer-details", dispatcher=true)
-            public void invoke(Response a) throws Throwable
-            {
-                JsonNode userDetailsJson = a.asJson();
-                JsonNode displayNameNode = userDetailsJson.get(DISPLAY_NAME);
-                if (displayNameNode != null)
-                {
-                    String displayName = displayNameNode.asText();
-                    Logger.info(String.format("Obtained display name for %s on %s: %s", username, hostId, displayName));
-                    int jitter = random.nextInt(displayNameCacheExpirySeconds);
-                    Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
-                }
-                else
-                {
-                    Logger.error("Could not extract full name from user details, which were: " + userDetailsJson.toString());
-                }
-            }
-
-        });
-
-        promise.recover(new Function<Throwable, WS.Response>()
-        {
-            @Override
-            @Trace(metricName="process-viewer-details-error", dispatcher=true)
-            public WS.Response apply(Throwable t)
-            {
-                // Can't really recover from this, so just rethrow.
-                throw new RuntimeException(t);
-            }
-        });
-
+        
         return Option.none();
+    }
+
+    private boolean isBlackListed(String key) {
+      if (!enableFullNameFetch) {
+        return true;
+      }
+      else if (enableFullNameFetchBlackList) {
+        Object failures = Cache.get("fullname-fetch-blacklist"+key);
+        return failures != null && (Integer) failures > 3;
+      }
+      else {
+        return false;
+      }
+    }
+
+    private void asyncFetch(final String hostId, final String username, final String key) {
+      Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
+
+      Option<? extends AcHost> acHost = AC.getAcHost(hostId);
+
+      if (acHost.isEmpty())
+      {
+          Logger.warn("Could not find host for id: " + acHost);
+          return;
+      }
+
+      Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.<String>none()).setQueryParameter("username", username).get();
+
+      promise.onRedeem(new Callback<WS.Response>()
+      {
+          @Override
+          @Trace(metricName="process-viewer-details", dispatcher=true)
+          public void invoke(Response a) throws Throwable
+          {
+              JsonNode userDetailsJson = a.asJson();
+              JsonNode displayNameNode = userDetailsJson.get(DISPLAY_NAME);
+              if (displayNameNode != null)
+              {
+                  String displayName = displayNameNode.asText();
+                  Logger.info(String.format("Obtained display name for %s on %s: %s", username, hostId, displayName));
+                  int jitter = random.nextInt(displayNameCacheExpirySeconds);
+                  Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
+              }
+              else
+              {
+                  Logger.error("Could not extract full name from user details, which were: " + userDetailsJson.toString());
+                  if (enableFullNameFetchBlackList) {
+                    //TODO: increment blacklist count
+                  }
+              }
+          }
+
+      });
+
+      promise.recover(new Function<Throwable, WS.Response>()
+      {
+          @Override
+          @Trace(metricName="process-viewer-details-error", dispatcher=true)
+          public WS.Response apply(Throwable t)
+          {
+            if (enableFullNameFetchBlackList) {
+              //TODO: increment blacklist count
+            }
+              throw new RuntimeException(t);
+          }
+      });
     }
 
 }
