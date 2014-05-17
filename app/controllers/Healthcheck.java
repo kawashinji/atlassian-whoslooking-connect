@@ -10,11 +10,6 @@ import com.google.common.collect.ImmutableMap;
 
 import org.joda.time.DateTime;
 
-import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH;
-
-import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH_BLACKLIST;
-import static utils.Constants.ENABLE_METRICS;
-import utils.Constants;
 import play.Configuration;
 import play.Logger;
 import play.Play;
@@ -26,11 +21,24 @@ import service.AnalyticsService;
 import service.MetricsService;
 import service.RedisAnalyticsService;
 import utils.VersionUtils;
+
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static service.AnalyticsService.ACTIVE_HOST;
 import static service.AnalyticsService.ACTIVE_USER;
-import static utils.Constants.*;
+import static utils.Constants.ANALYTICS_EXPIRY_SECONDS;
+import static utils.Constants.ANALYTICS_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
+import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH;
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH_BLACKLIST;
+import static utils.Constants.ENABLE_METRICS;
+import static utils.Constants.POLLER_INTERVAL_SECONDS;
+import static utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT;
+import static utils.Constants.VIEWER_EXPIRY_SECONDS;
+import static utils.Constants.VIEWER_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
+import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS_DEFAULT;
 
 public class Healthcheck  extends Controller
 {
