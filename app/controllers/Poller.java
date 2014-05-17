@@ -19,8 +19,8 @@ import service.RedisHeartbeatService;
 import service.ViewerDetailsService;
 
 import static play.api.libs.Codecs.sha1;
-import static service.AnalyticsService.ACTIVE_HOST_V2;
-import static service.AnalyticsService.ACTIVE_USER_V2;
+import static service.AnalyticsService.ACTIVE_HOST;
+import static service.AnalyticsService.ACTIVE_USER;
 
 public class Poller extends Controller
 {
@@ -42,8 +42,8 @@ public class Poller extends Controller
         
         heartbeatService.put(hostId, resourceId, userId);
         
-        analyticsService.fire(ACTIVE_HOST_V2, sha1(hostId));
-        analyticsService.fire(ACTIVE_USER_V2, sha1(hostId)+":"+sha1(userId));
+        analyticsService.fire(ACTIVE_HOST, sha1(hostId));
+        analyticsService.fire(ACTIVE_USER, sha1(hostId)+":"+sha1(userId));
         
         final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
         return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, userId));
