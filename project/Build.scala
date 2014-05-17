@@ -19,6 +19,7 @@ object ApplicationBuild extends Build {
     "com.google.guava" % "guava" % "14.0.1",
     "commons-codec" % "commons-codec" % "1.8",
     "com.newrelic.agent.java" % "newrelic-api" % "3.5.0",
+    "org.javasimon" % "javasimon-core" % "3.5.0",
     "redis.embedded" % "embedded-redis" % "0.1" % "test" exclude("com.google.guava", "guava-io")
   )
 

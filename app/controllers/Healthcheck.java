@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 
 import play.Configuration;
-
 import play.Logger;
 import play.Play;
 import play.libs.Json;
@@ -19,8 +18,10 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import redis.clients.jedis.exceptions.JedisException;
 import service.AnalyticsService;
+import service.MetricsService;
 import service.RedisAnalyticsService;
 import utils.VersionUtils;
+
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static service.AnalyticsService.ACTIVE_HOST;
@@ -29,6 +30,9 @@ import static utils.Constants.ANALYTICS_EXPIRY_SECONDS;
 import static utils.Constants.ANALYTICS_EXPIRY_SECONDS_DEFAULT;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH;
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH_BLACKLIST;
+import static utils.Constants.ENABLE_METRICS;
 import static utils.Constants.POLLER_INTERVAL_SECONDS;
 import static utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT;
 import static utils.Constants.VIEWER_EXPIRY_SECONDS;
@@ -40,6 +44,7 @@ public class Healthcheck  extends Controller
 {
 
     private final AnalyticsService analyticsService = new RedisAnalyticsService();
+    private final MetricsService metricsService = new MetricsService();
     
     @play.db.jpa.Transactional
     public Result index() {
@@ -50,6 +55,8 @@ public class Healthcheck  extends Controller
                     ImmutableMap.builder()
                             .putAll(basicHealthInfo())
                             .put("activity", activity)
+                            .put("config", configInfo())
+                            .put("metrics", metricsService.getAllSamples())                            
                             .put("isHealthy", true)
                             .build()
             ));
@@ -93,7 +100,6 @@ public class Healthcheck  extends Controller
                 .put("time", System.currentTimeMillis())
                 .put("freeMemory", Runtime.getRuntime().freeMemory())
                 .put("systemLoad", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage())
-                .put("config", configInfo())
                 .build();
     }
     
@@ -105,6 +111,9 @@ public class Healthcheck  extends Controller
                 .put(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, conf.getInt(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT))
                 .put(VIEWER_EXPIRY_SECONDS, conf.getInt(VIEWER_EXPIRY_SECONDS, VIEWER_EXPIRY_SECONDS_DEFAULT))
                 .put(VIEWER_SET_EXPIRY_SECONDS, conf.getInt(VIEWER_SET_EXPIRY_SECONDS, VIEWER_SET_EXPIRY_SECONDS_DEFAULT))
+                .put(ENABLE_DISPLAY_NAME_FETCH, conf.getBoolean(ENABLE_DISPLAY_NAME_FETCH))
+                .put(ENABLE_DISPLAY_NAME_FETCH_BLACKLIST, conf.getBoolean(ENABLE_DISPLAY_NAME_FETCH_BLACKLIST))
+                .put(ENABLE_METRICS, conf.getBoolean(ENABLE_METRICS))
                 .build();
     }
 }

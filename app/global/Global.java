@@ -1,4 +1,5 @@
 package global;
+
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.play.AcGlobalSettings;
 
@@ -19,13 +20,11 @@ public final class Global extends AcGlobalSettings
     {
         Logger.info(prettyName() + " has stopped.");
     }
-
-
+    
     private String prettyName()
     {
         // This can't be a static final, else it gets invoked before the application is initalialised,
         // and therefore the component values can't be read from the config.
         return String.format("%s (%s) version %s", AC.PLUGIN_NAME, AC.PLUGIN_KEY, VersionUtils.VERSION);
     }
-
 }

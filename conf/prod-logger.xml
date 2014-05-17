@@ -3,8 +3,7 @@
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${application.home}/logs/log.log</file>
 		<encoder>
-			<pattern>%date - [%level] - from %logger in %thread
-				%n%message%n%xException%n</pattern>
+			<pattern>%date [%thread] %-5level %logger{36} - %msg%n</pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>INFO</level>
@@ -17,7 +16,7 @@
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>[%thread] %-5level %logger{36} - %msg%n</pattern>
+			<pattern>%date [%thread] %-5level %logger{36} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
