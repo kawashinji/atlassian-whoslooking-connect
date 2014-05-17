@@ -8,10 +8,13 @@ import com.atlassian.connect.play.java.model.AcHostModel;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.javasimon.SimonManager;
 import org.joda.time.DateTime;
 
-import service.MetricsService;
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH;
+
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH_BLACKLIST;
+import static utils.Constants.ENABLE_METRICS;
+import utils.Constants;
 import play.Configuration;
 import play.Logger;
 import play.Play;
@@ -20,22 +23,14 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import redis.clients.jedis.exceptions.JedisException;
 import service.AnalyticsService;
+import service.MetricsService;
 import service.RedisAnalyticsService;
 import utils.VersionUtils;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static service.AnalyticsService.ACTIVE_HOST;
 import static service.AnalyticsService.ACTIVE_USER;
-import static utils.Constants.ANALYTICS_EXPIRY_SECONDS;
-import static utils.Constants.ANALYTICS_EXPIRY_SECONDS_DEFAULT;
-import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
-import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
-import static utils.Constants.POLLER_INTERVAL_SECONDS;
-import static utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT;
-import static utils.Constants.VIEWER_EXPIRY_SECONDS;
-import static utils.Constants.VIEWER_EXPIRY_SECONDS_DEFAULT;
-import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
-import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.*;
 
 public class Healthcheck  extends Controller
 {
@@ -108,6 +103,9 @@ public class Healthcheck  extends Controller
                 .put(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, conf.getInt(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT))
                 .put(VIEWER_EXPIRY_SECONDS, conf.getInt(VIEWER_EXPIRY_SECONDS, VIEWER_EXPIRY_SECONDS_DEFAULT))
                 .put(VIEWER_SET_EXPIRY_SECONDS, conf.getInt(VIEWER_SET_EXPIRY_SECONDS, VIEWER_SET_EXPIRY_SECONDS_DEFAULT))
+                .put(ENABLE_DISPLAY_NAME_FETCH, conf.getBoolean(ENABLE_DISPLAY_NAME_FETCH))
+                .put(ENABLE_DISPLAY_NAME_FETCH_BLACKLIST, conf.getBoolean(ENABLE_DISPLAY_NAME_FETCH_BLACKLIST))
+                .put(ENABLE_METRICS, conf.getBoolean(ENABLE_METRICS))
                 .build();
     }
 }

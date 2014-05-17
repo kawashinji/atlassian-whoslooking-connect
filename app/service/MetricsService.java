@@ -10,12 +10,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
 import org.javasimon.Sample;
-import org.javasimon.Simon;
 import org.javasimon.SimonManager;
 import org.javasimon.Split;
 import org.javasimon.UnknownSample;
 
 import play.Play;
+
 import static utils.Constants.ENABLE_METRICS;
 
 public class MetricsService
@@ -58,7 +58,8 @@ public class MetricsService
 
     public long incCounter(String key)
     {
-        return SimonManager.getCounter(key).increase().getCounter();
+        
+        return isEnabled() ? SimonManager.getCounter(key).increase().getCounter() : 0;
     }
 
     public Map<String, Sample> getAllSamples()

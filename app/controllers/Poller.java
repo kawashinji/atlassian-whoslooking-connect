@@ -4,13 +4,11 @@ import java.util.Map;
 
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.auth.jwt.AuthenticateJwtRequest;
-import com.atlassian.fugue.Option;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
-import org.javasimon.Split;
 
 import play.libs.Json;
 import play.mvc.Controller;
@@ -21,6 +19,7 @@ import service.MetricsService;
 import service.RedisAnalyticsService;
 import service.RedisHeartbeatService;
 import service.ViewerDetailsService;
+
 import static play.api.libs.Codecs.sha1;
 import static service.AnalyticsService.ACTIVE_HOST;
 import static service.AnalyticsService.ACTIVE_USER;

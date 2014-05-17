@@ -13,9 +13,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 
-import org.eclipse.jetty.util.log.Log;
+import org.javasimon.Split;
 
-import sun.util.logging.resources.logging;
 import play.Logger;
 import play.Play;
 import play.cache.Cache;
@@ -28,10 +27,10 @@ import static com.google.common.collect.Maps.transformEntries;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
-import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH;
-import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH_BLACKLIST;
 import static utils.Constants.DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS;
 import static utils.Constants.DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS_DEFAULT;
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH;
+import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH_BLACKLIST;
 import static utils.KeyUtils.buildDisplayNameKey;
 import static utils.RedisUtils.jedisPool;
 
@@ -100,12 +99,15 @@ public class ViewerDetailsService
         }
 
         Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.<String> none()).setQueryParameter("username", username).get();
-
+        
+        final Option<Split> timer = metricsService.start("displayname.request");
+        
         promise.onRedeem(new Callback<WS.Response>()
         {
             @Override
             public void invoke(Response a) throws Throwable
             {
+                metricsService.stop(timer);
                 JsonNode userDetailsJson = a.asJson();
                 JsonNode displayNameNode = userDetailsJson.get(DISPLAY_NAME);
                 if (displayNameNode != null)
@@ -127,6 +129,7 @@ public class ViewerDetailsService
             @Override
             public void invoke(Throwable t) throws Throwable
             {
+                metricsService.stop(timer);
                 Logger.error("Could not obtain display name for user " + key + ": ", t);
                 recordFailure(key);
             }
@@ -154,9 +157,14 @@ public class ViewerDetailsService
         else
         {
             metricsService.incCounter("displayname.cache-misses");
-            // Populate the cache in the background and return none for now
-            if (!isBlackListed(key))
+
+            if (isBlackListed(key) || !enableDisplayNameFetch)
             {
+                metricsService.incCounter("displayname.blocked-requests");
+            }
+            else
+            {
+                // Populate the cache in the background and return none for now
                 asyncFetch(hostId, username, key);
             }
         }
@@ -172,27 +180,20 @@ public class ViewerDetailsService
      */
     private boolean isBlackListed(String key)
     {
-        if (enableDisplayNameFetch)
+        if (!enableDisplayNameFetchBlackList)
         {
-            if (enableDisplayNameFetchBlackList)
-            {
-                Jedis j = jedisPool().getResource();
-                try
-                {
-                    String errorCount = j.get("displayname-blacklist-"+key);
-                    return errorCount != null && Integer.valueOf(errorCount) > BLACKLIST_FAILURE_THRESHOLD;
-                }
-                finally
-                {
-                    jedisPool().returnResource(j);
-                }
-            }
-            else
-            {
-                return true;
-            }
+            return false;
         }
-        return false;
+        Jedis j = jedisPool().getResource();
+        try
+        {
+            String errorCount = j.get("displayname-blacklist-"+key);
+            return errorCount != null && Integer.valueOf(errorCount) > BLACKLIST_FAILURE_THRESHOLD;
+        }
+        finally
+        {
+            jedisPool().returnResource(j);
+        }
     }
     
     /**
