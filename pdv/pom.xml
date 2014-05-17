@@ -50,7 +50,7 @@
       <properties>
         <!-- Passwords overridden by CI plan -->
         <baseurl.whoslooking>https://whoslooking-stg.herokuapp.com</baseurl.whoslooking>
-        <baseurl.jira>https://whoslooking-stg.jira-dev.com</baseurl.jira>        
+        <baseurl.jira>https://whoslooking-dog.jira-dev.com</baseurl.jira>
         <http.jira.port>443</http.jira.port>
       </properties>
     </profile>

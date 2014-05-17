@@ -25,10 +25,14 @@ public class Constants {
     public static final String PER_PAGE_VIEW_TOKEN_HEADER = "X-acpt";
     
     public static final String ANALYTICS_EXPIRY_SECONDS = "whoslooking.analytics-expiry.seconds";
-    public static final int ANALYTICS_EXPIRY_SECONDS_DEFAULT = 1209600;
+    public static final int ANALYTICS_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(30);;
+    
+    public static final String DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS = "whoslooking.display-name-cache-expiry.seconds";
+    public static final int DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(1);
 
     // feature flags
-    public static final String ENABLE_FULL_NAME_FETCH = "whoslooking.feature.full-name-fetch";
-    public static final String ENABLE_FULL_NAME_FETCH_BLACKLIST = "whoslooking.feature.full-name-fetch-blacklist";
+    public static final String ENABLE_METRICS = "whoslooking.feature.metrics";
+    public static final String ENABLE_DISPLAY_NAME_FETCH = "whoslooking.feature.display-name-fetch";
+    public static final String ENABLE_DISPLAY_NAME_FETCH_BLACKLIST = "whoslooking.feature.display-name-fetch-blacklist";
     
 }

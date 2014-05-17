@@ -23,11 +23,12 @@ public class RedisAnalyticsService implements AnalyticsService
 {
 
     private final long analyticsExpirySeconds;
+    
+    private MetricsService metricsService = new MetricsService();
 
     public RedisAnalyticsService()
     {
-        this.analyticsExpirySeconds = Play.application().configuration()
-                                       .getInt(ANALYTICS_EXPIRY_SECONDS, ANALYTICS_EXPIRY_SECONDS_DEFAULT);
+        this.analyticsExpirySeconds = Play.application().configuration().getInt(ANALYTICS_EXPIRY_SECONDS, ANALYTICS_EXPIRY_SECONDS_DEFAULT);
     }
 
     @Override
@@ -66,6 +67,7 @@ public class RedisAnalyticsService implements AnalyticsService
             @Trace(metricName="write-analytics-events-error", dispatcher=true)
             public void invoke(Throwable e) throws Throwable
             {
+                metricsService.incCounter("analytics.fail");
                 Logger.warn("Failed to write analitics event " + metricName + "/" + eventKey, e);
             }
         });
@@ -75,6 +77,7 @@ public class RedisAnalyticsService implements AnalyticsService
             @Override
             public void invoke(Void v) throws Throwable
             {
+                metricsService.incCounter("analytics.success");
                 Logger.trace("Wrote analytics event.");
             }
         });

@@ -15,9 +15,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import service.AnalyticsService;
 import service.HeartbeatService;
-import service.RedisAnalyticsService;
 import service.RedisHeartbeatService;
 import service.ViewerDetailsService;
 
@@ -26,7 +24,6 @@ import static java.lang.String.format;
 public class Viewers extends Controller
 {
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
-    private final AnalyticsService analyticsService = new RedisAnalyticsService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
 
     @CheckValidToken(allowInsecurePolling = true)
@@ -41,10 +38,7 @@ public class Viewers extends Controller
             {
                 heartbeatService.put(hostId, resourceId, userId);
 
-                Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId,
-                                                                                                      hostId);
-                analyticsService.fire(AnalyticsService.ACTIVE_USER, hostId + userId);
-                analyticsService.fire(AnalyticsService.ACTIVE_HOST, hostId);
+                Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
 
                 return ok(Json.toJson(viewersWithDetails));
             }
