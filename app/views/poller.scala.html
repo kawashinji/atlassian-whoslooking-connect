@@ -5,11 +5,11 @@
 @import play.api.Play
 @import com.atlassian.connect.play.java.AC
 
+@defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader()) 
     <meta charset="utf-8" />
     <meta version="@utils.VersionUtils.VERSION" />
     <meta name="pollIntervalSeconds" content="@Play.current.configuration.getInt(utils.Constants.POLLER_INTERVAL_SECONDS).getOrElse(utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT)" />
@@ -21,24 +21,26 @@
       <meta name="acpt" content="@AC.getToken.get">
     }
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" /> 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader()) 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all">
     <!--[if lt IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie.css" media="all"><![endif]-->
     <!--[if IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie9.css" media="all"><![endif]-->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui.js"></script>
-    <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui-ie.js"></script><![endif]-->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
-    <script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
     <link rel="stylesheet" type="text/css" href="//d1cq5befmb1l41.cloudfront.net/v1/main.css" />
-    <script type="text/javascript" src="//d1cq5befmb1l41.cloudfront.net/v1/pagetoken.js"></script>
-    @defining(ctx.args("ac_host").asInstanceOf[AcHost].getBaseUrl()) { baseUrl =>
-        <script type="text/javascript" src="@baseUrl/atlassian-connect/all.js"></script>
-        <meta name="hostBaseUrl" content="@baseUrl" />
-    }
-
+    <meta name="hostBaseUrl" content="@baseUrl" />
   </head>
+  <body>
+    <div id="whoslooking-onlookers" class="ac-content">
+        <ul id="whoslooking-onlookers-list"></ul>
+    </div>
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())    
+  </body>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui.js"></script>
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui-ie.js"></script><![endif]-->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/sha1.js"></script>    
+  <script type="text/javascript" src="//d1cq5befmb1l41.cloudfront.net/v1/pagetoken.js"></script>
+  <script type="text/javascript" src="@baseUrl/atlassian-connect/all.js"></script>
   <script>
     $(function() {
       var getMeta = function(name) { return $('meta[name='+name+']').attr("content") }
@@ -99,12 +101,6 @@
         renderViewerList(@Html(viewersWithDetails));        
       }
   });
-    
-  </script>
-  <body>
-    <div id="whoslooking-onlookers" class="ac-content">
-        <ul id="whoslooking-onlookers-list"></ul>
-    </div>
-    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())    
-  </body>
+  </script>  
 </html>
+}
