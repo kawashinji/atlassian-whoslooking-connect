@@ -13,7 +13,7 @@
     <maven.compiler.target>1.6</maven.compiler.target>
     <encoding>UTF-8</encoding>
     <scala.tools.version>2.10</scala.tools.version>
-    <scala.version>2.10.1</scala.version>
+    <scala.version>2.10.4</scala.version>
     
     <!-- Default values common to all profiles. Can be overridden at invocation time. -->  
     <xvfb.enable>true</xvfb.enable>
@@ -148,7 +148,7 @@
     <dependency>
       <groupId>com.atlassian.jira</groupId>
       <artifactId>atlassian-jira-pageobjects</artifactId>
-      <version>6.1-OD-06</version>
+      <version>6.4-OD-14-082</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -159,6 +159,10 @@
           <groupId>com.atlassian.selenium</groupId>
           <artifactId>atlassian-webdriver-core</artifactId>          
         </exclusion>
+        <exclusion>
+          <groupId>org.seleniumhq.selenium</groupId>
+          <artifactId>selenium-api</artifactId>          
+        </exclusion>        
       </exclusions>
     </dependency>
     <dependency>

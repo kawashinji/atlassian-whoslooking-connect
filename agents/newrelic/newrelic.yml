@@ -28,6 +28,11 @@ common: &default_settings
   # app_name: My Application;My Application 2
   # This setting is required.
   app_name: My Application
+  
+  # To enable high security, set this property to true. When in high
+  # security mode, the agent will use SSL and obfuscated SQL. Additionally,
+  # request parameters and message parameters will not be sent to New Relic.
+  high_security: false
 
   # Set to true to enable support for auto app naming.
   # The name of each web app is detected automatically
@@ -59,7 +64,7 @@ common: &default_settings
   # Default is 1.
   log_file_count: 1
 
-  # The maximum number of bytes to write to any one log file.
+  # The maximum number of kbytes to write to any one log file.
   # The log_file_count must be set greater than 1.
   # Default is 0 (no limit).
   log_limit_in_kbytes: 0
@@ -99,26 +104,22 @@ common: &default_settings
   # Default is 30
   max_stack_trace_lines: 30
 
-  # Tells transaction tracer and error collector (when enabled)
-  # whether or not to capture HTTP params.  When true, frameworks can
-  # exclude HTTP parameters from being captured.
-  # Default is false.
-  capture_params: false
-
-  # Tells transaction tracer and error collector to not to collect
-  # specific http request parameters. 
-  #ignored_params: credit_card, ssn, password
-
-  # Similar to capture_params but for message handling.
-  # When processing a message through a MessageListener, if enabled,
-  # custom parameters set on the message will be captured subject to
-  # the filters on ignored_messaging_params.
-  # Default is false.
-  capture_messaging_params: false
-
-  # Tells transaction tracer and error collector to not to collect
-  # specific message properties. 
-  #ignored_messaging_params: userid, authtoken
+  # Provides the ability to configure the attributes sent to New Relic. These
+  # attributes can be found in transaction traces, traced errors, Insight's 
+  # transaction events, and Insight's page views.
+  attributes:
+  
+    # When true, attributes will be sent to New Relic. The default is true.
+    enabled: true
+    
+    #A comma separated list of attribute keys whose values should 
+    # be sent to New Relic.
+    #include:
+    
+    # A comma separated list of attribute keys whose values should 
+    # not be sent to New Relic.
+    #exclude:
+    
 
   # Transaction tracer captures deep information about slow
   # transactions and sends this to the New Relic service once a
@@ -239,6 +240,12 @@ common: &default_settings
     # for instructions to add these manually to your pages.
     # Set this attribute to false to turn off this behavior.
     auto_instrument: true
+
+  class_transformer:
+    # This instrumentation reports the name of the user principal returned from 
+    # HttpServletRequest.getUserPrincipal() when servlets and filters are invoked.
+    com.newrelic.instrumentation.servlet-user:
+      enabled: false
 
 
 # Application Environments

@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 
 This product includes 'ASM', which is released under the following license(s):
-    ASM <http://asm.ow2.org/license.html>
+    ASM (BSD-3) <http://asm.ow2.org/license.html>
 
 ----------------------------------------------------------------
 
@@ -40,7 +40,7 @@ This product includes 'SnakeYAML', which is released under the following license
 
 ----------------------------------------------------------------
 
-All other components of this product are: Copyright (c) 2010-2014 New Relic, Inc. All rights reserved.
+All other components of this product are: Copyright (c) 2010-2015 New Relic, Inc. All rights reserved.
 
 Certain inventions disclosed in this file may be claimed within patents owned or patent applications
 filed by New Relic, Inc. or third parties. Subject to the terms of this notice, New Relic grants you

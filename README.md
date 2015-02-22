@@ -22,7 +22,7 @@ The Connect app registers an iframe in the View Issue page. The iframe content i
 ### Prereqs
 
 * A Java 7 JDK.
-* [Play 2.1.x](http://www.playframework.com/download)
+* [Play 2.2.x](http://www.playframework.com/download)
 * [Postgres](http://www.postgresql.org/download/) to store persistent information about host applications that have registered to use this Connect app.
 * [Redis](http://redis.io/download) to store transient information abouts which users are looking at given issues.
 * [Atlassian SDK](https://developer.atlassian.com/display/DOCS/Getting+Started) to easily spin up local JIRA instances for testing.
@@ -34,7 +34,9 @@ The Connect app registers an iframe in the View Issue page. The iframe content i
 	+ By default, Who's Looking will use credentials `whoslooking/whoslooking` to access database 'whoslooking' on localhost. If nececssary, you can configure this in `conf/application.conf`.
 + Start Redis by running `redis-server`.
 	+ By default, Who's Looking will access Redis on localhost:6379 (which are Redis's defaults). If nececssary, you can configure this in `conf/application.conf`.
-+ Start a JIRA instance by running `atlas-run-standalone --product jira --version 6.0.1`. By default, JIRA will start at `http://localhost:2990/jira`. See the [Atlassian SDK documentation](https://developer.atlassian.com/display/DOCS/atlas-run-standalone) for more options.
++ Start a JIRA instance by running `atlas-run-standalone --product jira --version 6.4-OD-14-082 --bundled-plugins com.atlassian.bundles:json-schema-validator-atlassian-bundle:1.0.4,com.atlassian.webhooks:atlassian-webhooks-plugin:2.0.0,com.atlassian.jwt:jwt-plugin:1.2.2,com.atlassian.upm:atlassian-universal-plugin-manager-plugin:2.18.2-D20141112T015724,com.atlassian.plugins:atlassian-connect-plugin:1.1.22 --jvmargs -Datlassian.upm.on.demand=true`. 
+	+ [See the Connect documentation](https://developer.atlassian.com/static/connect/docs/developing/developing-locally.html) for the latest version of the above command.
+	+ By default, JIRA will start at `http://localhost:2990/jira`. See the [Atlassian SDK documentation](https://developer.atlassian.com/display/DOCS/atlas-run-standalone) for more options.
 	+ All interactions with JIRA must use the same URL (some aspects of OAuth will fail if we mix uses of `localhost` with `my-machine-name`). If necessary, log in to the JIRA instance as admin/admin, and change the baseURL to `http://localhost:2990/jira`. 
 + Start the Who's Looking app in dev mode by running `play run` in the app directory. It should come up on `http://localhost:9000`. Hit that URL in the browser to trigger initialisation logic.
 	+ The Connect app should automatically install into the local JIRA instance, but if it doesn't, do so manually by running: ` curl -v -u admin -X POST -d url=http://localhost:9000 http://localhost:2990/jira/rest/atlassian-connect/1.0/installer`

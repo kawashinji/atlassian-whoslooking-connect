@@ -1,0 +1,278 @@
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building whoslooking-connect-pdv 0.1-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.1:tree (default-cli) @ whoslooking-connect-pdv ---
+[INFO] com.atlassian:whoslooking-connect-pdv:jar:0.1-SNAPSHOT
+[INFO] +- org.scala-lang:scala-library:jar:2.10.4:compile
+[INFO] +- junit:junit:jar:4.11:test
+[INFO] |  \- org.hamcrest:hamcrest-core:jar:1.3:test
+[INFO] +- org.specs2:specs2_2.10:jar:1.13:test
+[INFO] |  +- org.specs2:scalaz-core_2.10:jar:7.0.0:test
+[INFO] |  \- org.specs2:scalaz-concurrent_2.10:jar:7.0.0:test
+[INFO] |     \- org.specs2:scalaz-effect_2.10:jar:7.0.0:test
+[INFO] +- org.scalatest:scalatest_2.10:jar:2.0.M6-SNAP8:test
+[INFO] +- com.atlassian.jira:jira-rest-java-client-core:jar:2.0.0-m15:test
+[INFO] |  +- com.atlassian.jira:jira-rest-java-client-api:jar:2.0.0-m15:test
+[INFO] |  |  \- com.atlassian.httpclient:atlassian-httpclient-api:jar:0.13.2:test
+[INFO] |  |     \- com.atlassian.httpclient:atlassian-httpclient-spi:jar:0.13.2:test
+[INFO] |  +- com.sun.jersey:jersey-client:jar:1.5:test
+[INFO] |  |  \- com.sun.jersey:jersey-core:jar:1.5:test
+[INFO] |  +- com.sun.jersey:jersey-json:jar:1.5:test
+[INFO] |  |  +- org.codehaus.jettison:jettison:jar:1.1:test
+[INFO] |  |  |  \- stax:stax-api:jar:1.0.1:test
+[INFO] |  |  +- com.sun.xml.bind:jaxb-impl:jar:2.2.3:test
+[INFO] |  |  |  \- javax.xml.bind:jaxb-api:jar:2.2.2:test
+[INFO] |  |  |     \- javax.xml.stream:stax-api:jar:1.0-2:test
+[INFO] |  |  +- org.codehaus.jackson:jackson-core-asl:jar:1.5.5:test
+[INFO] |  |  +- org.codehaus.jackson:jackson-mapper-asl:jar:1.5.5:test
+[INFO] |  |  +- org.codehaus.jackson:jackson-jaxrs:jar:1.5.5:test
+[INFO] |  |  \- org.codehaus.jackson:jackson-xc:jar:1.5.5:test
+[INFO] |  +- joda-time:joda-time:jar:1.6:test
+[INFO] |  +- com.atlassian.httpclient:atlassian-httpclient-apache-httpcomponents:jar:0.13.2:test
+[INFO] |  |  +- com.atlassian.sal:sal-api:jar:2.7.0:test
+[INFO] |  |  +- com.atlassian.event:atlassian-event:jar:2.2.0:test
+[INFO] |  |  +- org.apache.httpcomponents:httpasyncclient-cache:jar:4.0-beta3-atlassian-1:test
+[INFO] |  |  +- org.apache.httpcomponents:httpasyncclient:jar:4.0-beta3-atlassian-1:test
+[INFO] |  |  +- org.apache.httpcomponents:httpcore-nio:jar:4.2.2:test
+[INFO] |  |  \- org.springframework:spring-context:jar:2.5.6:test
+[INFO] |  |     +- aopalliance:aopalliance:jar:1.0:test
+[INFO] |  |     +- org.springframework:spring-beans:jar:2.5.6:test
+[INFO] |  |     \- org.springframework:spring-core:jar:2.5.6:test
+[INFO] |  +- com.atlassian.util.concurrent:atlassian-util-concurrent:jar:2.4.0-M9:test
+[INFO] |  +- org.apache.httpcomponents:httpmime:jar:4.1.2:test
+[INFO] |  |  \- commons-logging:commons-logging:jar:1.1.1:test
+[INFO] |  \- com.google.guava:guava:jar:10.0.1:test
+[INFO] |     \- com.google.code.findbugs:jsr305:jar:1.3.9:test
+[INFO] +- com.atlassian.jira:atlassian-jira-pageobjects:jar:6.4-OD-14-082:test
+[INFO] |  +- org.slf4j:slf4j-api:jar:1.7.9:test
+[INFO] |  +- com.atlassian.selenium:atlassian-pageobjects-api:jar:2.2-rc3:test
+[INFO] |  |  +- commons-lang:commons-lang:jar:2.5:test
+[INFO] |  |  +- com.google.inject:guice:jar:3.0:test
+[INFO] |  |  |  \- javax.inject:javax.inject:jar:1:test
+[INFO] |  |  \- com.atlassian.bundles:jsr305:jar:1.1:test
+[INFO] |  +- com.atlassian.selenium:atlassian-pageobjects-elements:jar:2.2-rc3:test
+[INFO] |  |  \- org.seleniumhq.selenium:selenium-api:jar:2.35.0:test
+[INFO] |  +- com.atlassian.jira:jira-func-tests:jar:6.4-OD-14-082:test
+[INFO] |  |  +- com.atlassian.jira:jira-api:jar:6.4-OD-14-082:test
+[INFO] |  |  |  +- com.atlassian.ofbiz:entityengine-share:jar:1.0.62:test
+[INFO] |  |  |  +- com.atlassian.ofbiz:entityengine:jar:1.0.62:test
+[INFO] |  |  |  |  +- jta:jta:jar:1.0.1:test
+[INFO] |  |  |  |  +- org.weakref:jmxutils:jar:1.8:test
+[INFO] |  |  |  |  \- net.ju-n.commons-dbcp-jmx:commons-dbcp-jmx-jdbc4:jar:0.2:test
+[INFO] |  |  |  |     \- commons-dbcp:commons-dbcp:jar:1.4:test
+[INFO] |  |  |  +- opensymphony:webwork:jar:1.4-atlassian-30:test
+[INFO] |  |  |  |  \- com.atlassian.html:atlassian-html-encoder:jar:1.4:test
+[INFO] |  |  |  +- webwork:pell-multipart-request:jar:1.31.0:test
+[INFO] |  |  |  +- org.apache.lucene:lucene-core:jar:3.3.0-atlassian-1:test
+[INFO] |  |  |  +- com.atlassian.velocity:atlassian-velocity:jar:1.3:test
+[INFO] |  |  |  +- osworkflow:osworkflow:jar:2.8.1:test
+[INFO] |  |  |  +- opensymphony:propertyset:jar:1.5:test
+[INFO] |  |  |  +- com.atlassian.cache:atlassian-cache-api:jar:2.5.3:test
+[INFO] |  |  |  +- com.atlassian.beehive:beehive-api:jar:0.2:test
+[INFO] |  |  |  +- com.atlassian.tenancy:atlassian-tenancy-api:jar:1.4.0:test
+[INFO] |  |  |  +- com.atlassian.crowd:embedded-crowd-api:jar:2.8.1-rc:test
+[INFO] |  |  |  +- com.atlassian.fugue:fugue:jar:2.2.0:test
+[INFO] |  |  |  +- com.atlassian.mail:atlassian-mail:jar:2.5.6:test
+[INFO] |  |  |  |  +- commons-beanutils:commons-beanutils:jar:1.6.1:test
+[INFO] |  |  |  |  +- commons-digester:commons-digester:jar:1.4.1:test
+[INFO] |  |  |  |  \- com.atlassian:atlassian-localhost:jar:1.1.0:test
+[INFO] |  |  |  +- atlassian-bandana:atlassian-bandana:jar:0.1.13:test
+[INFO] |  |  |  +- com.atlassian.threadlocal:atlassian-threadlocal:jar:1.3:test
+[INFO] |  |  |  +- com.atlassian.applinks:applinks-api:jar:4.2.5:test
+[INFO] |  |  |  +- com.atlassian.velocity.htmlsafe:velocity-htmlsafe:jar:1.2.3:test
+[INFO] |  |  |  |  \- commons-pool:commons-pool:jar:1.5.4:test
+[INFO] |  |  |  +- com.atlassian.plugins:atlassian-plugins-webfragment:jar:3.0.5:test
+[INFO] |  |  |  |  \- com.atlassian.plugins:atlassian-plugins-core:jar:3.0.0:test
+[INFO] |  |  |  +- com.atlassian.plugins:atlassian-plugins-webfragment-api:jar:3.0.5:test
+[INFO] |  |  |  +- com.atlassian.ozymandias:atlassian-plugin-point-safety:jar:0.10:test
+[INFO] |  |  |  +- jfree:jfreechart:jar:1.0.13:test
+[INFO] |  |  |  +- com.atlassian.plugins:atlassian-plugins-webresource:jar:3.1.8:test
+[INFO] |  |  |  |  +- com.atlassian.plugins:atlassian-plugins-webresource-api:jar:3.1.8:test
+[INFO] |  |  |  |  \- org.tuckey:urlrewritefilter:jar:4.0.4:test
+[INFO] |  |  |  +- jfree:jcommon:jar:1.0.8:test
+[INFO] |  |  |  +- com.atlassian.gadgets:atlassian-gadgets-api:jar:3.10.4:test
+[INFO] |  |  |  +- com.atlassian.johnson:atlassian-johnson:jar:1.1.2:test
+[INFO] |  |  |  +- commons-httpclient:commons-httpclient:jar:3.0.1:test
+[INFO] |  |  |  +- org.quartz-scheduler:quartz:jar:1.8.6:test
+[INFO] |  |  |  +- com.atlassian.profiling:atlassian-profiling:jar:1.9:test
+[INFO] |  |  |  +- com.atlassian.scheduler:atlassian-scheduler-api:jar:1.3.2:test
+[INFO] |  |  |  +- com.atlassian.analytics:analytics-api:jar:3.53:test
+[INFO] |  |  |  \- javax.servlet:servlet-api:jar:2.4:test
+[INFO] |  |  +- com.atlassian.plugins.rest:atlassian-rest-common:jar:2.9.13:test
+[INFO] |  |  |  +- com.atlassian.plugins.rest:com.atlassian.jersey-library:pom:2.9.13:test
+[INFO] |  |  |  |  +- javax.ws.rs:jsr311-api:jar:1.1:test
+[INFO] |  |  |  |  +- com.sun.jersey:jersey-server:jar:1.8-atlassian-15:test
+[INFO] |  |  |  |  |  \- asm:asm:jar:3.1:test
+[INFO] |  |  |  |  \- commons-fileupload:commons-fileupload:jar:1.3.1:test
+[INFO] |  |  |  +- com.atlassian.security:atlassian-secure-random:jar:3.1.5:test
+[INFO] |  |  |  \- org.hibernate:hibernate-validator:jar:4.0.2.GA:test
+[INFO] |  |  |     \- javax.validation:validation-api:jar:1.0.0.GA:test
+[INFO] |  |  +- com.atlassian.jira:jira-rest-api:jar:6.4-OD-14-082:test
+[INFO] |  |  +- com.atlassian.jira:jira-rest-plugin:jar:6.4-OD-14-082:test
+[INFO] |  |  |  +- com.atlassian.classloader:atlassian-classloader:jar:1.0:test
+[INFO] |  |  |  +- com.atlassian.plugin:atlassian-spring-scanner-annotation:jar:1.2.3:test
+[INFO] |  |  |  +- com.atlassian.plugin:atlassian-spring-scanner-runtime:jar:1.2.3:test
+[INFO] |  |  |  \- com.atlassian.plugins:avatar-plugin:jar:1.2.2:test
+[INFO] |  |  +- com.atlassian.jira.tests:jira-testkit-client:jar:6.4.41:test
+[INFO] |  |  |  +- com.atlassian.jira.tests:jira-testkit-common:jar:6.4.41:test
+[INFO] |  |  |  \- org.json:org.json:jar:chargebee-1.0:test
+[INFO] |  |  +- org.mozilla:rhino:jar:1.7R4:test
+[INFO] |  |  +- commons-codec:commons-codec:jar:1.9:test
+[INFO] |  |  +- org.bouncycastle:bcprov-jdk15on:jar:1.50:test
+[INFO] |  |  +- com.atlassian.core:atlassian-core:jar:4.6.18:test
+[INFO] |  |  |  +- org.apache.sanselan:sanselan:jar:0.97-incubator:test
+[INFO] |  |  |  +- opensymphony:sitemesh:jar:2.3:test
+[INFO] |  |  |  +- com.atlassian.image:atlassian-image-consumer:jar:1.0.1:test
+[INFO] |  |  |  +- javax.media:jai-core:jar:1.1.3:test
+[INFO] |  |  |  \- com.sun:jai_codec:jar:1.1.3:test
+[INFO] |  |  +- com.atlassian.extras:atlassian-extras:jar:2.2.2:test
+[INFO] |  |  +- opensymphony:oscore:jar:2.2.7-atlassian-1:test
+[INFO] |  |  +- exml:exml:jar:7.1:test
+[INFO] |  |  +- net.sourceforge.jwebunit:jwebunit:jar:1.2-atlassian-3:test
+[INFO] |  |  |  +- rhino:js:jar:1.5R4-RC3:test
+[INFO] |  |  |  \- xml-apis:xml-apis:jar:1.0.b2:test
+[INFO] |  |  +- com.meteware.httpunit:httpunit:jar:1.5.4-atlassian-13:test
+[INFO] |  |  +- junit:junit-dep:jar:4.10:test
+[INFO] |  |  +- org.mockito:mockito-core:jar:1.9.0:test
+[INFO] |  |  |  \- org.objenesis:objenesis:jar:1.0:test
+[INFO] |  |  +- commons-collections:commons-collections:jar:3.2.1:test
+[INFO] |  |  +- log4j:log4j:jar:1.2.16:test
+[INFO] |  |  +- dom4j:dom4j:jar:1.6.1:test
+[INFO] |  |  +- com.icegreen:greenmail:jar:1.3:test
+[INFO] |  |  +- javax.activation:activation:jar:1.1.1:test
+[INFO] |  |  +- javax.mail:mail:jar:1.4.5:test
+[INFO] |  |  +- jaxen:jaxen:jar:1.1.4:test
+[INFO] |  |  +- xmlunit:xmlunit:jar:1.0:test
+[INFO] |  |  +- nekohtml:nekohtml:jar:1.9.14:test
+[INFO] |  |  +- xerces:xercesImpl:jar:2.9.1:test
+[INFO] |  |  +- oro:oro:jar:2.0.7:test
+[INFO] |  |  +- org.mortbay.jetty:jetty:jar:6.0.2:test
+[INFO] |  |  |  \- org.mortbay.jetty:servlet-api-2.5:jar:6.0.2:test
+[INFO] |  |  +- org.mortbay.jetty:jetty-util:jar:6.0.2:test
+[INFO] |  |  +- xmlrpc:xmlrpc:jar:2.0:test
+[INFO] |  |  +- axis:axis:jar:1.3-atlassian-1:test
+[INFO] |  |  +- axis:axis-jaxrpc:jar:1.3:test
+[INFO] |  |  +- axis:axis-saaj:jar:1.3:test
+[INFO] |  |  +- commons-discovery:commons-discovery:jar:0.2:test
+[INFO] |  |  +- net.jcip:jcip-annotations:jar:1.0:test
+[INFO] |  |  +- com.atlassian.cargo-test-runner:cargo-test-runner:jar:2.6:test
+[INFO] |  |  |  +- org.codehaus.cargo:cargo-core-uberjar:jar:1.1.2:test
+[INFO] |  |  |  |  +- jdom:jdom:jar:1.0:test
+[INFO] |  |  |  |  +- saxpath:saxpath:jar:1.0-FCS:test
+[INFO] |  |  |  |  +- msv:msv:jar:20020414:test
+[INFO] |  |  |  |  +- relaxngDatatype:relaxngDatatype:jar:20020414:test
+[INFO] |  |  |  |  +- isorelax:isorelax:jar:20020414:test
+[INFO] |  |  |  |  +- org.apache.ant:ant:jar:1.7.1:test
+[INFO] |  |  |  |  \- org.apache.ant:ant-launcher:jar:1.7.1:test
+[INFO] |  |  |  \- ant:ant:jar:1.5.4:test
+[INFO] |  |  +- org.easymock:easymock:jar:2.5.2:test
+[INFO] |  |  +- cglib:cglib-nodep:jar:2.1_3:test
+[INFO] |  |  +- org.easymock:easymockclassextension:jar:2.5.2:test
+[INFO] |  |  +- org.hamcrest:hamcrest-library:jar:1.2:test
+[INFO] |  |  +- com.sun.jersey.contribs:jersey-apache-client:jar:1.9.1:test
+[INFO] |  |  +- com.atlassian.crowd:crowd-acceptance-test:jar:2.8.1-rc:test
+[INFO] |  |  |  +- com.atlassian.crowd:crowd-password-encoders:jar:2.8.1-rc:test
+[INFO] |  |  |  |  \- org.springframework.security:spring-security-core:jar:3.2.5.RELEASE:test
+[INFO] |  |  |  +- com.atlassian.security:atlassian-password-encoder:jar:3.2.4:test
+[INFO] |  |  |  |  \- com.atlassian.security:atlassian-secure-utils:jar:3.2.4:test
+[INFO] |  |  |  +- com.atlassian.cache:atlassian-cache-memory:jar:2.5.0:test
+[INFO] |  |  |  |  \- com.atlassian.cache:atlassian-cache-common-impl:jar:2.5.0:test
+[INFO] |  |  |  +- org.apache.commons:commons-lang3:jar:3.3.2:test
+[INFO] |  |  |  +- net.sourceforge.jwebunit:jwebunit-core:jar:3.2:test
+[INFO] |  |  |  |  \- regexp:regexp:jar:1.3:test
+[INFO] |  |  |  +- net.sourceforge.jwebunit:jwebunit-htmlunit-plugin:jar:3.2:test
+[INFO] |  |  |  |  \- org.slf4j:jcl-over-slf4j:jar:1.6.6:test
+[INFO] |  |  |  +- net.sourceforge.nekohtml:nekohtml:jar:1.9.21:test
+[INFO] |  |  |  +- org.springframework:spring-test:jar:3.2.10.RELEASE:test
+[INFO] |  |  |  +- org.dbunit:dbunit:jar:2.5.0:test
+[INFO] |  |  |  +- com.atlassian.crowd:crowd-test-utils:jar:2.8.1-rc:test
+[INFO] |  |  |  +- org.springframework:spring-jdbc:jar:3.2.10.RELEASE:test
+[INFO] |  |  |  +- org.springframework:spring-context-support:jar:3.2.10.RELEASE:test
+[INFO] |  |  |  \- org.openid4java:openid4java:jar:0.9.8:test
+[INFO] |  |  +- com.atlassian.crowd:crowd-rest-test:jar:2.8.1-rc:test
+[INFO] |  |  |  +- com.atlassian.crowd:crowd-rest-test-api:jar:2.8.1-rc:test
+[INFO] |  |  |  +- com.atlassian.crowd:crowd-rest-common:jar:2.8.1-rc:test
+[INFO] |  |  |  |  \- com.atlassian.crowd:crowd-server-api:jar:2.8.1-rc:test
+[INFO] |  |  |  +- com.atlassian.crowd:crowd-integration-api:jar:2.8.1-rc:test
+[INFO] |  |  |  +- com.atlassian.crowd:crowd-integration-client-common:jar:2.8.1-rc:test
+[INFO] |  |  |  |  \- com.atlassian.security:atlassian-cookie-tools:jar:3.2.4:test
+[INFO] |  |  |  \- com.atlassian.crowd:crowd-api:jar:2.8.1-rc:test
+[INFO] |  |  +- com.atlassian.crowd:crowd-integration-client-rest:jar:2.8.1-rc:test
+[INFO] |  |  +- com.atlassian.crowd:crowd-rest-plugin:jar:2.8.1-rc:test
+[INFO] |  |  |  \- org.codehaus.woodstox:wstx-asl:jar:3.2.4:test
+[INFO] |  |  +- com.atlassian.crowd:crowd-rest-application-management:jar:2.8.1-rc:test
+[INFO] |  |  +- com.atlassian.buildeng.hallelujah:api:jar:3.1-alpha-8:test
+[INFO] |  |  +- com.atlassian.refapp:platform-ctk-plugin:jar:2.21.0:test
+[INFO] |  |  |  +- net.oauth.core:oauth:jar:20090617:test
+[INFO] |  |  |  +- net.oauth.core:oauth-httpclient4:jar:20090617:test
+[INFO] |  |  |  |  \- net.oauth.core:oauth-consumer:jar:20090617:test
+[INFO] |  |  |  +- org.slf4j:slf4j-simple:jar:1.6.4:test
+[INFO] |  |  |  +- org.twdata.pkgscanner:package-scanner:jar:0.9.4:test
+[INFO] |  |  |  \- xalan:xalan:jar:2.7.1:test
+[INFO] |  |  |     \- xalan:serializer:jar:2.7.1:test
+[INFO] |  |  +- com.atlassian.security.auth.trustedapps:atlassian-trusted-apps-core:jar:3.0.8:test
+[INFO] |  |  |  \- com.atlassian.ip:atlassian-ip:jar:2.0:test
+[INFO] |  |  +- org.springframework.ldap:spring-ldap-core:jar:2.0.2.RELEASE:test
+[INFO] |  |  |  +- org.springframework:spring-tx:jar:3.2.8.RELEASE:test
+[INFO] |  |  |  \- org.springframework.data:spring-data-commons:jar:1.6.1.RELEASE:test
+[INFO] |  |  \- org.json:json:jar:20080701:test
+[INFO] |  +- com.atlassian.jira:jira-project-config-pageobjects:jar:7.0.22:test
+[INFO] |  +- com.atlassian.gadgets:atlassian-gadgets-pageobjects:jar:3.2.0-m4:test
+[INFO] |  |  \- com.atlassian.refapp:atlassian-refapp-pageobjects:jar:2.15.0:test
+[INFO] |  +- org.apache.httpcomponents:httpclient:jar:4.2.1-atlassian-2:test
+[INFO] |  +- org.apache.httpcomponents:httpclient-cache:jar:4.2.1-atlassian-2:test
+[INFO] |  +- org.apache.httpcomponents:httpcore:jar:4.2.2:test
+[INFO] |  +- com.atlassian.integrationtesting:atlassian-integrationtesting-lib:jar:1.0.beta7:test
+[INFO] |  |  +- net.sourceforge.htmlunit:htmlunit:jar:2.8-atlassian-3:test
+[INFO] |  |  |  +- net.sourceforge.htmlunit:htmlunit-core-js:jar:2.8-20100618:test
+[INFO] |  |  |  \- net.sourceforge.cssparser:cssparser:jar:0.9.5:test
+[INFO] |  |  |     \- org.w3c.css:sac:jar:1.3:test
+[INFO] |  |  \- be.roam.hue:hue:jar:1.1:test
+[INFO] |  +- com.google.code.gson:gson:jar:1.4:test
+[INFO] |  \- com.atlassian.uri:atlassian-uri:jar:0.3:test
+[INFO] +- com.atlassian.selenium:atlassian-webdriver-core:jar:2.2-rc2:test
+[INFO] |  +- com.atlassian.selenium:atlassian-visual-comparison:jar:2.2-rc2:test
+[INFO] |  |  \- org.apache.velocity:velocity:jar:1.6.2:test
+[INFO] |  +- org.seleniumhq.selenium:selenium-java:jar:2.33.0:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-android-driver:jar:2.33.0:test
+[INFO] |  |  |  \- org.seleniumhq.selenium:selenium-remote-driver:jar:2.33.0:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-chrome-driver:jar:2.33.0:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-htmlunit-driver:jar:2.33.0:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-firefox-driver:jar:2.33.0:test
+[INFO] |  |  |  \- org.apache.commons:commons-exec:jar:1.1:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-ie-driver:jar:2.33.0:test
+[INFO] |  |  |  +- net.java.dev.jna:jna:jar:3.4.0:test
+[INFO] |  |  |  \- net.java.dev.jna:platform:jar:3.4.0:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-iphone-driver:jar:2.33.0:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-safari-driver:jar:2.33.0:test
+[INFO] |  |  +- org.seleniumhq.selenium:selenium-support:jar:2.33.0:test
+[INFO] |  |  \- org.webbitserver:webbit:jar:0.4.14:test
+[INFO] |  +- com.atlassian.browsers:atlassian-browsers-auto:jar:2.5:test
+[INFO] |  |  \- com.atlassian.browsers:atlassian-browsers-osx:jar:2.5:test
+[INFO] |  |     +- com.atlassian.browsers:firefox:jar:osx:21.0:test
+[INFO] |  |     +- com.atlassian.browsers:firefox-profile:jar:21.0:test
+[INFO] |  |     +- com.atlassian.browsers:chrome:jar:osx:27:test
+[INFO] |  |     \- com.atlassian.browsers:chrome-profile:jar:osx:27.0:test
+[INFO] |  \- com.atlassian.annotations:atlassian-annotations:jar:0.6:test
+[INFO] +- commons-io:commons-io:jar:2.4:test
+[INFO] +- net.databinder.dispatch:dispatch-core_2.10:jar:0.11.0:test
+[INFO] |  \- com.ning:async-http-client:jar:1.7.16:test
+[INFO] |     \- io.netty:netty:jar:3.6.3.Final:test
+[INFO] +- net.databinder.dispatch:dispatch-jsoup_2.10:jar:0.11.0:test
+[INFO] |  \- org.jsoup:jsoup:jar:1.6.3:test
+[INFO] \- net.databinder.dispatch:dispatch-lift-json_2.10:jar:0.11.0:test
+[INFO]    \- net.liftweb:lift-json_2.10:jar:2.5-RC6:test
+[INFO]       +- org.scala-lang:scalap:jar:2.10.0:test
+[INFO]       |  \- org.scala-lang:scala-compiler:jar:2.10.0:test
+[INFO]       |     \- org.scala-lang:scala-reflect:jar:2.10.0:test
+[INFO]       \- com.thoughtworks.paranamer:paranamer:jar:2.4.1:test
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 17.515s
+[INFO] Finished at: Sun Feb 22 18:06:22 EST 2015
+[INFO] Final Memory: 33M/513M
+[INFO] ------------------------------------------------------------------------

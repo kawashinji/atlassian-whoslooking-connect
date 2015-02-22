@@ -134,7 +134,7 @@ class UITest extends TimedAssertions with ShouldMatchersForJUnit with EitherValu
     if (Config.IsOnDemand) {
       withProduct.visit(classOf[IndraLoginPage], "/login").login(user.name, user.password, classOf[IndraLoginPage])
     } else {
-      withProduct.gotoLoginPage().login(user.name, user.password, classOf[DashboardPage])
+      withProduct.gotoLoginPage().loginWithRedirect(user.name, user.password, false, true, classOf[DashboardPage])
     }
   }
 

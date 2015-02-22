@@ -4,7 +4,6 @@ import java.lang.management.ManagementFactory;
 import java.util.Map;
 
 import com.atlassian.connect.play.java.AC;
-import com.atlassian.connect.play.java.model.AcHostModel;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -21,7 +20,6 @@ import service.AnalyticsService;
 import service.MetricsService;
 import service.RedisAnalyticsService;
 import utils.VersionUtils;
-
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static service.AnalyticsService.ACTIVE_HOST;
@@ -96,7 +94,6 @@ public class Healthcheck  extends Controller
                 .put("key", AC.PLUGIN_KEY)
                 .put("version", VersionUtils.VERSION)
                 .put("dyno", defaultIfEmpty(System.getenv().get("DYNO"), "unknown"))
-                .put("hosts", AcHostModel.all().size())
                 .put("time", System.currentTimeMillis())
                 .put("freeMemory", Runtime.getRuntime().freeMemory())
                 .put("systemLoad", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage())
