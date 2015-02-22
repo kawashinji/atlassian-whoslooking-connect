@@ -1,6 +1,7 @@
 package service;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.atlassian.fugue.Effect;
 import com.atlassian.fugue.Option;
@@ -8,6 +9,7 @@ import com.atlassian.fugue.Option;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.newrelic.api.agent.NewRelic;
 
 import org.javasimon.Sample;
 import org.javasimon.SimonManager;
@@ -15,7 +17,6 @@ import org.javasimon.Split;
 import org.javasimon.UnknownSample;
 
 import play.Play;
-
 import static utils.Constants.ENABLE_METRICS;
 
 public class MetricsService
@@ -23,6 +24,7 @@ public class MetricsService
 
     public Option<Split> start(String key)
     {
+        
         return isEnabled() ? Option.some(SimonManager.getStopwatch(key).start()) : Option.<Split> none();
     }
 
@@ -34,6 +36,7 @@ public class MetricsService
             public void apply(Split s)
             {
                 s.stop();
+                NewRelic.recordMetric("Custom/" + s.getStopwatch().getName(), TimeUnit.NANOSECONDS.toMillis(s.runningFor()));
             }
         });
     }
@@ -58,7 +61,7 @@ public class MetricsService
 
     public long incCounter(String key)
     {
-        
+        NewRelic.incrementCounter("Custom/" + key);
         return isEnabled() ? SimonManager.getCounter(key).increase().getCounter() : 0;
     }
 

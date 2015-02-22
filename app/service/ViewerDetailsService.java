@@ -98,7 +98,9 @@ public class ViewerDetailsService
             return;
         }
 
-        Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.<String> none()).setQueryParameter("username", username).get();
+        Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.<String> none()).setQueryParameter("username", username)
+            .setTimeout(5000)
+            .get();
         
         final Option<Split> timer = metricsService.start("displayname.request");
         
