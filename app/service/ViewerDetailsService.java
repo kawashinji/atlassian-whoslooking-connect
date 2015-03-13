@@ -98,7 +98,7 @@ public class ViewerDetailsService
             return;
         }
 
-        Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.<String> none()).setQueryParameter("username", username)
+        Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.<String> none()).setQueryParameter("key", username)
             .setTimeout(5000)
             .get();
         
@@ -115,7 +115,7 @@ public class ViewerDetailsService
                 if (displayNameNode != null)
                 {
                     String displayName = displayNameNode.asText();
-                    Logger.info(String.format("Obtained display name for %s on %s: %s", username, hostId, displayName));
+                    Logger.info(String.format("Obtained display name for userkey %s on %s: %s", username, hostId, displayName));
                     int jitter = random.nextInt(displayNameCacheExpirySeconds);
                     Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
                 }
