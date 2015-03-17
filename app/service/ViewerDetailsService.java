@@ -46,6 +46,7 @@ public class ViewerDetailsService
 
     private final HeartbeatService heartbeatService;
     private final int displayNameCacheExpirySeconds;
+    private final int displayNameFetchBlacklistExpirySeconds;
     private final Random random = new Random();
 
     private boolean enableDisplayNameFetchBlackList;
@@ -59,6 +60,7 @@ public class ViewerDetailsService
         this.displayNameCacheExpirySeconds = Play.application().configuration().getInt(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT);
         this.enableDisplayNameFetch = Play.application().configuration().getBoolean(ENABLE_DISPLAY_NAME_FETCH, true);
         this.enableDisplayNameFetchBlackList = Play.application().configuration().getBoolean(ENABLE_DISPLAY_NAME_FETCH_BLACKLIST, true);
+        this.displayNameFetchBlacklistExpirySeconds = Play.application().configuration().getInt(DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS, DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS_DEFAULT);
     }
 
     /**
@@ -212,7 +214,7 @@ public class ViewerDetailsService
             try
             {
                 long failedAttempts = j.incr("displayname-blacklist-"+key);
-                j.expire(key, Play.application().configuration().getInt(DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS, DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS_DEFAULT));
+                j.expire("displayname-blacklist-"+key, displayNameFetchBlacklistExpirySeconds);
                 
                 if (failedAttempts>BLACKLIST_FAILURE_THRESHOLD)
                 {
