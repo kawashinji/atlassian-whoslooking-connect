@@ -13,6 +13,7 @@ object ApplicationBuild extends Build {
     javaJdbc,
     javaEbean,
     "commons-io" % "commons-io" % "2.4",
+    "redis.clients" % "jedis" % "2.1.0",
     "com.typesafe" %% "play-plugins-redis" % "2.2.1",
     "com.atlassian.connect" % "ac-play-java_2.10" % "0.10.1" withSources(),
     "org.apache.commons" % "commons-lang3" % "3.1",
@@ -24,8 +25,7 @@ object ApplicationBuild extends Build {
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
-        resolvers += "Robin's Maven Repository" at "http://rewbs.bitbucket.org/mavenrepo/releases",  
-        resolvers += "org.sedis Maven Repository" at "http://pk11-scratch.googlecode.com/svn/trunk",
+        resolvers += "Robin's Maven Repository" at "http://rewbs.bitbucket.io/mavenrepo/releases", 
         resolvers += "Atlassian's Maven Public Repository" at "https://maven.atlassian.com/content/groups/public",
         resolvers += "Local Maven Repository" at "file://" + Path.userHome + "/.m2/repository",
         resolvers += "clojars.org" at "http://clojars.org/repo",

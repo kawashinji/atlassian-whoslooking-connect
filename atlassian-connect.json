@@ -1,7 +1,7 @@
 {
     "key": "${addonKey}",
-    "name": "Who's Looking for OnDemand",
-    "description": "Who&apos;s Looking for OnDemand. See who else is looking at a JIRA issue.",
+    "name": "Who's Looking for Jira Cloud",
+    "description": "Who&apos;s Looking for Jira Cloud. See who else is looking at a Jira issue.",
     "vendor": {
         "name": "Atlassian",
         "url": "http://www.atlassian.com"
