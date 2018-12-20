@@ -17,7 +17,7 @@ import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
 import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS_DEFAULT;
 import static utils.KeyUtils.buildHeartbeatKey;
 import static utils.KeyUtils.buildViewerSetKey;
-import static utils.KeyUtils.extractUseridFromHeartbeatKey;
+import static utils.KeyUtils.extractAccountIdFromHeartbeatKey;
 import static utils.RedisUtils.jedisPool;
 
 /**
@@ -50,7 +50,7 @@ public class RedisHeartbeatService implements HeartbeatService
             
             for (Tuple t : activeViewersSet)
             {
-                activeViewers.put(extractUseridFromHeartbeatKey(t.getElement()), String.valueOf(t.getScore()));
+                activeViewers.put(extractAccountIdFromHeartbeatKey(t.getElement()), String.valueOf(t.getScore()));
             }
             
         }

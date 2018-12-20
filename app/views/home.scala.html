@@ -11,12 +11,11 @@
     <meta name="poller-interval-seconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
     <meta name="avatar-size" content="@Play.current.configuration.getString("whoslooking.avatar-size")" />
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all" />
-    <!--[if lt IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie.css" media="all"><![endif]-->
-    <!--[if IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie9.css" media="all"><![endif]-->
-    <link rel="shortcut icon" type="image/png" href="//atlassian.com/dms/wac/favicon_wac.ico" />
-    <title>Who's Looking for OnDemand</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/7.6.0/aui/css/aui.min.css" media="all">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/aui/7.6.0/aui/js/aui.min.js"></script>
+    <link rel="shortcut icon" type="image/png" href="//marketplace-cdn.atlassian.com/files/images/c343db31-1cf9-4c38-a4cb-be93fcbceaf2.png" />
+    <title>Who's Looking for Jira Cloud</title>
   </head>
 
 <body class="aui-page-fixed" id="aui-flatpack">
@@ -37,7 +36,7 @@
             <header class="aui-page-header">
                 <div class="aui-page-header-inner">
                     <div class="aui-page-header-main">
-                        <h1>Who's Looking for OnDemand <sup><small class="aui-lozenge">beta</small></sup></h1>
+                        <h1>Who's Looking for Jira Cloud<sup><small class="aui-lozenge">beta</small></sup></h1>
                     </div><!-- .aui-page-header-main -->
                 </div><!-- .aui-page-header-inner -->
             </header><!-- .aui-page-header -->        
@@ -45,9 +44,9 @@
             <div class="aui-page-panel">
                 <div class="aui-page-panel-inner">
                     <section class="aui-page-panel-content">
-                        <p><em>Who's Looking for OnDemand</em> shows you who else is looking at a JIRA issue. It's an Atlassian Connect add-on.</p>
+                        <p><em>Who's Looking for Jira Cloud</em> shows you who else is looking at a Jira issue. It's an Atlassian Connect add-on.</p>
                         <ul>
-                            <li><a href="https://marketplace.atlassian.com/plugins/whoslooking-connect">Install <em>Who's Looking</em> on your OnDemand instance</a> via Atlassian Marketplace. <span class="aui-lozenge aui-lozenge-success">New!</span></li>
+                            <li><a href="https://marketplace.atlassian.com/plugins/whoslooking-connect">Install <em>Who's Looking</em> on your Jira Cloud instance</a> via Atlassian Marketplace.
                             <li><a href="https://bitbucket.org/atlassian/whoslooking-connect">Find out how <em>Who's Looking</em> is implemented.</a></li>                        
                             <li><a href="https://developer.atlassian.com/display/AC/Atlassian+Connect">Read more about Atlassian Connect.</a></li>
                         </ul>
@@ -64,7 +63,7 @@
             <section class="footer-body">
                 <ul id="aui-footer-list">
                     <li>Version @utils.VersionUtils.VERSION</li>
-                    <li>Copyright &copy; 2009-2013 Atlassian</li>
+                    <li>Copyright &copy; 2009-2019 Atlassian</li>
                 </ul>
             </section>
         </footer><!-- #footer -->

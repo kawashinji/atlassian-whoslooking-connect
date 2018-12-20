@@ -13,17 +13,17 @@ public class KeyUtils
     // TODO: replace with PercentEscaper when guava 15 is available.
     static URLCodec codec = new URLCodec("UTF-8");
 
-    public static String buildHeartbeatKey(final String hostId, final String resourceId, final String userId)
+    public static String buildHeartbeatKey(final String hostId, final String resourceId, final String accountId)
     {
-        return buildKey("heartbeat", hostId, resourceId, userId);
+        return buildKey("heartbeat", hostId, resourceId, accountId);
     }
 
-    public static String extractUseridFromHeartbeatKey(final String key)
+    public static String extractAccountIdFromHeartbeatKey(final String key)
     {
         String[] components = key.split(Constants.KEY_SEPARATOR);
-        String encodedUserId = components[components.length-1];
+        String encodedAccountId = components[components.length-1];
         try {
-            return codec.decode(encodedUserId);
+            return codec.decode(encodedAccountId);
         } catch (DecoderException e) {
             throw new RuntimeException(e);
         }
@@ -34,14 +34,14 @@ public class KeyUtils
         return buildKey("viewersetv2", hostId, resourceId);
     }
     
-    public static String buildUserKey(final String hostId, final String userId)
+    public static String buildUserKey(final String hostId, final String accountId)
     {
-        return buildKey(hostId, userId);
+        return buildKey(hostId, accountId);
     }
 
-    public static String buildDisplayNameKey(final String hostId, final String username)
+    public static String buildDisplayNameKey(final String hostId, final String accountId)
     {
-        return buildKey("cache", hostId, username, "displayName");
+        return buildKey("cache", hostId, accountId, "displayName");
     }
 
     private static String buildKey(final String... components)

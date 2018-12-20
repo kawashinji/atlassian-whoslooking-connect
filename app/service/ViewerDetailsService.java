@@ -76,9 +76,9 @@ public class ViewerDetailsService
                 Map<String, String> viewers = heartbeatService.list(hostId, resourceId);
                 Map<String, JsonNode> viewersWithDetails = transformEntries(viewers, new Maps.EntryTransformer<String, String, JsonNode>() {
                     @Override
-                    public JsonNode transformEntry(String username, String lastSeen) {
+                    public JsonNode transformEntry(String accountId, String lastSeen) {
                         ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-                        objectNode.put("displayName", getCachedDisplayNameFor(hostId, username).getOrElse(username));
+                        objectNode.put("displayName", getCachedDisplayNameFor(hostId, accountId).getOrElse(accountId));
                         return objectNode;
                     }
                 });
@@ -88,9 +88,9 @@ public class ViewerDetailsService
         });
     }
 
-    private void asyncFetch(final String hostId, final String username, final String key)
+    private void asyncFetch(final String hostId, final String accountId, final String key)
     {
-        Logger.info(String.format("Cache miss. Requesting details for %s on %s...", username, hostId));
+        Logger.info(String.format("Cache miss. Requesting details for %s on %s...", accountId, hostId));
 
         Option<? extends AcHost> acHost = AC.getAcHost(hostId);
 
@@ -100,7 +100,7 @@ public class ViewerDetailsService
             return;
         }
 
-        Promise<Response> promise = AC.url("/rest/api/2/user", acHost.get(), Option.<String> none()).setQueryParameter("key", username)
+        Promise<Response> promise = AC.url("/rest/api/3/user", acHost.get(), Option.<String> none()).setQueryParameter("accountId", accountId)
             .setTimeout(5000)
             .get();
         
@@ -117,13 +117,13 @@ public class ViewerDetailsService
                 if (displayNameNode != null)
                 {
                     String displayName = displayNameNode.asText();
-                    Logger.info(String.format("Obtained display name for userkey %s on %s: %s", username, hostId, displayName));
+                    Logger.info(String.format("Obtained display name for accountId %s on %s: %s", accountId, hostId, displayName));
                     int jitter = random.nextInt(displayNameCacheExpirySeconds);
                     Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
                 }
                 else
                 {
-                    Logger.error("Could not extract display name from user details, which were: " + userDetailsJson.toString());
+                    Logger.error("Could not extract display name from accountId details, which were: " + userDetailsJson.toString());
                     recordFailure(key);
                 }
             }
@@ -146,10 +146,10 @@ public class ViewerDetailsService
      * 
      * @return user display name, or null if not yet known.
      */
-    private Option<String> getCachedDisplayNameFor(final String hostId, final String username)
+    private Option<String> getCachedDisplayNameFor(final String hostId, final String accountId)
     {
 
-        final String key = buildDisplayNameKey(hostId, username);
+        final String key = buildDisplayNameKey(hostId, accountId);
         String cachedValue = (String) Cache.get(key);
 
         if (isNotEmpty(cachedValue))
@@ -169,7 +169,7 @@ public class ViewerDetailsService
             else
             {
                 // Populate the cache in the background and return none for now
-                asyncFetch(hostId, username, key);
+                asyncFetch(hostId, accountId, key);
             }
         }
 

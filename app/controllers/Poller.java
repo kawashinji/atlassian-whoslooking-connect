@@ -42,6 +42,7 @@ public class Poller extends Controller
                 final String hostId = AC.getAcHost().getKey();
                 final String resourceId = request().getQueryString("issue_key");
                 final String userId = AC.getUser().getOrNull();
+
                 
                 if (StringUtils.isBlank(userId))
                 {

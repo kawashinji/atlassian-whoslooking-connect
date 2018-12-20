@@ -25,6 +25,9 @@
             "location": "atl.jira.view.issue.right.context"
         }]
     },
+    "apiMigrations": {
+        "gdpr": true
+    },
     "scopes": ["READ"]
 }
 

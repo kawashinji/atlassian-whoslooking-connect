@@ -21,11 +21,15 @@
       <meta name="acpt" content="@AC.getToken.get">
     }
     <meta content="IE=EDGE" http-equiv="X-UA-Compatible" /> 
-    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader()) 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui.css" media="all">
-    <!--[if lt IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie.css" media="all"><![endif]-->
-    <!--[if IE 9]><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/css/aui-ie9.css" media="all"><![endif]-->
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader())
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/sinon.js/1.15.4/sinon.min.js"></script>
+    <script src="//unpkg.com/@@atlassian/aui@@7.6.0/dist/aui/js/aui.min.js"></script>
+    <script src="//unpkg.com/@@atlassian/aui@@7.6.0/dist/aui/js/aui-experimental.min.js"></script>
+    <script src="//unpkg.com/@@atlassian/aui@@7.6.0/dist/aui/js/aui-datepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//unpkg.com/@@atlassian/aui@@7.6.0/dist/aui/css/aui.min.css"/>
+    <link rel="stylesheet" type="text/css" href="//unpkg.com/@@atlassian/aui@@7.6.0/dist/aui/css/aui-experimental.min.css"/>
     <link rel="stylesheet" type="text/css" href="//d1cq5befmb1l41.cloudfront.net/v1/main.css" />
     <meta name="hostBaseUrl" content="@baseUrl" />
   </head>
@@ -33,12 +37,10 @@
     <div id="whoslooking-onlookers" class="ac-content">
         <ul id="whoslooking-onlookers-list"></ul>
     </div>
-    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())    
+    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())
   </body>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui.js"></script>
-  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/aui/5.2/js/aui-ie.js"></script><![endif]-->
   <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/sha1.js"></script>    
+  <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/sha1.js"></script>
   <script type="text/javascript" src="//d1cq5befmb1l41.cloudfront.net/v1/pagetoken.js"></script>
   <script type="text/javascript" src="https://connect-cdn.atl-paas.net/all.js"></script>
   <script>
@@ -79,19 +81,38 @@
         }
 
         var viewerList = $('<p>').addClass('whoslooking-onlookers-list').attr('id', 'whoslooking-onlookers-list');
-        $.each(viewers, function(name, details) {
-          var avatarUrl = hostBaseUrl+"/secure/useravatar?ownerId="+name;
-          var displayName = (details && details.displayName) ? details.displayName : name;
-          var viewerListItem = $('<p>');
-          var userDisplayName = $('<span>').text(displayName).addClass('whoslooking-displayname');
+        var unresolvedDisplayNames = false;
+        $.each(viewers, function(accountId, details) {
+          var avatarUrl = hostBaseUrl+"/secure/useravatar?ownerId="+encodeURIComponent(accountId);
+
+          var userId = (details && details.displayName) ? details.displayName : accountId;
+            var viewerListItem = $('<p>');
+          var userLink = $('<a>').attr('href', hostBaseUrl+"/people/"+encodeURIComponent(accountId)).attr('target','_parent');
           var avatar = $('<img>').attr('width', avatarSize + 'px').attr('height', avatarSize + 'px').attr('src', avatarUrl).addClass('whoslooking-avatar');
-          viewerListItem.append(avatar).append(userDisplayName);
+
+          if (userId != accountId) {
+              // Looks like we've found a display name
+              var userDisplayName = $('<span>').text(details.displayName).addClass('whoslooking-displayname');
+              viewerListItem.append(avatar).append(userDisplayName);
+              userDisplayName.wrap(userLink);
+          } else {
+              var userDisplayName = $('<span>').text(accountId).addClass('whoslooking-displayname');
+              viewerListItem.append(avatar).append(userDisplayName);
+              userDisplayName.wrap(userLink);
+              viewerListItem.append('<small>(*)</small>');
+              unresolvedDisplayNames = true;
+          }
+
           viewerList.append(viewerListItem);
         });
-      
+
+        if (unresolvedDisplayNames) {
+            viewerList.append('<small> <p>(*) In compliance with GDPR, Jira no longer sends users\' full names to add-ons. Who\'s Looking will try to get them from Jira, but may fail if the user\'s settings disallow this.</p> </small>');
+        }
         $('#whoslooking-onlookers-list').replaceWith(viewerList);
         AP.resize();
         renderedViewers = viewers;
+
       }            
             
       if (userId && hostId && resourceId) {
