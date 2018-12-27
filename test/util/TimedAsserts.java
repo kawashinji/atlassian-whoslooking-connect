@@ -9,15 +9,20 @@ public class TimedAsserts {
 
     public static void assertStartsPassingAfter(long timeToWaitMs, Callable<Void> callable) throws Exception
     {
-        TimedAsserts.assertStartsPassingAfter(timeToWaitMs, callable, DEFAULT_TIMEOUT_MS, DEFAULT_RETRY_INTERVAL_MS);
+        TimedAsserts.assertStartsPassingAfter(timeToWaitMs, callable, DEFAULT_TIMEOUT_MS, DEFAULT_RETRY_INTERVAL_MS, true);
     }
     
     public static void assertStartsPassingBefore(long timeOut, Callable<Void> callable) throws Exception
     {
-        TimedAsserts.assertStartsPassingAfter(0L, callable, timeOut, DEFAULT_RETRY_INTERVAL_MS);
+        TimedAsserts.assertStartsPassingAfter(0L, callable, timeOut, DEFAULT_RETRY_INTERVAL_MS, true);
     }
 
-    public static void assertStartsPassingAfter(long timeToWaitMs, Callable<Void> callable, long timeOutMs, long retryIntervalMs) throws Exception
+    public static void assertPassesContinuouslyFor(long duration, Callable<Void> callable) throws Exception
+    {
+        TimedAsserts.assertStartsPassingAfter(0L, callable, duration, DEFAULT_RETRY_INTERVAL_MS, false);
+    }
+
+    public static void assertStartsPassingAfter(long timeToWaitMs, Callable<Void> callable, long timeOutMs, long retryIntervalMs, boolean failIfPassTooEarly) throws Exception
     {
         long startTime = System.currentTimeMillis();
         while (true)
@@ -26,7 +31,7 @@ public class TimedAsserts {
             try
             {
                 callable.call();
-                if (waitedMs < timeToWaitMs)
+                if (failIfPassTooEarly && waitedMs < timeToWaitMs)
                 {
                     throw new AssertionError("Started passing too soon: " + waitedMs);
                 }

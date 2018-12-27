@@ -41,20 +41,20 @@ public class Poller extends Controller
             {
                 final String hostId = AC.getAcHost().getKey();
                 final String resourceId = request().getQueryString("issue_key");
-                final String userId = AC.getUser().getOrNull();
+                final String accountId = AC.getUser().getOrNull();
 
                 
-                if (StringUtils.isBlank(userId))
+                if (StringUtils.isBlank(accountId))
                 {
-                    return unauthorized(views.html.anonymous.render(hostId, resourceId, userId));
+                    return unauthorized(views.html.anonymous.render(hostId, resourceId, accountId));
                 }
                 
-                heartbeatService.put(hostId, resourceId, userId);        
+                heartbeatService.put(hostId, resourceId, accountId);
                 analyticsService.fire(ACTIVE_HOST, sha1(hostId));
-                analyticsService.fire(ACTIVE_USER, sha1(hostId)+":"+sha1(userId));
+                analyticsService.fire(ACTIVE_USER, sha1(hostId)+":"+accountId);
                 
                 final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
-                return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, userId));
+                return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, accountId));
             }   
         });
     }

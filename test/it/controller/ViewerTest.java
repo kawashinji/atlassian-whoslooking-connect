@@ -1,14 +1,18 @@
 package it.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import com.atlassian.connect.play.java.token.Token;
 import com.atlassian.fugue.Option;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.hash.Hashing;
 
 import org.apache.commons.codec.binary.Base64;
@@ -16,16 +20,21 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import play.Logger;
 import play.api.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.FakeApplication;
 import play.test.FakeRequest;
 
+import javax.annotation.Nullable;
+
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
@@ -33,6 +42,8 @@ import static play.test.Helpers.route;
 import static play.test.Helpers.status;
 import static util.RedisTestUtils.startNewFakeAppWithRedis;
 import static util.RedisTestUtils.stopFakeAppWithRedis;
+import static util.TimedAsserts.assertStartsPassingBefore;
+import static util.TimedAsserts.assertPassesContinuouslyFor;
 import static utils.Constants.PER_PAGE_VIEW_TOKEN_HEADER;
 
 /**
@@ -183,7 +194,48 @@ public class ViewerTest
         
         assertEquals(ImmutableSet.of("some-user-2"), extractViewers(result));
     }
-    
+
+    @Test
+    public void shouldGetDisplayNameEventually() throws Exception
+    {
+        Result result = routeAndExpectSuccess(putViewerWithValidToken(TEST_HOST_ID, TEST_RESOURCE_ID, "some-user-X"));
+        assertEquals(ImmutableSet.of("some-user-X"), extractDisplayNames(result));
+
+        assertStartsPassingBefore(SECONDS.toMillis(5), new Callable<Void>()
+        {
+            @Override
+            public Void call() throws Exception
+            {
+                Result result = routeAndExpectSuccess(putViewerWithValidToken(TEST_HOST_ID, TEST_RESOURCE_ID, "some-user-X"));
+                Logger.info(contentAsString(result));
+                assertEquals(ImmutableSet.of("Dr. some-user-X on test-host-1"), extractDisplayNames(result));
+
+                return null;
+            }
+        });
+    }
+
+
+    @Test
+    public void shouldFallBackToAccountIdIfNoDisplayName() throws Exception
+    {
+        Result result = routeAndExpectSuccess(putViewerWithValidToken(TEST_HOST_ID, TEST_RESOURCE_ID, "private-some-user-X"));
+        assertEquals(ImmutableSet.of("private-some-user-X"), extractDisplayNames(result));
+
+        assertPassesContinuouslyFor(SECONDS.toMillis(5), new Callable<Void>()
+        {
+            @Override
+            public Void call() throws Exception
+            {
+                Result result = routeAndExpectSuccess(putViewerWithValidToken(TEST_HOST_ID, TEST_RESOURCE_ID, "private-some-user-X"));
+                Logger.info(contentAsString(result));
+                assertEquals(ImmutableSet.of("private-some-user-X"), extractDisplayNames(result));
+                return null;
+            }
+        });
+    }
+
+
     public static Result routeAndExpectSuccess(FakeRequest req)
     {
         Result result = route(req);
@@ -197,6 +249,23 @@ public class ViewerTest
     {
         return ImmutableSet.copyOf(Json.parse(contentAsString(result)).fieldNames());
     }
+
+    private static Set<String> extractDisplayNames(Result result)
+    {
+        return ImmutableSet.copyOf(Lists.transform(
+                Json.parse(contentAsString(result)).findValues("displayName"),
+                new com.google.common.base.Function<JsonNode, String>()
+                {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable JsonNode input)
+                    {
+                        return input.asText();
+                    }
+                }
+                ));
+    }
+
 
     private static FakeRequest putViewer(String user)
     {
