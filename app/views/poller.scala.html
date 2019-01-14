@@ -85,7 +85,10 @@
           } else {
               // No display name in local cache. Try retrieving it Jira and then storing in local cache.
               // This is async, we'll use it next time.
-              AP.request('/rest/api/3/user?accountId=' + accountId).then(function (data) {
+              AP.request({
+                  url: '/rest/api/3/user?accountId=' + accountId,
+                  headers: {'x-atlassian-force-account-id': 'true'}
+              }).then(function (data) {
                   var displayName = JSON.parse(data.body).displayName;
                   if (displayName) {
                       var localCacheExpiryMinutes = 24*60;

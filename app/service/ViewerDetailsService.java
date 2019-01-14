@@ -100,8 +100,10 @@ public class ViewerDetailsService
             return;
         }
 
-        Promise<Response> promise = AC.url("/rest/api/3/user", acHost.get(), Option.<String> none()).setQueryParameter("accountId", accountId)
+        Promise<Response> promise = AC.url("/rest/api/3/user", acHost.get(), Option.<String> none())
+            .setQueryParameter("accountId", accountId)
             .setTimeout(5000)
+            .setHeader("x-atlassian-force-account-id", "true")
             .get();
         
         final Option<Split> timer = metricsService.start("displayname.request");
@@ -117,7 +119,8 @@ public class ViewerDetailsService
                 if (displayNameNode != null)
                 {
                     String displayName = displayNameNode.asText();
-                    Logger.info(String.format("Obtained display name for accountId %s on %s: %s", accountId, hostId, displayName));
+                    Logger.info(String.format("Obtained display name for accountId %s on %s.", accountId, hostId));
+                    Logger.trace(String.format("Display name: %s", displayName));
                     int jitter = random.nextInt(displayNameCacheExpirySeconds);
                     Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
                 }
