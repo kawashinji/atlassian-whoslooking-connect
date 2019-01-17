@@ -7,4 +7,3 @@
 * jquery: https://jquery.org/license/
 * purl: https://github.com/allmarkedup/purl/blob/master/LICENSE
 * Visiblitiy.js: https://github.com/ai/visibility.js/blob/master/LICENSE
-* New Relic API library: https://newrelic.com/docs/java/java-agent-license

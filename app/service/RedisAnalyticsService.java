@@ -2,8 +2,6 @@ package service;
 
 import java.util.Set;
 
-import com.newrelic.api.agent.Trace;
-
 import org.joda.time.DateTime;
 
 import play.Logger;
@@ -40,7 +38,6 @@ public class RedisAnalyticsService implements AnalyticsService
         Promise<Void> promise = Promise.promise(new Function0<Void>()
         {
             @Override
-            @Trace(metricName="write-analytics-event", dispatcher=true)
             public Void apply()
             {
                 Jedis j = jedisPool().getResource();
@@ -64,7 +61,6 @@ public class RedisAnalyticsService implements AnalyticsService
         promise.onFailure(new Callback<Throwable>()
         {
             @Override
-            @Trace(metricName="write-analytics-events-error", dispatcher=true)
             public void invoke(Throwable e) throws Throwable
             {
                 metricsService.incCounter("analytics.fail");

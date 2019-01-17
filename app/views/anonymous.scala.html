@@ -8,7 +8,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader())
     <meta charset="utf-8" />
     <meta version="@utils.VersionUtils.VERSION" />
     <meta name="pollIntervalSeconds" content="@Play.current.configuration.getString("whoslooking.poller-interval.seconds")" />
@@ -35,6 +34,5 @@
       </p>
     </div>
   </body>
-  @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())
 </html>
 }

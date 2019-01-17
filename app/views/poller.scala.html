@@ -20,8 +20,7 @@
     @if(AC.getToken.isDefined) {
       <meta name="acpt" content="@AC.getToken.get">
     }
-    <meta content="IE=EDGE" http-equiv="X-UA-Compatible" /> 
-    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingHeader())
+    <meta content="IE=EDGE" http-equiv="X-UA-Compatible" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/sinon.js/1.15.4/sinon.min.js"></script>
@@ -38,7 +37,6 @@
     <div id="whoslooking-onlookers" class="ac-content">
         <ul id="whoslooking-onlookers-list"></ul>
     </div>
-    @Html(com.newrelic.api.agent.NewRelic.getBrowserTimingFooter())
   </body>
   <script src="//cdnjs.cloudflare.com/ajax/libs/visibility.js/0.6.2/visibility.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/sha1.js"></script>
