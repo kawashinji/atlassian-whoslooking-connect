@@ -17,6 +17,7 @@ object ApplicationBuild extends Build {
     "com.typesafe" %% "play-plugins-redis" % "2.2.1",
     "com.atlassian.connect" % "ac-play-java_2.10" % "0.10.1" withSources(),
     "org.apache.commons" % "commons-lang3" % "3.1",
+    "org.apache.commons" % "commons-text" % "1.9",
     "com.google.guava" % "guava" % "14.0.1",
     "commons-codec" % "commons-codec" % "1.10",
     "org.javasimon" % "javasimon-core" % "4.0.1",
