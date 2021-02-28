@@ -81,7 +81,7 @@
           if (tentativeDisplayName) {
             return tentativeDisplayName;
           } else {
-              // No display name in local cache. Try retrieving it Jira and then storing in local cache.
+              // No display name in local cache. Try retrieving it from Jira and then storing in local cache.
               // This is async, we'll use it next time.
               AP.request({
                   url: '/rest/api/3/user?accountId=' + accountId,
@@ -147,7 +147,7 @@
         window.onbeforeunload = stopViewing;
         setInterval(poll, pollInterval);
         Visibility.change(function (e, state) { poll(); });
-        renderViewerList(@Html(viewersWithDetails));        
+        renderViewerList(@Html(viewersWithDetails));
       }
   });
   </script>  

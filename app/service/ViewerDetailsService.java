@@ -25,6 +25,7 @@ import play.libs.WS.Response;
 import redis.clients.jedis.Jedis;
 import static com.google.common.collect.Maps.transformEntries;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeJson;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
 import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
 import static utils.Constants.DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS;
@@ -118,7 +119,7 @@ public class ViewerDetailsService
                 JsonNode displayNameNode = userDetailsJson.get(DISPLAY_NAME);
                 if (displayNameNode != null)
                 {
-                    String displayName = displayNameNode.asText();
+                    String displayName = escapeJson(displayNameNode.asText());
                     Logger.info(String.format("Obtained display name for accountId %s on %s.", accountId, hostId));
                     Logger.trace(String.format("Display name: %s", displayName));
                     int jitter = random.nextInt(displayNameCacheExpirySeconds);
