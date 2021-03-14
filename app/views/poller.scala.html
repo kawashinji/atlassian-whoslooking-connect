@@ -70,7 +70,8 @@
       var stopViewing = function() {
         $.ajax({
           url: pollUrl,
-          type: 'DELETE'
+          type: 'DELETE',
+          headers: { 'x-user-validation-token': token}
         });
       };
 
