@@ -13,12 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import service.AnalyticsService;
-import service.HeartbeatService;
-import service.MetricsService;
-import service.RedisAnalyticsService;
-import service.RedisHeartbeatService;
-import service.ViewerDetailsService;
+import service.*;
 
 import static play.api.libs.Codecs.sha1;
 import static service.AnalyticsService.ACTIVE_HOST;
@@ -27,6 +22,7 @@ import static service.AnalyticsService.ACTIVE_USER;
 public class Poller extends Controller
 {
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
+    private final ViewerValidationService viewerValidationService = new RedisViewerValidationService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
     private final AnalyticsService analyticsService = new RedisAnalyticsService();
     private final MetricsService metricsService = new MetricsService();
@@ -34,7 +30,6 @@ public class Poller extends Controller
     @AuthenticateJwtRequest
     public Result index() throws Exception
     {
-        //TODO: this could be implemented as a Play filter.
         return metricsService.withMetric("poller", new Supplier<Result>() {
             @Override
             public Result get()
@@ -43,7 +38,6 @@ public class Poller extends Controller
                 final String resourceId = request().getQueryString("issue_key");
                 final String accountId = AC.getUser().getOrNull();
 
-                
                 if (StringUtils.isBlank(accountId))
                 {
                     return unauthorized(views.html.anonymous.render(hostId, resourceId, accountId));
@@ -52,9 +46,11 @@ public class Poller extends Controller
                 heartbeatService.put(hostId, resourceId, accountId);
                 analyticsService.fire(ACTIVE_HOST, sha1(hostId));
                 analyticsService.fire(ACTIVE_USER, sha1(hostId)+":"+accountId);
+
+                String token = viewerValidationService.setToken(hostId, resourceId, accountId);
                 
                 final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
-                return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, accountId));
+                return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, accountId, token));
             }   
         });
     }

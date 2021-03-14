@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.token.CheckValidToken;
@@ -12,26 +13,28 @@ import com.google.common.base.Supplier;
 import com.google.common.hash.Hashing;
 
 import play.Logger;
+import play.api.mvc.Headers;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import service.HeartbeatService;
-import service.RedisHeartbeatService;
-import service.ViewerDetailsService;
+import service.*;
 
 import static java.lang.String.format;
 
 public class Viewers extends Controller
 {
+    private final static String USER_VALIDATION_HEADER = "x-user-validation-token";
+
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
+    private final ViewerValidationService viewerValidationService = new RedisViewerValidationService();
 
     @CheckValidToken(allowInsecurePolling = true)
     public Result put(final String hostId, final String resourceId, final String userMarker)
     {
         Logger.trace(format("Putting %s/%s/%s", hostId, resourceId, userMarker));
 
-        return withValidatedParameters(hostId, userMarker, new Function<String, Result>()
+        return withValidatedParameters(hostId, resourceId, userMarker, new Function<String, Result>()
         {
             @Override
             public Result apply(String userId)
@@ -50,7 +53,7 @@ public class Viewers extends Controller
     {
         Logger.trace(format("Deleting %s/%s/%s", hostId, resourceId, userMarker));
 
-        return withValidatedParameters(hostId, userMarker, new Function<String, Result>()
+        return withValidatedParameters(hostId, resourceId, userMarker, new Function<String, Result>()
         {
             @Override
             public Result apply(String userId)
@@ -61,7 +64,7 @@ public class Viewers extends Controller
         });
     }
 
-    private Result withValidatedParameters(String hostId, String userMarker, Function<String, Result> f)
+    private Result withValidatedParameters(String hostId, String resourceId, String userMarker, Function<String, Result> f)
     {
         if (!hostId.equals(AC.getAcHost().getKey()))
         {
@@ -73,6 +76,7 @@ public class Viewers extends Controller
         }
 
         // If the user is specified in the URL, we expect it to be the exact username from the token, or its sha1 hash.
+        // This prevents a user from pretending someone else is looking at the issue.
         String tokenUser = AC.getUser().get();
         String tokenUserSha1 = Hashing.sha1().hashString(tokenUser, Charsets.UTF_8).toString();
         if (!userMarker.equals(tokenUser) && !userMarker.equals(tokenUserSha1))
@@ -86,6 +90,17 @@ public class Viewers extends Controller
                                 + "].");
         }
 
+        // If the user is requesting viewers of a given issue, we expect the request to carry proof that they have visited
+        // the view issue page for that issue.
+        // This prevents a user from retrieving viewers of an issue they have never seen (and potentially aren't allowed to see).
+        String tokenHeader = request().getHeader(USER_VALIDATION_HEADER);
+        if (Objects.isNull(tokenHeader)) {
+            return unauthorized("Could not confirm user is able to access resource (no token).");
+        }
+        if (!viewerValidationService.verifyToken(hostId, resourceId, tokenUser, tokenHeader)) {
+            return unauthorized("Could not confirm user is able to access resource (bad token).");
+        }
+
         return AC.getUser().fold(new Supplier<Result>()
         {
             @Override
@@ -94,6 +109,7 @@ public class Viewers extends Controller
                 return unauthorized("Could not validate user. Invalid token?");
             }
         }, f);
+
     }
 
 }

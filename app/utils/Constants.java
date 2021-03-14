@@ -25,7 +25,10 @@ public class Constants {
     public static final String PER_PAGE_VIEW_TOKEN_HEADER = "X-acpt";
     
     public static final String ANALYTICS_EXPIRY_SECONDS = "whoslooking.analytics-expiry.seconds";
-    public static final int ANALYTICS_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(30);;
+    public static final int ANALYTICS_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(30);
+
+    public static final String VALIDATION_TOKEN_EXPIRY_SECONDS = "whoslooking.validation-token-expiry.seconds";
+    public static final int VALIDATION_TOKEN_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(2);
     
     public static final String DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS = "whoslooking.display-name-cache-expiry.seconds";
     public static final int DISPLAY_NAME_FETCH_BLACKLIST_EXPIRY_SECONDS_DEFAULT = (int) TimeUnit.DAYS.toSeconds(1);

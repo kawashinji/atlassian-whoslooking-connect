@@ -18,6 +18,11 @@ public class KeyUtils
         return buildKey("heartbeat", hostId, resourceId, accountId);
     }
 
+    public static String buildVerificationKey(final String hostId, final String resourceId, final String accountId)
+    {
+        return buildKey("verification", hostId, resourceId, accountId);
+    }
+
     public static String extractAccountIdFromHeartbeatKey(final String key)
     {
         String[] components = key.split(Constants.KEY_SEPARATOR);

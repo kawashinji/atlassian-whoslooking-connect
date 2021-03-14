@@ -1,4 +1,4 @@
-@(viewersWithDetails: String, hostId: String, resourceId: String, accountId: String)
+@(viewersWithDetails: String, hostId: String, resourceId: String, accountId: String, token: String)
 
 @import play.mvc.Http.Context.Implicit.ctx
 @import com.atlassian.connect.play.java.AcHost
@@ -17,6 +17,7 @@
     <meta name="hostId" content="@hostId" />    
     <meta name="resourceId" content="@resourceId" />
     <meta name="accountId" content="@accountId" />
+    <meta name="token" content="@token" />
     @if(AC.getToken.isDefined) {
       <meta name="acpt" content="@AC.getToken.get">
     }
@@ -51,6 +52,7 @@
       var hostId = getMeta('hostId');
       var resourceId = getMeta('resourceId');      
       var accountId = getMeta('accountId');
+      var token = getMeta('token');
       var localCacheExpiryMinutes = getMeta('localCacheExpiryMinutes');
       var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ accountId;
 
@@ -58,6 +60,7 @@
         Visibility.hidden() || $.ajax({
           url: pollUrl,               
           type: 'PUT',
+          headers: { 'x-user-validation-token': token},
           success: function(data) {
             renderViewerList(data);
           }
