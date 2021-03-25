@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 
+import org.apache.http.HttpStatus;
 import org.javasimon.Split;
 
 import play.Logger;
@@ -79,7 +80,9 @@ public class ViewerDetailsService
                     @Override
                     public JsonNode transformEntry(String accountId, String lastSeen) {
                         ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-                        objectNode.put("displayName", getCachedDisplayNameFor(hostId, accountId).getOrElse(accountId));
+                        if (enableDisplayNameFetch) {
+                            objectNode.put("displayName", getCachedDisplayNameFor(hostId, accountId).getOrElse(accountId));
+                        }
                         return objectNode;
                     }
                 });
@@ -115,19 +118,21 @@ public class ViewerDetailsService
             public void invoke(Response a) throws Throwable
             {
                 metricsService.stop(timer);
-                JsonNode userDetailsJson = a.asJson();
-                JsonNode displayNameNode = userDetailsJson.get(DISPLAY_NAME);
-                if (displayNameNode != null)
-                {
-                    String displayName = escapeJson(displayNameNode.asText());
-                    Logger.info(String.format("Obtained display name for accountId %s on %s.", accountId, hostId));
-                    Logger.trace(String.format("Display name: %s", displayName));
-                    int jitter = random.nextInt(displayNameCacheExpirySeconds);
-                    Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
-                }
-                else
-                {
-                    Logger.error("Could not extract display name from accountId details, which were: " + userDetailsJson.toString());
+                if (HttpStatus.SC_OK == a.getStatus()) {
+                    JsonNode userDetailsJson = a.asJson();
+                    JsonNode displayNameNode = userDetailsJson.get(DISPLAY_NAME);
+                    if (displayNameNode != null) {
+                        String displayName = escapeJson(displayNameNode.asText());
+                        Logger.info(String.format("Obtained display name for accountId %s on %s.", accountId, hostId));
+                        Logger.trace(String.format("Display name: %s", displayName));
+                        int jitter = random.nextInt(displayNameCacheExpirySeconds);
+                        Cache.set(key, displayName, displayNameCacheExpirySeconds + jitter);
+                    } else {
+                        Logger.error("Could not extract display name from accountId details, which were: " + userDetailsJson.toString());
+                        recordFailure(key);
+                    }
+                } else {
+                    Logger.error("Failure requesting display name. Response: " + a.getStatus());
                     recordFailure(key);
                 }
             }

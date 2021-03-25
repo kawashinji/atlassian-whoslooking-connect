@@ -55,6 +55,7 @@
       var token = getMeta('token');
       var localCacheExpiryMinutes = getMeta('localCacheExpiryMinutes');
       var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ accountId;
+      var metricsUrl = '/fe-metrics/';
 
       var poll = function() {
         Visibility.hidden() || $.ajax({
@@ -96,8 +97,10 @@
                       var localCacheExpiryMinutes = 24*60;
                       var cacheExpiryJitterMinutes = Math.floor((Math.random() * 20) - 10);
                       lscache.set(accountId, displayName, localCacheExpiryMinutes + cacheExpiryJitterMinutes)
+                      $.ajax({url: metricsUrl + "display-name-fetch-success", type: 'PUT'});
                   }
               }).catch(function (e) {
+                  $.ajax({url: metricsUrl + "display-name-fetch-fail", type: 'PUT'});
                   console.log(e.err);
               });
           }
@@ -150,7 +153,7 @@
       if (accountId && hostId && resourceId) {
         window.onbeforeunload = stopViewing;
         setInterval(poll, pollInterval);
-        Visibility.change(function (e, state) { poll(); });
+        Visibility.change(function (e, state) { console.log(state); poll(); });
         renderViewerList(@Html(viewersWithDetails));
       }
   });
