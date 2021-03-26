@@ -30,6 +30,7 @@ public class Poller extends Controller
     @AuthenticateJwtRequest
     public Result index() throws Exception
     {
+        metricsService.incCounter("page-hit.poller");
         return metricsService.withMetric("poller", new Supplier<Result>() {
             @Override
             public Result get()

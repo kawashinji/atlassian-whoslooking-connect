@@ -46,6 +46,7 @@ public class Healthcheck  extends Controller
     
     @play.db.jpa.Transactional
     public Result index() {
+        metricsService.incCounter("page-hit.healthcheck");
         try
         {
             Map<String, Long> activity = getActivity();

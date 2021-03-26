@@ -6,6 +6,7 @@
 
 # Home page
 GET     /                                                          controllers.Application.index()
+POST    /installed                                                 controllers.Application.register()
 PUT     /viewables/:hostid/:resourceid/viewers/:userhash           @controllers.Viewers.put(hostid, resourceid, userhash)
 DELETE  /viewables/:hostid/:resourceid/viewers/:userhash           @controllers.Viewers.delete(hostid, resourceid, userhash)
 GET     /poller                                                    @controllers.Poller.index()

@@ -28,10 +28,12 @@ public class Viewers extends Controller
     private final HeartbeatService heartbeatService = new RedisHeartbeatService();
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
     private final ViewerValidationService viewerValidationService = new RedisViewerValidationService();
+    private final MetricsService metricsService = new MetricsService();
 
     @CheckValidToken(allowInsecurePolling = true)
     public Result put(final String hostId, final String resourceId, final String userMarker)
     {
+        metricsService.incCounter("page-hit.viewers-put");
         Logger.trace(format("Putting %s/%s/%s", hostId, resourceId, userMarker));
 
         return withValidatedParameters(hostId, resourceId, userMarker, new Function<String, Result>()
@@ -51,6 +53,7 @@ public class Viewers extends Controller
     @CheckValidToken(allowInsecurePolling = true)
     public Result delete(final String hostId, final String resourceId, final String userMarker)
     {
+        metricsService.incCounter("page-hit.viewers-delete");
         Logger.trace(format("Deleting %s/%s/%s", hostId, resourceId, userMarker));
 
         return withValidatedParameters(hostId, resourceId, userMarker, new Function<String, Result>()
