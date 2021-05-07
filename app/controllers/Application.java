@@ -108,6 +108,9 @@ public class Application extends Controller
             }
 
             String header = (String)i$.next();
+            if (null == header) {
+                return null;
+            }
             authzHeader = header.trim();
             first4Chars = authzHeader.substring(0, Math.min(4, authzHeader.length()));
         } while(!"JWT ".equalsIgnoreCase(first4Chars));
