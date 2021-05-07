@@ -21,8 +21,10 @@ import play.mvc.Result;
 
 import service.MetricsService;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -45,41 +47,50 @@ public class Application extends Controller
     {
         new MetricsService().incCounter("page-hit.install");
         Logger.info("In install override");
-        Logger.info(Controller.request().getHeader("Authorization"));
 
+        String jwtString = extractJwt(Controller.request());
+        Logger.info("jwt string: " + jwtString);
+        if (jwtString != null) {
+            Logger.info("Payload includes a JWT token - let's ensure qsh is valid.");
+            if (!validateQsh(jwtString)) {
+                return status(403, "Install failed (qsh validation failure).");
+            }
+        } else {
+            Logger.info("No JWT token - must be first time install. No check required.");
+        }
+
+        return AcController.registration().get();
+    }
+
+    private static boolean validateQsh(String jwtString) {
         try {
-
             PlayRequestWrapper wrappedReq = new PlayRequestWrapper(request(), (new URL((String) AC.baseUrl.get())).getPath());
             CanonicalHttpRequest cannonicalRequest = wrappedReq.getCanonicalHttpRequest();
             Logger.info("Cannonical request: " + HttpRequestCanonicalizer.canonicalize(cannonicalRequest));
-
-            String jwtString = extractJwt(Controller.request());
-            Logger.info("jwt string: " + jwtString);
 
             JWSObject jwso = JWSObject.parse(jwtString);
             JSONObject payload = jwso.getPayload().toJSONObject();
             if (payload.get("qsh") == null) {
                 Logger.error("qsh missing from payload");
-                return status(403, "Install failed.");
+                return false;
             }
-
-            String computedHash = HttpRequestCanonicalizer.computeCanonicalRequestHash(cannonicalRequest);
 
             String qsh = payload.get("qsh").toString();
             Logger.info("Input qsh value: " + qsh);
+            String computedHash = HttpRequestCanonicalizer.computeCanonicalRequestHash(cannonicalRequest);
             Logger.info("Computed qsh value: " + computedHash);
 
             if (!computedHash.equals(qsh)) {
                 Logger.error("qsh check failure: [computed: " + computedHash + "]; [qsh: " + qsh +"]");
-                return status(403, "Install failed (qsh check failure).");
+                return false;
             }
 
         } catch (Exception e) {
             Logger.error("Failed to parse install JWT token", e);
-            return status(403, "Install failed.");
+            return false;
         }
 
-        return AcController.registration().get();
+        return true;
     }
 
     public static String extractJwt(Http.Request request) {
