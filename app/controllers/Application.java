@@ -1,11 +1,18 @@
 package controllers;
 
+import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.auth.jwt.*;
 import com.atlassian.connect.play.java.controllers.AcController;
 
+import com.atlassian.jwt.CanonicalHttpRequest;
+import com.atlassian.jwt.core.HttpRequestCanonicalizer;
+import com.atlassian.jwt.core.SimpleJwt;
 import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
 import com.google.common.base.Supplier;
 
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.Payload;
+import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.mvc.Controller;
@@ -14,6 +21,9 @@ import play.mvc.Result;
 
 import service.MetricsService;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -28,7 +38,9 @@ public class Application extends Controller
         return AcController.index(home(), descriptor());
     }
 
-    @AuthenticateJwtRequest
+    /**
+     * Purely for qsh check on install event (VULN-298834)
+     */
     public static Result register()
     {
         new MetricsService().incCounter("page-hit.install");
@@ -36,8 +48,34 @@ public class Application extends Controller
         Logger.trace(Controller.request().getHeader("Authorization"));
 
         String jwtString = extractJwt(Controller.request());
-
         Logger.trace(jwtString);
+
+        try {
+            JWSObject jwso = JWSObject.parse(jwtString);
+            JSONObject payload = jwso.getPayload().toJSONObject();
+            if (payload.get("qsh") == null) {
+                Logger.error("qsh missing from payload");
+                return status(403, "Install failed.");
+            }
+
+            PlayRequestWrapper wrappedReq = new PlayRequestWrapper(request(), (new URL((String) AC.baseUrl.get())).getPath());
+            CanonicalHttpRequest cannonicalRequest = wrappedReq.getCanonicalHttpRequest();
+
+            String computedHash = HttpRequestCanonicalizer.computeCanonicalRequestHash(cannonicalRequest);
+
+            String qsh = payload.get("qsh").toString();
+            Logger.info("Input qsh value: " + qsh);
+            Logger.info("Computed qsh value: " + computedHash);
+
+            if (!computedHash.equals(qsh)) {
+                Logger.error("qsh check failure: [computed: " + computedHash + "]; [qsh: " + qsh +"]");
+                return status(403, "Install failed (qsh check failure).");
+            }
+
+        } catch (Exception e) {
+            Logger.error("Failed to parse install JWT token", e);
+            return status(403, "Install failed.");
+        }
 
         return AcController.registration().get();
     }
