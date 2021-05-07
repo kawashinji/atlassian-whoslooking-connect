@@ -45,21 +45,23 @@ public class Application extends Controller
     {
         new MetricsService().incCounter("page-hit.install");
         Logger.info("In install override");
-        Logger.trace(Controller.request().getHeader("Authorization"));
-
-        String jwtString = extractJwt(Controller.request());
-        Logger.trace(jwtString);
+        Logger.info(Controller.request().getHeader("Authorization"));
 
         try {
+
+            PlayRequestWrapper wrappedReq = new PlayRequestWrapper(request(), (new URL((String) AC.baseUrl.get())).getPath());
+            CanonicalHttpRequest cannonicalRequest = wrappedReq.getCanonicalHttpRequest();
+            Logger.info("Cannonical request: " + HttpRequestCanonicalizer.canonicalize(cannonicalRequest));
+
+            String jwtString = extractJwt(Controller.request());
+            Logger.info("jwt string: " + jwtString);
+
             JWSObject jwso = JWSObject.parse(jwtString);
             JSONObject payload = jwso.getPayload().toJSONObject();
             if (payload.get("qsh") == null) {
                 Logger.error("qsh missing from payload");
                 return status(403, "Install failed.");
             }
-
-            PlayRequestWrapper wrappedReq = new PlayRequestWrapper(request(), (new URL((String) AC.baseUrl.get())).getPath());
-            CanonicalHttpRequest cannonicalRequest = wrappedReq.getCanonicalHttpRequest();
 
             String computedHash = HttpRequestCanonicalizer.computeCanonicalRequestHash(cannonicalRequest);
 
