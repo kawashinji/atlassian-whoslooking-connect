@@ -38,10 +38,14 @@ public final class Global extends AcGlobalSettings
                 try {
                     String encryptedSharedSecret = host.getEncryptedSharedSecret();
                     if (encryptedSharedSecret == null) {
-                        Logger.info("Persisting " + host.getBaseUrl() + " with encrypted shared secret.");
-                        acHostService.registerHost(host);
+                        if (host.getSharedSecret() != null) {
+                            Logger.info("Persisting " + host.getBaseUrl() + " with encrypted shared secret.");
+                            acHostService.registerHost(host);
+                        } else {
+                            Logger.warn("Skipping " + host.getBaseUrl() + ": no shared secret to encrypt");
+                        }
                     } else {
-                        Logger.info("Skipping " + host.getBaseUrl() + " - already has encrypted shared secret.");
+                        Logger.info("Skipping " + host.getBaseUrl() + ": already has encrypted shared secret.");
                     }
                 } catch (Throwable t) {
                     Logger.error("Failed encryption upgrade task on host " + host.getBaseUrl(), t);
