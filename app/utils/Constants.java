@@ -37,5 +37,6 @@ public class Constants {
     public static final String ENABLE_METRICS = "whoslooking.feature.metrics";
     public static final String ENABLE_DISPLAY_NAME_FETCH = "whoslooking.feature.display-name-fetch";
     public static final String ENABLE_DISPLAY_NAME_FETCH_BLACKLIST = "whoslooking.feature.display-name-fetch-blacklist";
+    public static final String ENABLE_ENCRYPTION_UPGRADE_TASK = "whoslooking.feature.enable-encryption_upgrade-task";
     
 }
