@@ -15,7 +15,7 @@ object ApplicationBuild extends Build {
     "commons-io" % "commons-io" % "2.4",
     "redis.clients" % "jedis" % "2.1.0",
     "com.typesafe" %% "play-plugins-redis" % "2.2.1",
-    "com.atlassian.connect" % "ac-play-java_2.10" % "0.10.3-robinf" withSources(),
+    "com.atlassian.connect" % "ac-play-java_2.10" % "0.10.4-robinf" withSources(),
 //    "com.atlassian.connect" % "ac-play-java_2.10" % "0.10.1" withSources(),
     "org.apache.commons" % "commons-lang3" % "3.1",
     "org.apache.commons" % "commons-text" % "1.9",
