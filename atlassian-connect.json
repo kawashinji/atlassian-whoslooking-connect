@@ -12,10 +12,10 @@
     },
     "enableLicensing": false,
     "lifecycle": {
-        "installed": "/installed"
+        "installed": "/installed",
+        "uninstalled": "uninstalled"
     },
     "modules": {
-
         "webPanels": [{
             "key" : "whos-looking",
             "name": {
