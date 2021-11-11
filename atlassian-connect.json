@@ -27,7 +27,8 @@
     },
     "apiMigrations": {
         "gdpr": true,
-        "context-qsh": true
+        "context-qsh": true,
+        "signed-install": true
     },
 
     "scopes": ["READ"]
