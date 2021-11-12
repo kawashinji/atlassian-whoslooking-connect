@@ -5,7 +5,7 @@ logLevel := Level.Warn
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
 
 // idea integration
-resolvers += "sbt-idea-repo" at "https://mpeltonen.github.com/maven/"
+resolvers += "sbt-idea-repo" at "https://mpeltonen.github.io/maven/"
 
 // Use the Play sbt plugin for Play projects
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.2")

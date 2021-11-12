@@ -59,8 +59,15 @@ public class Application extends Controller
             if (!migrationsService.validateQsh(request(), jwtString)) {
                 return status(403, "Install failed (qsh validation failure).");
             }
+
         } else {
-            Logger.info("No JWT token - must be first time install. No check required.");
+            Logger.info("No JWT token - must be first time install. Verify if it is a signed install.");
+            try {
+                migrationsService.validateSignedInstall(request(), jwtString);
+            } catch (Exception e) {
+                Logger.error("Signature verification failed", e);
+                return status(403, "SignatureVerificationException: cannot verify the signature for signed install");
+            }
         }
 
         return AcController.registration().get();
