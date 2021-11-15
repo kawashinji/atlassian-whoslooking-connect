@@ -68,7 +68,7 @@ public class ApiMigrationsService {
         try {
             validateAsymmetricSignature(jwtString);
         } catch(Exception e) {
-            Logger.error("Could not verify asymmetric signature");
+            Logger.error("Could not verify asymmetric signature", e);
             return false;
         }
 

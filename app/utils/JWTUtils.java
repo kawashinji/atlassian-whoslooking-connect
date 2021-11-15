@@ -1,8 +1,5 @@
 package utils;
 
-import play.libs.WS;
-import play.mvc.Http;
-
 import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +11,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
+import play.mvc.Http;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 
 public class JWTUtils {
 
@@ -21,9 +24,15 @@ public class JWTUtils {
         // get connect_keys_uri from config
         // return the rsa key by calling it
         String hostURL = "https://cs-migrations--cdn.us-west-1.staging.public.atl-paas.net/" + kid;
-        WS.Response response = WS.url(hostURL).get().get(5000, TimeUnit.MILLISECONDS); //timeout
-        String encodedKey = response.getBody();
-        String pubKeyPEM = encodedKey.replace("-----BEGIN PUBLIC KEY-----\n", "").replace("-----END PUBLIC KEY-----", "");
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(hostURL)
+                .build();
+        Response response = client.newCall(request).execute();
+        String encodedKey = response.body().string();
+        String pubKeyPEM = encodedKey.replace("-----BEGIN PUBLIC KEY-----\n", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replace("\n", "");
         byte[] encodedPublicKey = Base64.getDecoder().decode(pubKeyPEM);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(encodedPublicKey);
         KeyFactory kf = KeyFactory.getInstance("RSA");

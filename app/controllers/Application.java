@@ -13,6 +13,8 @@ import service.MetricsService;
 
 import utils.JWTUtils;
 
+import java.util.concurrent.TimeUnit;
+
 public class Application extends Controller
 {
 
@@ -44,7 +46,7 @@ public class Application extends Controller
             return status(403, "SignatureVerificationException: cannot verify the signature for signed install");
         }
 
-        return AcController.registration().get();
+        return AcController.registration().get(8000, TimeUnit.MILLISECONDS);
     }
 
     private static Supplier<Result> descriptor()
