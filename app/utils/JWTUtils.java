@@ -9,7 +9,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
 
 import play.mvc.Http;
 
@@ -21,9 +20,7 @@ import okhttp3.Response;
 public class JWTUtils {
 
     public static RSAPublicKey fetchRSAPublicKey(String kid) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
-        // get connect_keys_uri from config
-        // return the rsa key by calling it
-        String hostURL = "https://cs-migrations--cdn.us-west-1.staging.public.atl-paas.net/" + kid;
+        String hostURL = Constants.CONNECT_INSTALL_KEYS_URL + "/" + kid;
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(hostURL)
