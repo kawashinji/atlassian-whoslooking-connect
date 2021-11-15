@@ -4,7 +4,9 @@
     <option name="allowRunningInParallel" value="false" />
     <option name="enableSbtGlobalPlugins" value="false" />
     <option name="play2EnvVariables">
-      <map />
+      <map>
+        <entry key="WHOSLOOKING_BASE_URL" value="https://sboyapati2-whoslooking.public.atlastunnel.com" />
+      </map>
     </option>
     <option name="play2IsNonDefaultInstallDirUsed" value="false" />
     <option name="play2JpdaPort" value="9999" />

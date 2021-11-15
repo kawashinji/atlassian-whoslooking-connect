@@ -13,7 +13,7 @@
     "enableLicensing": false,
     "lifecycle": {
         "installed": "/installed",
-        "uninstalled": "uninstalled"
+        "uninstalled": "/uninstalled"
     },
     "modules": {
         "webPanels": [{

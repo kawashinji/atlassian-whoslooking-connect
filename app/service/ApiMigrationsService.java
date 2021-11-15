@@ -91,6 +91,8 @@ public class ApiMigrationsService {
         }
 
         // matching audience with baseURL for claim validation
+        Logger.info("Actual AUD: " + claims.get("aud"));
+        Logger.info("Expected AUD: " + baseURL);
         if (!claims.get("aud").toString().equals(baseURL)) {
             Logger.error("JWT claim does not match with expected audience");
             throw new Exception("JWT claim does not match with expected audience");
