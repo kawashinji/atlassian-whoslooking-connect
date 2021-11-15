@@ -1,45 +1,35 @@
 package utils;
 
+import play.libs.WS;
+import play.mvc.Http;
+
+import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Supplier;
-
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.Payload;
-import net.minidev.json.JSONObject;
-
-import play.Logger;
-import play.libs.WS;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-
-import com.atlassian.connect.play.java.AC;
-import com.atlassian.connect.play.java.auth.jwt.*;
-import com.atlassian.connect.play.java.controllers.AcController;
-import com.atlassian.jwt.CanonicalHttpRequest;
-import com.atlassian.jwt.core.HttpRequestCanonicalizer;
-import com.atlassian.jwt.core.SimpleJwt;
-import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
-
-import static play.libs.F.Function;
-import static play.libs.F.Promise;
 
 public class JWTUtils {
 
-    public static String fetchRSAPublicKey(String kid) {
+    public static RSAPublicKey fetchRSAPublicKey(String kid) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
         // get connect_keys_uri from config
         // return the rsa key by calling it
         String hostURL = "https://cs-migrations--cdn.us-west-1.staging.public.atl-paas.net/" + kid;
-        Promise<WS.Response> result = WS.url(hostURL).get().get(5000); //timeout
-        result.sync();
+        WS.Response response = WS.url(hostURL).get().get(5000, TimeUnit.MILLISECONDS); //timeout
+        String encodedKey = response.getBody();
+        String pubKeyPEM = encodedKey.replace("-----BEGIN PUBLIC KEY-----\n", "").replace("-----END PUBLIC KEY-----", "");
+        byte[] encodedPublicKey = Base64.getDecoder().decode(pubKeyPEM);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(encodedPublicKey);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return (RSAPublicKey) kf.generatePublic(spec);
     }
 
-    public String decodeProtectedHeader(String jwtToken) {
-        return "";
-    }
     public static String extractJwt(Http.Request request) {
         // if it is not sent as a query param, check for the header
         String jwt = getJwtParameter(request);
@@ -76,10 +66,4 @@ public class JWTUtils {
 
         return authzHeader.substring(4);
     }
-
-    public static String decodeStringFromBase64Url(String base64String) {
-        byte[] decodedBytes = Base64.getDecoder().decode(base64String);
-        return new String(decodedBytes);
-    }
-
 }

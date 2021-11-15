@@ -1,29 +1,20 @@
 package service;
 
 import java.net.URL;
-import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
 
 import com.atlassian.connect.play.java.AC;
 import com.atlassian.connect.play.java.auth.jwt.*;
-import com.atlassian.connect.play.java.controllers.AcController;
 
 import com.atlassian.jwt.CanonicalHttpRequest;
 import com.atlassian.jwt.core.HttpRequestCanonicalizer;
-import com.atlassian.jwt.core.SimpleJwt;
-import com.atlassian.jwt.core.reader.NimbusJwtReaderFactory;
-import com.google.common.base.Supplier;
 
 import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
 import net.minidev.json.JSONObject;
 
-import com.atlassian.jwt.CanonicalHttpRequest;
-
 import play.Logger;
-import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
-import play.mvc.Result;
 import utils.JWTUtils;
 
 public class ApiMigrationsService {
@@ -75,12 +66,13 @@ public class ApiMigrationsService {
         }
 
         try {
-            validateAssymetricSignature(jwtString);
+            validateAsymmetricSignature(jwtString);
         } catch(Exception e) {
-            Logger.error("Could not verify assymetric signature");
+            Logger.error("Could not verify asymmetric signature");
             return false;
         }
 
+        Logger.info("Signed Install Verification Successful");
         return true;
     }
 
@@ -105,10 +97,17 @@ public class ApiMigrationsService {
         }
     }
 
-    private static void validateAssymetricSignature(String jwtString) throws Exception {
+    private static void validateAsymmetricSignature(String jwtString) throws Exception {
         JWSObject jwso = JWSObject.parse(jwtString);
-        String rsaPublicKey = JWTUtils.fetchRSAPublicKey(jwso.getHeader().getKeyID());
+        RSAPublicKey rsaPublicKey = JWTUtils.fetchRSAPublicKey(jwso.getHeader().getKeyID());
         byte[] signingInput = jwso.getSigningInput();
+
+        RSASSAVerifier verifier = new RSASSAVerifier(rsaPublicKey);
+
+        if (!verifier.verify(jwso.getHeader(), signingInput, jwso.getSignature())) {
+            Logger.error("Signature Verification Failed");
+            throw new Exception("Signature Verification Failed");
+        }
     }
 
 
