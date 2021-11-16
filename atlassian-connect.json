@@ -6,14 +6,13 @@
         "name": "Atlassian",
         "url": "http://www.atlassian.com"
     },
-    "baseUrl": "https://sboyapati2-whoslooking.public.atlastunnel.com",
+    "baseUrl": "${localBaseUrl}",
     "authentication": {
         "type": "jwt"
     },
     "enableLicensing": false,
     "lifecycle": {
-        "installed": "/installed",
-        "uninstalled": "/uninstalled"
+        "installed": "/installed"
     },
     "modules": {
         "webPanels": [{
