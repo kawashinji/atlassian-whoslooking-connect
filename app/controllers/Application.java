@@ -38,12 +38,13 @@ public class Application extends Controller
         String jwtString = JWTUtils.extractJwt(Controller.request());
         Logger.info("jwt string: " + jwtString);
         Logger.info("Payload includes a JWT token - let's ensure qsh is valid.");
-        if (!migrationsService.validateQsh(request(), jwtString)) {
-            return status(403, "Install failed (qsh validation failure).");
-        }
 
         if (!migrationsService.validateSignedInstall(request(), jwtString)) {
             return status(403, "SignatureVerificationException: cannot verify the signature for signed install");
+        }
+
+        if (!migrationsService.validateQsh(request(), jwtString)) {
+            return status(403, "Install failed (qsh validation failure).");
         }
 
         return AcController.registration().get(8000, TimeUnit.MILLISECONDS);
