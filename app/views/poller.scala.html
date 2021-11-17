@@ -153,6 +153,7 @@
       }            
             
       if (accountId && hostId && resourceId) {
+        //13. send delte viewer
         window.onbeforeunload = stopViewing;
         setInterval(poll, pollInterval);
         Visibility.change(function (e, state) { poll(); });

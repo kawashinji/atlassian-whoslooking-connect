@@ -65,6 +65,7 @@ public class Viewers extends Controller
             @Override
             public Result apply(String userId)
             {
+                //14. delete current viewer from viewer list
                 heartbeatService.delete(hostId, resourceId, userId);
                 return noContent();
             }
