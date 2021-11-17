@@ -6,6 +6,7 @@ public class Constants {
 
     // Connect Key CDN URL
     public static final String CONNECT_INSTALL_KEYS_URL = "https://connect-install-keys.atlassian.com";
+    public static final String CONNECT_STG_INSTALL_KEYS_URL = "https://cs-migrations--cdn.us-west-1.staging.public.atl-paas.net";
 
     // A viewer is considered to not be looking anymore if no heartbeat has been received in this amount for time.
     public static final String VIEWER_EXPIRY_SECONDS = "whoslooking.viewer-expiry.seconds";

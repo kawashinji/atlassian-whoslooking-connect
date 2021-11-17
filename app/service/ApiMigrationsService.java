@@ -66,7 +66,7 @@ public class ApiMigrationsService {
         }
 
         try {
-            validateAsymmetricSignature(jwtString);
+            validateAsymmetricSignature(request, jwtString);
         } catch(Exception e) {
             Logger.error("Could not verify asymmetric signature", e);
             return false;
@@ -99,9 +99,9 @@ public class ApiMigrationsService {
         }
     }
 
-    private static void validateAsymmetricSignature(String jwtString) throws Exception {
+    private static void validateAsymmetricSignature(Http.Request request, String jwtString) throws Exception {
         JWSObject jwso = JWSObject.parse(jwtString);
-        RSAPublicKey rsaPublicKey = JWTUtils.fetchRSAPublicKey(jwso.getHeader().getKeyID());
+        RSAPublicKey rsaPublicKey = JWTUtils.fetchRSAPublicKey(request, jwso.getHeader().getKeyID());
         byte[] signingInput = jwso.getSigningInput();
 
         RSASSAVerifier verifier = new RSASSAVerifier(rsaPublicKey);

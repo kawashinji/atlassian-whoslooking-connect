@@ -10,6 +10,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import play.Logger;
 import play.mvc.Http;
 
 import okhttp3.OkHttpClient;
@@ -19,13 +21,18 @@ import okhttp3.Response;
 
 public class JWTUtils {
 
-    public static RSAPublicKey fetchRSAPublicKey(String kid) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
-        String hostURL = Constants.CONNECT_INSTALL_KEYS_URL + "/" + kid;
+    public static RSAPublicKey fetchRSAPublicKey(Http.Request request, String kid) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+        String hostURL = Constants.CONNECT_INSTALL_KEYS_URL;
+        JsonNode clientBaseUrl = request.body().asJson().get("baseUrl");
+        if (clientBaseUrl != null && clientBaseUrl.textValue().endsWith("jira-dev.com")) {
+            hostURL = Constants.CONNECT_STG_INSTALL_KEYS_URL;
+        }
+        hostURL = hostURL + "/" + kid;
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
+        Request req = new Request.Builder()
                 .url(hostURL)
                 .build();
-        Response response = client.newCall(request).execute();
+        Response response = client.newCall(req).execute();
         String encodedKey = response.body().string();
         String pubKeyPEM = encodedKey.replace("-----BEGIN PUBLIC KEY-----\n", "")
                 .replace("-----END PUBLIC KEY-----", "")
