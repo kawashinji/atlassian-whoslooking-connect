@@ -8,6 +8,7 @@
     },
     "baseUrl": "${localBaseUrl}",
     "authentication": {
+        "_comment":  "2.2 All request between Jira & Iframe is signed with jwt",
         "type": "jwt"
     },
     "enableLicensing": false,
@@ -15,12 +16,14 @@
         "installed": "/installed"
     },
     "modules": {
-
+        "_comment": "1.1  Triggering when viewing jira issue page: add a WebPanel",
         "webPanels": [{
             "key" : "whos-looking",
             "name": {
                 "value": "Who's Looking?"
             },
+            "_comment": "1.2 Let Connect module knows to ask /poller... providing the iframe content",
+            "_comment": "2.1 User send request (from iFrame) to /poller... to get content",
             "url": "/poller?issue_key={issue.key}",
             "location": "atl.jira.view.issue.right.context"
         }]

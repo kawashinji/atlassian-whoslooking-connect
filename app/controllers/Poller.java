@@ -27,6 +27,7 @@ public class Poller extends Controller
     private final AnalyticsService analyticsService = new RedisAnalyticsService();
     private final MetricsService metricsService = new MetricsService();
 
+    //3. Verify OAuth header from Jira to Whoslooking????? need to find out with downloading source code
     @AuthenticateJwtRequest
     public Result index() throws Exception
     {
@@ -35,6 +36,7 @@ public class Poller extends Controller
             @Override
             public Result get()
             {
+                //4. Get host/issue/account id
                 final String hostId = AC.getAcHost().getKey();
                 final String resourceId = request().getQueryString("issue_key");
                 final String accountId = AC.getUser().getOrNull();
@@ -43,14 +45,20 @@ public class Poller extends Controller
                 {
                     return unauthorized(views.html.anonymous.render(hostId, resourceId, accountId));
                 }
-                
+
+                // 6. save user to heartbeat list
                 heartbeatService.put(hostId, resourceId, accountId);
                 analyticsService.fire(ACTIVE_HOST, sha1(hostId));
                 analyticsService.fire(ACTIVE_USER, sha1(hostId)+":"+accountId);
 
+                //8. Generate ID token for host +account+ issueId
+                // This gonna expire after 30 seconds
                 String token = viewerValidationService.setToken(hostId, resourceId, accountId);
-                
+
+                //9.1. Get user details
                 final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
+
+                //9.2 responde with content
                 return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, accountId, token));
             }   
         });

@@ -54,6 +54,8 @@
       var accountId = getMeta('accountId');
       var token = getMeta('token');
       var localCacheExpiryMinutes = getMeta('localCacheExpiryMinutes');
+
+      //10. send to whoislooking to register for current user
       var pollUrl = '/viewables/'+ encodeURIComponent(hostId) +'/'+ encodeURIComponent(resourceId) +'/viewers/'+ accountId;
       var metricsUrl = '/fe-metrics/';
 

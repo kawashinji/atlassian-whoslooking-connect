@@ -81,6 +81,7 @@ public class ViewerDetailsService
                     public JsonNode transformEntry(String accountId, String lastSeen) {
                         ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
                         if (enableDisplayNameFetch) {
+                            //7.1 Put user name in cache
                             objectNode.put("displayName", getCachedDisplayNameFor(hostId, accountId).getOrElse(accountId));
                         }
                         return objectNode;
@@ -104,6 +105,7 @@ public class ViewerDetailsService
             return;
         }
 
+        //5.1 request atlassian about user details
         Promise<Response> promise = AC.url("/rest/api/3/user", acHost.get(), Option.<String> none())
             .setQueryParameter("accountId", accountId)
             .setTimeout(5000)

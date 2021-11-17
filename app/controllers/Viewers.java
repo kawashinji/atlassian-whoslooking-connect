@@ -30,7 +30,9 @@ public class Viewers extends Controller
     private final ViewerValidationService viewerValidationService = new RedisViewerValidationService();
     private final MetricsService metricsService = new MetricsService();
 
+    //11. Verify token
     @CheckValidToken(allowInsecurePolling = true)
+    //10.1 accept request from iframe to register user
     public Result put(final String hostId, final String resourceId, final String userMarker)
     {
         metricsService.incCounter("page-hit.viewers-put");
@@ -41,10 +43,12 @@ public class Viewers extends Controller
             @Override
             public Result apply(String userId)
             {
+                //10.2 save user to heartbeat list
                 heartbeatService.put(hostId, resourceId, userId);
 
                 Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
 
+                //12. Return user details to render in the iframe
                 return ok(Json.toJson(viewersWithDetails));
             }
         });
