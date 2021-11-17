@@ -15,7 +15,6 @@
         "installed": "/installed"
     },
     "modules": {
-
         "webPanels": [{
             "key" : "whos-looking",
             "name": {
@@ -27,7 +26,8 @@
     },
     "apiMigrations": {
         "gdpr": true,
-        "context-qsh": true
+        "context-qsh": true,
+        "signed-install": true
     },
 
     "scopes": ["READ"]
