@@ -123,7 +123,7 @@ public class RedisAnalyticsService implements AnalyticsService
             public Void get() {
                 final long now = System.currentTimeMillis();
                 final long oldestWantedMetric = now - SECONDS.toMillis(analyticsExpirySeconds);
-                final long oldestWantedMetricShortLived = now - SECONDS.toMillis(analyticsExpirySeconds);
+                final long oldestWantedMetricShortLived = now - SECONDS.toMillis(analyticsExpiryShortLivedSeconds);
 
                 Jedis j = jedisPool().getResource();
                 try {
