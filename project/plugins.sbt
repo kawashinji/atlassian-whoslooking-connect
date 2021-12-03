@@ -13,5 +13,5 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.2")
 // IDEA
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.5")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.0-beta1")
 

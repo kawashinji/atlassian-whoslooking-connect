@@ -38,7 +38,7 @@ public class KeyUtils
     {
         return buildKey("viewersetv2", hostId, resourceId);
     }
-    
+
     public static String buildUserKey(final String hostId, final String accountId)
     {
         return buildKey(hostId, accountId);
@@ -49,7 +49,7 @@ public class KeyUtils
         return buildKey("cache", hostId, accountId, "displayName");
     }
 
-    private static String buildKey(final String... components)
+    public static String buildKey(final String... components)
     {
        String[] encodedComponents = new String[components.length];
        for (int i=0; i<components.length; ++i)

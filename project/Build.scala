@@ -2,6 +2,9 @@ import sbt._
 import Keys._
 import play.Project._
 
+import scala.collection.generic.SeqForwarder
+import scala.collection.{LinearSeq, SeqProxy, SeqViewLike, immutable, mutable}
+
 object ApplicationBuild extends Build {
 
   val appName         = "whoslooking-connect"
@@ -13,7 +16,11 @@ object ApplicationBuild extends Build {
     javaJdbc,
     javaEbean,
     "commons-io" % "commons-io" % "2.4",
-    "redis.clients" % "jedis" % "2.1.0",
+    // Unfortunately jedis uses commons-pool2 from 2.3 onwards, which clashes with Play 2.2.
+    // This means we can't upgrade jedis (so, for example, we can't use the scan API).
+    // The best solution would be to upgrade Play, but this doesn't seem worth it given this app
+    // will soon be migrated to Forge.
+    "redis.clients" % "jedis" % "2.2.0",
     "com.typesafe" %% "play-plugins-redis" % "2.2.1",
     "com.atlassian.connect" % "ac-play-java_2.10" % "0.10.4-robinf" withSources(),
     "org.apache.commons" % "commons-lang3" % "3.1",
@@ -40,6 +47,6 @@ object ApplicationBuild extends Build {
             val newArg = if(ta.framework == Some(TestFrameworks.JUnit)) ta.copy(args = List.empty[String]) else ta
           } yield newArg
         }
-  ).settings(net.virtualvoid.sbt.graph.Plugin.graphSettings: _*)
+  )
 
 }
