@@ -1,6 +1,7 @@
 package controllers;
 
 import java.lang.management.ManagementFactory;
+import java.util.LongSummaryStatistics;
 import java.util.Map;
 
 import com.atlassian.connect.play.java.AC;
@@ -22,28 +23,15 @@ import service.RedisAnalyticsService;
 import utils.VersionUtils;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
-import static service.AnalyticsService.ACTIVE_HOST;
-import static service.AnalyticsService.ACTIVE_USER;
-import static utils.Constants.ANALYTICS_EXPIRY_SECONDS;
-import static utils.Constants.ANALYTICS_EXPIRY_SECONDS_DEFAULT;
-import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS;
-import static utils.Constants.DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT;
-import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH;
-import static utils.Constants.ENABLE_DISPLAY_NAME_FETCH_BLACKLIST;
-import static utils.Constants.ENABLE_METRICS;
-import static utils.Constants.POLLER_INTERVAL_SECONDS;
-import static utils.Constants.POLLER_INTERVAL_SECONDS_DEFAULT;
-import static utils.Constants.VIEWER_EXPIRY_SECONDS;
-import static utils.Constants.VIEWER_EXPIRY_SECONDS_DEFAULT;
-import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS;
-import static utils.Constants.VIEWER_SET_EXPIRY_SECONDS_DEFAULT;
+import static service.AnalyticsService.*;
+import static utils.Constants.*;
 
 public class Healthcheck  extends Controller
 {
 
     private final AnalyticsService analyticsService = new RedisAnalyticsService();
     private final MetricsService metricsService = new MetricsService();
-    
+
     @play.db.jpa.Transactional
     public Result index() {
         metricsService.incCounter("page-hit.healthcheck");
@@ -55,7 +43,7 @@ public class Healthcheck  extends Controller
                             .putAll(basicHealthInfo())
                             .put("activity", activity)
                             .put("config", configInfo())
-                            .put("metrics", metricsService.getAllSamples())                            
+                            .put("metrics", metricsService.getAllSamples())
                             .put("isHealthy", true)
                             .build()
             ));
@@ -76,17 +64,50 @@ public class Healthcheck  extends Controller
     private Map<String, Long> getActivity()
     {
         final DateTime now = DateTime.now();
+        final DateTime aMinuteAgo = now.minusMinutes(1);
         final DateTime yesterday = now.minusDays(1);
         final DateTime lastWeek = now.minusDays(7);
-        
+
         analyticsService.gc();
-        
+
+        LongSummaryStatistics perTenantPageStats = analyticsService.getStats(PER_TENANT_PAGE_LOADS, aMinuteAgo, now);
+        LongSummaryStatistics perTenantPollStats = analyticsService.getStats(PER_TENANT_POLL_EVENTS, aMinuteAgo, now);
+
+        long dailyActiveUsers = analyticsService.count(ACTIVE_USER, yesterday, now);
+        long dailyActiveHosts = analyticsService.count(ACTIVE_HOST, yesterday, now);
+        long weeklyActiveUsers = analyticsService.count(ACTIVE_USER, lastWeek, now);
+        long weeklyActiveHosts = analyticsService.count(ACTIVE_HOST, lastWeek, now);
+
+        metricsService.sendToHostedGraphite("stats-dailyActiveUsers", dailyActiveUsers);
+        metricsService.sendToHostedGraphite("stats-dailyActiveHosts", dailyActiveHosts);
+        metricsService.sendToHostedGraphite("stats-weeklyActiveUsers", weeklyActiveUsers);
+        metricsService.sendToHostedGraphite("stats-weeklyActiveHosts", weeklyActiveHosts);
+
+        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-max", perTenantPageStats.getMax());
+        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-avg", Math.round(perTenantPageStats.getAverage()));
+        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-sum", perTenantPageStats.getSum());
+        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-count", perTenantPageStats.getCount());
+
+        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-max", perTenantPollStats.getMax());
+        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-avg", Math.round(perTenantPollStats.getAverage()));
+        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-sum", perTenantPollStats.getSum());
+        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-count", perTenantPollStats.getCount());
+
         return ImmutableMap.<String, Long>builder()
-            .put("dailyActiveUsers", analyticsService.count(ACTIVE_USER, yesterday, now))
-            .put("dailyActiveHosts", analyticsService.count(ACTIVE_HOST, yesterday, now))
-            .put("weeklyActiveUsers", analyticsService.count(ACTIVE_USER, lastWeek, now))
-            .put("weeklyActiveHosts", analyticsService.count(ACTIVE_HOST, lastWeek, now))            
-            .build();
+                .put("dailyActiveUsers", dailyActiveUsers)
+                .put("dailyActiveHosts", dailyActiveHosts)
+                .put("weeklyActiveUsers", weeklyActiveUsers)
+                .put("weeklyActiveHosts", weeklyActiveHosts)
+                .put("perTenant-pageViewsInLastMinute-max", perTenantPageStats.getMax())
+                .put("perTenant-pageViewsInLastMinute-avg", Math.round(perTenantPageStats.getAverage()))
+                .put("perTenant-pageViewsInLastMinute-sum", perTenantPageStats.getSum())
+                .put("perTenant-pageViewsInLastMinute-count", perTenantPageStats.getCount())
+                .put("perTenant-pollsInLastMinute-max", perTenantPollStats.getMax())
+                .put("perTenant-pollsInLastMinute-avg", Math.round(perTenantPollStats.getAverage()))
+                .put("perTenant-pollsInLastMinute-sum", perTenantPollStats.getSum())
+                .put("perTenant-pollsInLastMinute-count", perTenantPollStats.getCount())
+                .build();
+
     }
 
     private Map<String, Object> basicHealthInfo() {
@@ -100,12 +121,13 @@ public class Healthcheck  extends Controller
                 .put("systemLoad", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage())
                 .build();
     }
-    
+
     private Map<String, Object> configInfo() {
         Configuration conf = Play.application().configuration();
         return ImmutableMap.<String, Object>builder()
                 .put(POLLER_INTERVAL_SECONDS, conf.getInt(POLLER_INTERVAL_SECONDS, POLLER_INTERVAL_SECONDS_DEFAULT))
                 .put(ANALYTICS_EXPIRY_SECONDS, conf.getInt(ANALYTICS_EXPIRY_SECONDS, ANALYTICS_EXPIRY_SECONDS_DEFAULT))
+                .put(ANALYTICS_EXPIRY_SECONDS_SHORTLIVED, conf.getInt(ANALYTICS_EXPIRY_SECONDS_SHORTLIVED, ANALYTICS_EXPIRY_SECONDS_SHORTLIVED_DEFAULT))
                 .put(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, conf.getInt(DISPLAY_NAME_CACHE_EXPIRY_SECONDS, DISPLAY_NAME_CACHE_EXPIRY_SECONDS_DEFAULT))
                 .put(VIEWER_EXPIRY_SECONDS, conf.getInt(VIEWER_EXPIRY_SECONDS, VIEWER_EXPIRY_SECONDS_DEFAULT))
                 .put(VIEWER_SET_EXPIRY_SECONDS, conf.getInt(VIEWER_SET_EXPIRY_SECONDS, VIEWER_SET_EXPIRY_SECONDS_DEFAULT))

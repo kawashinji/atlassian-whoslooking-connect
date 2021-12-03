@@ -20,6 +20,9 @@ import play.mvc.Result;
 import service.*;
 
 import static java.lang.String.format;
+import static play.api.libs.Codecs.sha1;
+import static service.AnalyticsService.PER_TENANT_PAGE_LOADS;
+import static service.AnalyticsService.PER_TENANT_POLL_EVENTS;
 
 public class Viewers extends Controller
 {
@@ -29,6 +32,7 @@ public class Viewers extends Controller
     private final ViewerDetailsService viewerDetailsService = new ViewerDetailsService(heartbeatService);
     private final ViewerValidationService viewerValidationService = new RedisViewerValidationService();
     private final MetricsService metricsService = new MetricsService();
+    private final AnalyticsService analyticsService = new RedisAnalyticsService();
 
     @CheckValidToken(allowInsecurePolling = true)
     public Result put(final String hostId, final String resourceId, final String userMarker)
@@ -41,6 +45,8 @@ public class Viewers extends Controller
             @Override
             public Result apply(String userId)
             {
+                analyticsService.fireShortLived(PER_TENANT_POLL_EVENTS+"#"+sha1(hostId),
+                        sha1(resourceId)+":"+sha1(userId)+"@"+System.currentTimeMillis());
                 heartbeatService.put(hostId, resourceId, userId);
 
                 Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);

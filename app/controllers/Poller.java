@@ -14,10 +14,10 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import service.*;
+import utils.KeyUtils;
 
 import static play.api.libs.Codecs.sha1;
-import static service.AnalyticsService.ACTIVE_HOST;
-import static service.AnalyticsService.ACTIVE_USER;
+import static service.AnalyticsService.*;
 
 public class Poller extends Controller
 {
@@ -43,16 +43,18 @@ public class Poller extends Controller
                 {
                     return unauthorized(views.html.anonymous.render(hostId, resourceId, accountId));
                 }
-                
+
                 heartbeatService.put(hostId, resourceId, accountId);
                 analyticsService.fire(ACTIVE_HOST, sha1(hostId));
                 analyticsService.fire(ACTIVE_USER, sha1(hostId)+":"+accountId);
+                analyticsService.fireShortLived(PER_TENANT_PAGE_LOADS+"#"+sha1(hostId),
+                        sha1(resourceId)+":"+sha1(accountId)+"@"+System.currentTimeMillis());
 
                 String token = viewerValidationService.setToken(hostId, resourceId, accountId);
-                
+
                 final Map<String, JsonNode> viewersWithDetails = viewerDetailsService.getViewersWithDetails(resourceId, hostId);
                 return ok(views.html.poller.render(Json.toJson(viewersWithDetails).toString(), hostId, resourceId, accountId, token));
-            }   
+            }
         });
     }
 }
