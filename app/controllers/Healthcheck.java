@@ -8,6 +8,7 @@ import com.atlassian.connect.play.java.AC;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 
 import play.Configuration;
@@ -70,42 +71,59 @@ public class Healthcheck  extends Controller
 
         analyticsService.gc();
 
-        LongSummaryStatistics perTenantPageStats = analyticsService.getStats(PER_TENANT_PAGE_LOADS, aMinuteAgo, now);
-        LongSummaryStatistics perTenantPollStats = analyticsService.getStats(PER_TENANT_POLL_EVENTS, aMinuteAgo, now);
-
         long dailyActiveUsers = analyticsService.count(ACTIVE_USER, yesterday, now);
         long dailyActiveHosts = analyticsService.count(ACTIVE_HOST, yesterday, now);
         long weeklyActiveUsers = analyticsService.count(ACTIVE_USER, lastWeek, now);
         long weeklyActiveHosts = analyticsService.count(ACTIVE_HOST, lastWeek, now);
 
-        metricsService.sendToHostedGraphite("stats-dailyActiveUsers", dailyActiveUsers);
-        metricsService.sendToHostedGraphite("stats-dailyActiveHosts", dailyActiveHosts);
-        metricsService.sendToHostedGraphite("stats-weeklyActiveUsers", weeklyActiveUsers);
-        metricsService.sendToHostedGraphite("stats-weeklyActiveHosts", weeklyActiveHosts);
+        Pair<LongSummaryStatistics, Map<Integer, Integer>> perTenantPageStats = analyticsService.getStats(PER_TENANT_PAGE_LOADS, aMinuteAgo, now);
+        Pair<LongSummaryStatistics, Map<Integer, Integer>>  perTenantPollStats = analyticsService.getStats(PER_TENANT_POLL_EVENTS, aMinuteAgo, now);
 
-        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-max", perTenantPageStats.getMax());
-        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-avg", Math.round(perTenantPageStats.getAverage()));
-        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-sum", perTenantPageStats.getSum());
-        metricsService.sendToHostedGraphite("stats-perTenant-pageViewsInLastMinute-count", perTenantPageStats.getCount());
+        Map<Integer, Integer> perTenantPageHistogram = perTenantPageStats.getRight();
+        Map<Integer, Integer> perTenantPollHistogram = perTenantPollStats.getRight();
+        LongSummaryStatistics perTenantPageSummary = perTenantPageStats.getLeft();
+        LongSummaryStatistics perTenantPollSummary = perTenantPollStats.getLeft();
 
-        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-max", perTenantPollStats.getMax());
-        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-avg", Math.round(perTenantPollStats.getAverage()));
-        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-sum", perTenantPollStats.getSum());
-        metricsService.sendToHostedGraphite("stats-perTenant-pollsInLastMinute-count", perTenantPollStats.getCount());
+        metricsService.sendToHostedGraphite(Pair.of("stats-dailyActiveUsers", dailyActiveUsers),
+            Pair.of("stats-dailyActiveHosts", dailyActiveHosts),
+            Pair.of("stats-weeklyActiveUsers", weeklyActiveUsers),
+            Pair.of("stats-weeklyActiveHosts", weeklyActiveHosts),
+            Pair.of("stats-perTenant-pageViewsInLastMinute-max", perTenantPageSummary.getMax()),
+            Pair.of("stats-perTenant-pageViewsInLastMinute-avg", Math.round(perTenantPageSummary.getAverage())),
+            Pair.of("stats-perTenant-pageViewsInLastMinute-sum", perTenantPageSummary.getSum()),
+            Pair.of("stats-perTenant-pageViewsInLastMinute-count", perTenantPageSummary.getCount()),
+            Pair.of("stats-perTenant-pollsInLastMinute-max", perTenantPollSummary.getMax()),
+            Pair.of("stats-perTenant-pollsInLastMinute-avg", Math.round(perTenantPollSummary.getAverage())),
+            Pair.of("stats-perTenant-pollsInLastMinute-sum", perTenantPollSummary.getSum()),
+            Pair.of("stats-perTenant-pollsInLastMinute-count", perTenantPollSummary.getCount()));
+
+        Logger.trace("Page view histogram: {}, Poll histogram: {}",perTenantPageHistogram, perTenantPollHistogram);
+
+        Pair[] stats1 = perTenantPageHistogram.entrySet().stream()
+                .map((entry) -> Pair.of("stats-perTenant-pageHistogram-upTo" + entry.getKey(), entry.getValue()))
+                .toArray(Pair[]::new);
+        metricsService.sendToHostedGraphite(stats1);
+
+        Pair[] stats2 = perTenantPollHistogram.entrySet().stream()
+                .map((entry) -> Pair.of("stats-perTenant-pollHistogram-upTo" + entry.getKey(), entry.getValue()))
+                .toArray(Pair[]::new);
+        metricsService.sendToHostedGraphite(stats2);
+
+        Logger.trace("Page view histogram: {}, Poll histogram: {}",stats1, stats2);
 
         return ImmutableMap.<String, Long>builder()
                 .put("dailyActiveUsers", dailyActiveUsers)
                 .put("dailyActiveHosts", dailyActiveHosts)
                 .put("weeklyActiveUsers", weeklyActiveUsers)
                 .put("weeklyActiveHosts", weeklyActiveHosts)
-                .put("perTenant-pageViewsInLastMinute-max", perTenantPageStats.getMax())
-                .put("perTenant-pageViewsInLastMinute-avg", Math.round(perTenantPageStats.getAverage()))
-                .put("perTenant-pageViewsInLastMinute-sum", perTenantPageStats.getSum())
-                .put("perTenant-pageViewsInLastMinute-count", perTenantPageStats.getCount())
-                .put("perTenant-pollsInLastMinute-max", perTenantPollStats.getMax())
-                .put("perTenant-pollsInLastMinute-avg", Math.round(perTenantPollStats.getAverage()))
-                .put("perTenant-pollsInLastMinute-sum", perTenantPollStats.getSum())
-                .put("perTenant-pollsInLastMinute-count", perTenantPollStats.getCount())
+                .put("perTenant-pageViewsInLastMinute-max", perTenantPageSummary.getMax())
+                .put("perTenant-pageViewsInLastMinute-avg", Math.round(perTenantPageSummary.getAverage()))
+                .put("perTenant-pageViewsInLastMinute-sum", perTenantPageSummary.getSum())
+                .put("perTenant-pageViewsInLastMinute-count", perTenantPageSummary.getCount())
+                .put("perTenant-pollsInLastMinute-max", perTenantPollSummary.getMax())
+                .put("perTenant-pollsInLastMinute-avg", Math.round(perTenantPollSummary.getAverage()))
+                .put("perTenant-pollsInLastMinute-sum", perTenantPollSummary.getSum())
+                .put("perTenant-pollsInLastMinute-count", perTenantPollSummary.getCount())
                 .build();
 
     }

@@ -1,8 +1,10 @@
 package service;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 
 import java.util.LongSummaryStatistics;
+import java.util.Map;
 
 public interface AnalyticsService
 {
@@ -20,5 +22,5 @@ public interface AnalyticsService
 
     long count(String eventName, DateTime start, DateTime end);
 
-    LongSummaryStatistics getStats(String category, DateTime start, DateTime end);
+    Pair<LongSummaryStatistics, Map<Integer, Integer>> getStats(String category, DateTime start, DateTime end);
 }
