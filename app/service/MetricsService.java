@@ -3,6 +3,8 @@ package service;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -14,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.javasimon.Sample;
 import org.javasimon.SimonManager;
 import org.javasimon.Split;
@@ -26,10 +29,9 @@ import static utils.Constants.ENABLE_METRICS;
 
 public class MetricsService
 {
-
     public Option<Split> start(String key)
     {
-        
+
         return isEnabled() ? Option.some(SimonManager.getStopwatch(key).start()) : Option.<Split> none();
     }
 
@@ -83,21 +85,35 @@ public class MetricsService
         }
         return samples.build();
     }
-    
+
     public void sendToHostedGraphite(String key, long value) {
-        String apikey = System.getenv("HOSTEDGRAPHITE_APIKEY");
-        if (StringUtils.isNotEmpty(apikey)) {
-            try (DatagramSocket sock   = new DatagramSocket()) {
-                InetAddress addr      = InetAddress.getByName("carbon.hostedgraphite.com");
-                byte[] message        = (apikey + "." + key + " " + value + "\n").getBytes();
-                DatagramPacket packet = new DatagramPacket(message, message.length, addr, 2003);
+        sendToHostedGraphite(Pair.of(key, value));
+    }
+
+    @SafeVarargs
+    public final void sendToHostedGraphite(final Pair<String, Long>... datapoint)
+    {
+        final String apikey = System.getenv("HOSTEDGRAPHITE_APIKEY");
+        String message = Arrays.stream(datapoint)
+                .reduce("",
+                        (acc, dp) -> acc + apikey + "." + dp.getLeft() + " " + dp.getRight() + "\n",
+                        String::concat);
+
+        try (DatagramSocket sock = new DatagramSocket())
+        {
+            InetAddress addr = InetAddress.getByName("carbon.hostedgraphite.com");
+            byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+            DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, addr, 2003);
+            Logger.trace("Sending hosted graphite metrics: {}", new String(packet.getData(), StandardCharsets.UTF_8));
+            if (StringUtils.isNotEmpty(apikey)) {
                 sock.send(packet);
             }
-            catch (Exception e)
-            {
-                Logger.error("Failed to send metric.", e);
-            }
-
+        }
+        catch (Exception e)
+        {
+            Logger.error("Failed to send metric.", e);
         }
     }
+
+
 }

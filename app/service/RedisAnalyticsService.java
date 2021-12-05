@@ -2,8 +2,11 @@ package service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import com.google.common.base.Supplier;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
 import play.Logger;
@@ -15,6 +18,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.*;
 import static utils.Constants.*;
 import static utils.RedisUtils.jedisPool;
 
@@ -142,22 +146,48 @@ public class RedisAnalyticsService implements AnalyticsService
     }
 
     @Override
-    public LongSummaryStatistics getStats(final String category, DateTime start, DateTime end) {
+    public Pair<LongSummaryStatistics, Map<Integer, Integer>> getStats(final String category, DateTime start, DateTime end) {
         Jedis j = jedisPool().getResource();
         try
         {
-            return getPerTenantKeys(category).stream()
+            List<Long> longs = getPerTenantKeys(category).stream()
                     .mapToLong(s -> {
                         long count = j.zcount(s, start.getMillis(), end.getMillis());
                         Logger.trace("Got {} elements for {} in {}", count, s, category);
                         return count;
-                    })
-                    .summaryStatistics();
+                    }).boxed().collect(toList());
+
+            return Pair.of(longs.stream().mapToLong(l -> l).summaryStatistics(), toBuckets(longs));
+
         }
         finally
         {
             jedisPool().returnResource(j);
         }
+
+    }
+
+    @NotNull
+    private Map<Integer, Integer> toBuckets(@NotNull List<Long> longs) {
+        final int bucketSizes[] = {1,5,10,50,100,250,400,800,1500,Integer.MAX_VALUE};
+
+        Map<Integer, Integer> buckets = new HashMap<>(10);
+
+        longs.forEach(l -> {
+            for (int b : bucketSizes) {
+                if (l <= b) {
+                    final int count = buckets.getOrDefault(b, 0);
+                    buckets.put(b, count+1);
+                    return;
+                }
+            }
+        });
+
+        // Ensure we sent 0 value if there are no hits for this bucket size
+        Arrays.stream(bucketSizes).forEach(b -> buckets.putIfAbsent(b, 0));
+
+        return buckets;
+
     }
 
 
@@ -171,7 +201,7 @@ public class RedisAnalyticsService implements AnalyticsService
         {
             Set<String> allKeys = j.zrange(ANALYTICS_METRICS_SHORTLIVED_KEYS, 0, -1).stream()
                     .filter(k -> k.startsWith(prefix))
-                    .collect(Collectors.toSet());
+                    .collect(toSet());
             Logger.trace("Scan found these keys: {}", allKeys);
             return  allKeys;
         }
